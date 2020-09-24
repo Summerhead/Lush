@@ -1,0 +1,25 @@
+#songs {
+    margin: 0px 0 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* background-color: rgb(255, 168, 168); */
+}
+
+.song:first-child {
+    margin-top: 50px;
+}
+
+.song {
+    margin-top: 20px;
+    width: 70%;
+}
+
+.audio-header {
+    display: flex;
+}
+
+.artists::after {
+    content: " —\00a0";
+}

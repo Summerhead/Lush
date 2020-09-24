@@ -1,0 +1,19 @@
+<link rel="stylesheet" type="text/css" href="/public/css/partials/header.css" />
+<div id="first-bar">
+    <div id="logo">Lush</div>
+    <div id="bulwark"></div>
+</div>
+<div id="second-bar">
+    <ul id="nav-bar">
+        <li id="artists-tab"><a href="/artists">Artists</a></li>
+        <li id="genres-tab"><a href="/genres">Genres</a></li>
+        <li id="playlists-tab"><a href="/playlists">Playlists</a></li>
+    </ul>
+</div>
+
+<script>
+    var loadDropdowns = "/public/js/partials/loadDropdowns.js",
+        jqueryJS = "https://code.jquery.com/jquery-3.5.0.min.js";
+    $.getScript(loadDropdowns);
+    $.getScript(jqueryJS);
+</script>

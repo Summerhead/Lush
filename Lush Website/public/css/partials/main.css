@@ -1,0 +1,21 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Quicksand", serif;
+}
+
+body {
+    /* background-image: url("../content/Lush2.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; */
+    /* background-color: rgb(255, 221, 221); */
+}
+
+main {
+    width: 100%;
+    max-width: 1920px;
+    margin: 0 auto;
+}
