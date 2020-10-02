@@ -2,7 +2,7 @@
     position: relative;
     width: 100%;
     max-width: 1920px;
-    height: 150px;
+    height: 110px;
     margin: 0 auto;
 }
 
@@ -10,11 +10,10 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    /* transform: translate(-50%, -50%); */
     transform: translate(-2.75em, -50%);
-    color: #ffffff;
+    color: #fff;
     font-style: italic;
-    font-size: 4.5em;
+    font-size: 4em;
     display: block;
     letter-spacing: 1em;
     text-shadow: -2px -2px 0 rgb(255, 123, 123);
@@ -24,20 +23,19 @@
     position: absolute;
     left: 50%;
     transform: translate(-50%, 0%);
-    width: 90%;
+    width: 960px;
     height: 90%;
     border-bottom: 1px solid rgb(197, 197, 197);
 }
 
 #second-bar {
     position: relative;
-    height: 60px;
+    height: 40px;
     color: rgb(255, 255, 255);
-    /* margin-top: 10px; */
-    background-color: rgb(255, 168, 168);
-    /* text-shadow: -1px 0px 0 rgb(153, 153, 153); */
-    font-size: 1.15em;
+    background-color: rgb(253, 105, 105);
+    font-size: 1em;
     letter-spacing: 0.1em;
+    display: flex;
 }
 
 #nav-bar {
@@ -49,11 +47,10 @@
     list-style: none;
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
 #nav-bar > li {
-    position: relative;
+    height: 100%;
 }
 
 #nav-bar > li > a {
@@ -74,4 +71,8 @@
 
 #nav-bar > li:hover .dropdown {
     display: block;
+}
+
+#artists-tab > .dropdown {
+    white-space: nowrap;
 }

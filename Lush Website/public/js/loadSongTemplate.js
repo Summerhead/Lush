@@ -1,5 +1,5 @@
 var xmlhttp = new XMLHttpRequest();
-var template, songDiv;
+var template, script, songDiv;
 
 export default function loadSongTemplate() {
     return new Promise((resolve, reject) => {
@@ -9,10 +9,10 @@ export default function loadSongTemplate() {
                     this.responseText,
                     "text/html"
                 );
-                songDiv = template.getElementsByClassName("song")[0];
+                script = template.getElementsByTagName("script")[0];
+                songDiv = template.getElementsByClassName("audio-container")[0];
 
                 resolve(songDiv);
-                console.log(songDiv);
             }
         };
 
@@ -21,4 +21,4 @@ export default function loadSongTemplate() {
     });
 }
 
-export { songDiv };
+export { songDiv, script };

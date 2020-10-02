@@ -1,10 +1,10 @@
-#songs {
+/* #songs {
     margin: 0px 0 100px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    /* background-color: rgb(255, 168, 168); */
+    /* background-color: rgb(255, 168, 168);
 }
 
 .song:first-child {
@@ -22,4 +22,4 @@
 
 .artists::after {
     content: " —\00a0";
-}
+} */
