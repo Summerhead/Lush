@@ -1,78 +1,97 @@
 #first-bar {
-    position: relative;
-    width: 100%;
-    max-width: 1920px;
-    height: 110px;
-    margin: 0 auto;
+  position: relative;
+  width: 100%;
+  max-width: 1920px;
+  height: 110px;
+  margin: 0 auto;
 }
 
 #logo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-2.75em, -50%);
-    color: #fff;
-    font-style: italic;
-    font-size: 4em;
-    display: block;
-    letter-spacing: 1em;
-    text-shadow: -2px -2px 0 rgb(255, 123, 123);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-2.6em, -50%);
+  color: #fff;
+  font-style: italic;
+  font-size: 4em;
+  display: block;
+  letter-spacing: 1em;
+  text-shadow: -2px -2px 0 rgb(255, 123, 123);
 }
 
 #bulwark {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0%);
-    width: 960px;
-    height: 90%;
-    border-bottom: 1px solid rgb(197, 197, 197);
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  width: 960px;
+  height: 90%;
+  border-bottom: 1px solid rgb(197, 197, 197);
 }
 
 #second-bar {
-    position: relative;
-    height: 40px;
-    color: rgb(255, 255, 255);
-    background-color: rgb(253, 105, 105);
-    font-size: 1em;
-    letter-spacing: 0.1em;
-    display: flex;
+  position: relative;
+  height: 40px;
+  color: rgb(255, 255, 255);
+  background-color: rgb(253, 105, 105);
+  font-size: 1em;
+  letter-spacing: 0.1em;
+  display: flex;
 }
 
 #nav-bar {
-    height: 100%;
-    width: 800px;
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0%);
-    list-style: none;
-    display: flex;
-    justify-content: space-between;
+  position: absolute;
+  max-width: 1920px;
+  width: 100%;
+  height: 100%;
+  left: 50%;
+  transform: translate(-50%, 0%);
+  padding: 0 100px;
+  list-style: none;
+  display: flex;
+  justify-content: center;
 }
 
 #nav-bar > li {
-    height: 100%;
+  display: inline-block;
+  height: 100%;
+  margin-right: 50px;
+}
+
+#nav-bar > li:last-child {
+  height: 100%;
+  margin-right: 0;
 }
 
 #nav-bar > li > a {
-    display: block;
-    position: relative;
-    padding: 8px 15px;
-    text-decoration: none;
-    color: white;
-    cursor: pointer;
+  display: block;
+  height: 100%;
+  position: relative;
+  padding: 8px 15px;
+  text-decoration: none;
+  color: white;
+  cursor: pointer;
 }
 
 .dropdown {
-    display: none;
-    position: absolute;
-    color: black;
-    cursor: default;
+  display: none;
+  position: absolute;
+  width: 40%;
+  max-width: 1920px;
+  max-height: 500px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  padding: 10px 20px;
+  color: rgb(0, 0, 0);
+  cursor: default;
+  background-color: rgb(253, 221, 213);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.dropdown > p {
+  padding: 10px 5px;
 }
 
 #nav-bar > li:hover .dropdown {
-    display: block;
-}
-
-#artists-tab > .dropdown {
-    white-space: nowrap;
+  display: block;
 }

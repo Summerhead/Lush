@@ -1,74 +1,75 @@
-#songs {
-    margin: 0px 0 100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
 .audio-header {
-    display: flex;
-    color: black;
+  display: flex;
+  color: black;
 }
 
 .artists::after {
-    content: " —\00a0";
+  content: " —\00a0";
 }
 
 .audio-container:first-child {
-    margin-top: 50px;
+  margin-top: 50px;
 }
 
 .audio-container:last-child {
-    margin-bottom: 0;
-    border: none;
+  margin-bottom: 0;
+  border: none;
 }
 
 .audio-container {
-    padding: 10px 0;
-    width: 80%;
-    color: #fff;
-    border-bottom: 1px solid rgb(253, 207, 207);
+  padding: 10px 0;
+  width: 100%;
+  color: #fff;
+  border-bottom: 1px solid rgb(253, 207, 207);
 }
 
 .audio-header {
-    margin-bottom: 4px;
+  margin-bottom: 4px;
 }
 
 .audio-player {
-    width: 100%;
-    margin: 0;
+  width: 100%;
+  margin: 0;
 }
 
 .audio-hud {
-    display: grid;
-    grid-template-columns: auto auto 1fr auto;
-    margin: 0;
-    padding: 1px;
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  margin: 0;
+  padding: 1px;
 }
 
 .audio-hud__element {
-    color: black;
-    cursor: pointer;
-    display: inline-block;
-    height: 28px;
+  color: black;
+  cursor: pointer;
+  display: inline-block;
+  height: 28px;
 }
 
 .audio-hud__curr-time > span,
 .audio-hud__duration > span {
-    display: inline-block;
-    vertical-align: middle;
-    transform: translateY(15%);
+  display: inline-block;
+  vertical-align: middle;
+  transform: translateY(15%);
 }
 
 .audio-hud__action {
-    color: rgb(255, 151, 151);
-    margin-right: 12px;
+  color: rgb(255, 151, 151);
+  margin-right: 12px;
 }
 
 .audio-hud__action > span {
-    font-size: 3em;
-    display: inline-block;
-    transform: translateY(-35%);
+  font-size: 3em;
+  display: inline-block;
+  transform: translateY(-35%);
+}
+
+.audio-hud__progress-bar {
+  grid-column: 3;
+  width: auto;
+  height: 15px;
+  margin: 0 12px;
+  transform: translateY(50%);
 }
 
 /* .audio-hud__mute {
@@ -89,12 +90,3 @@
     width: 30px;
     border-radius: 0 0 100px 100px;
 } */
-
-.audio-hud__progress-bar {
-    grid-column: 3;
-    width: auto;
-    height: 15px;
-    margin: 0 12px;
-    transform: translateY(50%);
-    z-index: -99;
-}

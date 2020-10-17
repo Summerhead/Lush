@@ -1,127 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <script type="text/javascript" src="http://livejs.com/live.js"></script>
-        <link
-            href="https://fonts.googleapis.com/css?family=Josefin+Sans|Quicksand&display=swap"
-            rel="stylesheet"
-        />
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="/public/css/partials/main.css"
-        />
-        <link rel="stylesheet" type="text/css" href="/public/css/index.css" />
-        <link
-            rel="stylesheet"
-            type="text/css"
-            href="/public/css/partials/audio.css"
-        />
-        <title>Lush</title>
-    </head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script type="text/javascript" src="http://livejs.com/live.js"></script>
+    <link
+      id="favicon"
+      rel="shortcut icon"
+      type="image/png"
+      href="/public/content/icons/favicon/galaxy-spiral-shape.png"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Josefin+Sans|Quicksand&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/public/css/partials/main.css"
+    />
+    <link rel="stylesheet" type="text/css" href="/public/css/index.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/public/css/partials/audio.css"
+    />
+    <title>Lush</title>
+  </head>
 
-    <body>
-        <header></header>
+  <body>
+    <header></header>
 
-        <main>
-            <div id="songs">
-                <!-- <div class="audio-container">
-                    <div class="audio-header">
-                        <div class="artists">AZEALIA BANKS & LAZY JAY</div>
-                        <div class="title">212</div>
-                    </div>
-                    <audio
-                        src="public/content/AZEALIA BANKS - 212 FT. LAZY JAY.mp3"
-                        class="audio-player"
-                        id="audio-player"
-                        preload="metadata"
-                    ></audio>
-
-                    <div class="audio-hud">
-                        <div
-                            class="audio-hud__element audio-hud__action audio-hud__action_play"
-                            id="audio-hud__action"
-                        >
-                            <span>></span>
-                        </div>
-
-                        <div
-                            class="audio-hud__element audio-hud__curr-time"
-                            id="audio-hud__curr-time"
-                        >
-                            <span>00:00</span>
-                        </div>
-
-                        <progress
-                            value="0"
-                            max="100"
-                            class="audio-hud__element audio-hud__progress-bar"
-                            id="audio-hud__progress-bar"
-                        ></progress>
-
-                        <div
-                            class="audio-hud__element audio-hud__duration"
-                            id="audio-hud__duration"
-                        >
-                            <span>00:00</span>
-                        </div>
-                    </div>
-                </div> -->
-            </div>
-        </main>
-    </body>
-    <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
-    <script src="/public/js/loadPartials.js"></script>
-    <script type="module" src="/public/js/loadSongs.js"></script>
-    <!-- <script>
-        var audioPlayer = document.getElementById("audio-player");
-
-        //Время
-
-        var progressBar = document.getElementById("audio-hud__progress-bar");
-
-        var currTime = document.getElementById("audio-hud__curr-time");
-
-        var durationTime = document.getElementById("audio-hud__duration");
-
-        //Кнопки
-
-        var actionButton = document.getElementById("audio-hud__action");
-
-        var muteButton = document.getElementById("audio-hud__mute");
-
-        var volumeScale = document.getElementById("audio-hud__volume");
-
-        var speedSelect = document.getElementById("audio-hud__speed");
-
-        function audioAct() {
-            //Запускаем или ставим на паузу
-
-            if (audioPlayer.paused) {
-                audioPlayer.play();
-
-                actionButton.setAttribute(
-                    "class",
-                    "audio-hud__element audio-hud__action audio-hud__action_play"
-                );
-            } else {
-                audioPlayer.pause();
-
-                actionButton.setAttribute(
-                    "class",
-                    "audio-hud__element audio-hud__action audio-hud__action_pause"
-                );
-            }
-
-            if (durationTime.innerHTML == "00:00") {
-                durationTime.innerHTML = audioTime(audioPlayer.duration); //Об этой функции чуть ниже
-            }
-        }
-
-        actionButton.addEventListener("click", audioAct);
-
-        audioPlayer.addEventListener("click", audioAct);
-    </script> -->
+    <main>
+      <div id="audio-search-bar-container">
+        <div id="audio-search-bar" class="search-bar">
+          <button id="import-pfx-button" class="upload-audio">+</button>
+          <input
+            type="file"
+            accept=".mp3,audio/*"
+            id="file-input"
+            style="display: none"
+            multiple
+          />
+          <output id="list"></output>
+        </div>
+      </div>
+      <div id="songs"></div>
+    </main>
+  </body>
+  <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
+  <script src="/public/js/loadPartials.js"></script>
+  <script type="module" src="/public/js/loadSongs.js"></script>
+  <script src="/public/js/uploadAudio.js"></script>
 </html>

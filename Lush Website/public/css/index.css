@@ -1,25 +1,26 @@
-/* #songs {
-    margin: 0px 0 100px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    /* background-color: rgb(255, 168, 168);
+#audio-search-bar-container {
+  height: 50px;
+  padding: 0 100px;
 }
 
-.song:first-child {
-    margin-top: 50px;
+#audio-search-bar {
+  height: 100%;
+  position: relative;
+  background-color: rgba(250, 189, 189, 0.514);
 }
 
-.song {
-    margin-top: 20px;
-    width: 70%;
+#import-pfx-button {
+  position: absolute;
+  width: 40px;
+  height: 20px;
+  right: 20px;
+  top: 15px;
 }
 
-.audio-header {
-    display: flex;
+#songs {
+  margin: 0px 0 100px;
+  padding: 0 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
-
-.artists::after {
-    content: " —\00a0";
-} */
