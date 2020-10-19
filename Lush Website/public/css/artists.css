@@ -1,0 +1,67 @@
+#audio-search-bar-container {
+  height: 50px;
+  padding: 0 100px;
+}
+
+#audio-search-bar {
+  height: 100%;
+  position: relative;
+  /* background-color: rgba(250, 189, 189, 0.514); */
+}
+
+#import-pfx-button {
+  position: absolute;
+  width: 45px;
+  height: 30px;
+  right: 0px;
+  top: 15px;
+}
+
+#artists {
+  margin: 0px 0 100px;
+  padding: 0 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.artist-container:first-child {
+  margin-top: 50px;
+}
+
+.artist-container {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 20px;
+  list-style: none;
+  text-decoration: none;
+  border: 1px solid rgba(0, 0, 0, 0.37);
+  /* border-radius: 10px; */
+}
+
+.audio-container:last-child {
+  margin-bottom: 0;
+  border: none;
+}
+
+.artist-container > div {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  width: 100%;
+  height: 300px;
+  color: black;
+}
+
+.artist-name {
+  display: flex;
+  flex-direction: row-reverse;
+  margin-top: 50px;
+  margin-right: 100px;
+}
+
+.image {
+  height: 100%;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}

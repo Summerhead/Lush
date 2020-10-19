@@ -1,7 +1,7 @@
-import parseAudios from "./parseAudio.js";
+import getAudios from "./getAudios.js";
 import loadSongTemplate from "./loadSongTemplate.js";
 
 (async () => {
-    await Promise.resolve(loadSongTemplate());
-    parseAudios();
+  await Promise.resolve(loadSongTemplate());
+  getAudios();
 })();

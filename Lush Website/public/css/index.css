@@ -6,14 +6,14 @@
 #audio-search-bar {
   height: 100%;
   position: relative;
-  background-color: rgba(250, 189, 189, 0.514);
+  /* background-color: rgba(250, 189, 189, 0.514); */
 }
 
 #import-pfx-button {
   position: absolute;
-  width: 40px;
-  height: 20px;
-  right: 20px;
+  width: 45px;
+  height: 30px;
+  right: 0px;
   top: 15px;
 }
 

@@ -7,7 +7,6 @@ const fileUpload = require("express-fileupload");
 const express = require("express");
 const app = express();
 const server = require("http").createServer(app);
-const io = require("socket.io")(server);
 
 const connection = mysql2.createConnection({
   host: "localhost",
@@ -16,15 +15,6 @@ const connection = mysql2.createConnection({
   password: "beautyofbalance",
   database: "lush",
 });
-
-// connection.execute(
-//   "SET GLOBAL general_log = 'OFF';",
-//   (error, results, fields) => {
-//     console.log("Error:", error);
-//     console.log("Results:", results);
-//     console.log("Fields:", fields);
-//   }
-// );
 
 server.listen(5501);
 
@@ -118,8 +108,6 @@ app.get("/", function (req, res) {
 });
 
 app.post("/audioData", async function (req, res, next) {
-  // console.log("Body:", req.body);
-
   const limit = req.body.limit,
     offset = req.body.offset,
     audioData = await fetchAudioData(limit, offset);
@@ -128,8 +116,6 @@ app.post("/audioData", async function (req, res, next) {
 });
 
 app.post("/audioBlob", async function (req, res, next) {
-  // console.log("Body:", req.body);
-
   const blobID = req.body.blobID,
     audioData = await fetchAudioBlob(blobID);
 
@@ -147,7 +133,7 @@ async function fetchAudioData(limit, offset) {
     };
 
   for (const audio of audios) {
-    const result = await getArtists(audio.id),
+    const result = await getArtistsByAudioID(audio.id),
       artists = result.data;
 
     audio.artists = [];
@@ -182,7 +168,6 @@ async function getNumOfRows() {
 }
 
 async function getAudioMetadata(limit, offset) {
-  console.log("limit, offset:", limit, offset);
   const query = `
     SELECT id, blob_id, title
     FROM audio
@@ -209,7 +194,7 @@ async function getAudio(audioID) {
   return await resolveQuery(query);
 }
 
-async function getArtists(audioID) {
+async function getArtistsByAudioID(audioID) {
   const query = `
     SELECT name 
     FROM artist
@@ -223,10 +208,10 @@ async function getArtists(audioID) {
   return await resolveQuery(query);
 }
 
-app.post("/upload", async function (req, res, next) {
+app.post("/uploadAudio", async function (req, res, next) {
   try {
     if (!req.files) {
-      res.send({
+      res.status(200).send({
         status: 200,
         message: "No file uploaded.",
       });
@@ -278,7 +263,7 @@ app.post("/upload", async function (req, res, next) {
   } catch (error) {
     console.log("Error:", error);
 
-    res.send({
+    res.status(500).send({
       status: error,
       message: "Uploading process has failed.",
       name: audio.name,
@@ -291,237 +276,6 @@ function parseArtists(artists, separator) {
   return artists;
 }
 
-// app.post("/upload", async function (req, res, next) {
-//   try {
-//     // await truncateDatabase();
-//     req.body.info = JSON.parse(req.body.info);
-//     console.log("Body:", req.body.info);
-//     console.log("Audio:", req.files);
-
-//     if (!req.files) {
-//       res.send({
-//         status: false,
-//         message: "No file uploaded",
-//       });
-
-//       return next();
-//     } else {
-//       const audio = req.files.audio,
-//         name = req.body.info.input,
-//         processed = req.body.info.processed;
-
-//       const filename = trimExtension(name),
-//         audioFilenameResult = await getFilename(filename);
-//       audioFilenameResult.data = { ...audioFilenameResult.data[0] };
-//       var title = filename;
-
-//       // console.log("filename: ", filename);
-//       // console.log("audioFilenameResult: ", audioFilenameResult);
-
-//       if (
-//         audioFilenameResult.error === undefined &&
-//         Object.keys(audioFilenameResult.data).length
-//       ) {
-//         const data = audioFilenameResult.data;
-//         var audioTitle = data.renamed_title,
-//           artistsInFilenameID = data.artist_in_filename_id;
-//         // console.log("Result: ", audioTitle, artistInFilenameID);
-
-//         // const insertAudioResult = await insertAudio(audio.data, audioTitle);
-//         const insertAudioResult = await insertAudioData(audioTitle),
-//           insertedAudioID = insertAudioResult.data.insertId,
-//           artistRoleID = insertAudioResult.data.artist_role_id,
-//           artistPosition = insertAudioResult.data.artist_position;
-//         await insertAudioBLob(insertedAudioID, data);
-//         console.log("insertAudioResult:", insertAudioResult);
-
-//         const artistsInFilenameArtistResult = await getArtistsInFilenameArtist(
-//           artistsInFilenameID
-//         );
-//         // console.log("insertedAudioID:", insertedAudioID);
-//         // console.log("artistsInFilenamesResult:", artistsInFilenamesResult);
-
-//         // const artistIDs = [];
-//         // artistsInFilenamesResult.data.forEach((row) => {
-//         //   artistIDs.push(row.artist_in_filename_artist__artist__id);
-//         // });
-//         // console.log("artistIDs:", artistIDs);
-
-//         artistsInFilenameArtistResult.data.forEach(async (artistID) => {
-//           await insertAudioArtist(
-//             insertedAudioID,
-//             artistID,
-//             artistRoleID,
-//             artistPosition
-//           );
-//         });
-//       } else {
-//         const separator = " - ";
-//         const separatorFirstOccur = filename.indexOf(separator);
-//         var artists;
-
-//         if (separatorFirstOccur != -1) {
-//           artists = filename.substr(0, separatorFirstOccur);
-//           title = filename.substr(separatorFirstOccur + separator.length);
-//         } else {
-//           artists = null;
-//           title = filename;
-//         }
-
-//         if (artists == "Unknown Artist") {
-//           artists = filename;
-//         }
-
-//         const artistsInFilenameResult = await getArtistsInFilename(artists);
-//         artistsInFilenameResult.data = {
-//           ...artistsInFilenameResult.data[0],
-//         };
-//         artistsInFilenameID = artistsInFilenameResult.data.id;
-//         console.log("artistInFilenameResult:", artistsInFilenameResult);
-//         // console.log(
-//         //   "artistInFilenameResult.data:",
-//         //   artistInFilenameResult.data
-//         // );
-
-//         const filePattern = /~|_|&|u0|\+|\[|\]|{|}|\(|\)| [fF]?eat[.]*? /;
-
-//         if (
-//           artistsInFilenameResult.error === undefined &&
-//           artistsInFilenameID
-//         ) {
-//           if (
-//             ((filename.match(separator) || []).length != 1 ||
-//               filePattern.test(filename)) &&
-//             !processed
-//           ) {
-//             res.send({
-//               status: true,
-//               message: "Set the audio name",
-//               data: {
-//                 name: audio.name,
-//                 mimetype: audio.mimetype,
-//                 size: audio.size,
-//               },
-//             });
-
-//             return next();
-//           }
-//           const insertAudioResult = await insertAudioData(title),
-//             insertedAudioID = insertAudioResult.data.insertId,
-//             artistRoleID = insertAudioResult.data.artist_role_id,
-//             artistPosition = insertAudioResult.data.artist_position;
-//           await insertAudioBLob(insertedAudioID, audio.data);
-//           // console.log("insertAudioResult:", insertAudioResult);
-
-//           const artistsInFilenameArtistResult = await getArtistsInFilenameArtist(
-//             artistsInFilenameID
-//           );
-
-//           artistsInFilenameArtistResult.data.forEach(async (artistID) => {
-//             console.log("artistID:", artistID);
-//             await insertAudioArtist(insertedAudioID, artistID);
-//           });
-//         } else {
-//           if (
-//             ((filename.match(separator) || []).length != 1 ||
-//               filePattern.test(filename)) &&
-//             !processed
-//           ) {
-//             const insertedArtistsInFilenameResult = await insertArtistsInFilename(
-//               artists
-//             );
-//             console.log(
-//               "insertedArtistsInFilenameResult:",
-//               insertedArtistsInFilenameResult
-//             );
-//             artistsInFilenameID = insertedArtistsInFilenameResult.data.insertId;
-
-//             res.send({
-//               status: false,
-//               message: "Set the audio name",
-//               data: {
-//                 name: audio.name,
-//                 mimetype: audio.mimetype,
-//                 size: audio.size,
-//               },
-//             });
-
-//             return next();
-//           }
-
-//           const insertAudioResult = await insertAudioData(title),
-//             insertedAudioID = insertAudioResult.data.insertId,
-//             artistRoleID = insertAudioResult.data.artist_role_id,
-//             artistPosition = insertAudioResult.data.artist_position;
-//           await insertAudioBLob(insertedAudioID, audio.data);
-//           // console.log("insertedAudioResult:", insertedAudioResult);
-
-//           const audioArtistSeparator = " & ";
-//           const artistsArr = parseArtists(artists, audioArtistSeparator);
-//           console.log("artistsArr:", artistsArr);
-
-//           artistsArr.forEach(async (artist) => {
-//             const selectedArtistResult = await getArtistByName(artist);
-//             // console.log("selectedArtistResult:", selectedArtistResult);
-
-//             const selectedArtistID = selectedArtistResult.data[0];
-
-//             var insertedArtistID;
-//             if (selectedArtistID) {
-//               insertedArtistID = selectedArtistID;
-//             } else {
-//               insertedArtistID = (await insertArtist(artist)).data.insertId;
-//             }
-
-//             // console.log("Watch:", insertedAudioID, insertedArtistID);
-//             await insertAudioArtist(insertedAudioID, insertedArtistID);
-//             await insertArtistsInFilenameArtist(
-//               artistsInFilenameID,
-//               insertedArtistID
-//             );
-//           });
-//         }
-
-//         await insertAudioFilename(filename, title, artistsInFilenameID);
-//       }
-
-//       res.send({
-//         status: true,
-//         message: "File is uploaded",
-//         data: {
-//           name: audio.name,
-//           mimetype: audio.mimetype,
-//           size: audio.size,
-//         },
-//       });
-
-//       return next();
-//     }
-//   } catch (error) {
-//     console.log("Error:", error);
-//     res.status(500).send(error);
-//   }
-// });
-
-// function parseArtists(artists, separator) {
-//   artists = artists.split(separator);
-
-//   artists.forEach((artist) => {
-//     const matches = artist.match(/ (?:&&) /);
-
-//     if (matches) {
-//       matches.forEach((m) => {
-//         const match = m.match(/(?:&&)/).input;
-//         const newMatch = m.replace(match, match.substring(0, match.length - 1));
-
-//         artist = artist.replace(m, newMatch);
-//       });
-//     }
-//   });
-
-//   return artists;
-// }
-
 async function insertAudioLanguage(audioID, languageID) {
   const query = `
     INSERT INTO audio_language(audio_id, language_id) 
@@ -531,32 +285,10 @@ async function insertAudioLanguage(audioID, languageID) {
   return await resolveQuery(query);
 }
 
-async function insertAudioFilename(
-  audioFilename,
-  renamedTitle,
-  artistInFilenameID
-) {
-  const query = `
-    INSERT INTO filename(filename, renamed_title, artists_in_filename_id) 
-    VALUES("${audioFilename}", "${renamedTitle}", ${artistInFilenameID})
-  ;`;
-
-  return await resolveQuery(query);
-}
-
 async function insertAudioArtist(audioID, artistID, artistPosition) {
   const query = `
     INSERT INTO audio_artist(audio_id, artist_id, artist_position) 
     VALUES(${audioID}, ${artistID}, ${artistPosition})
-  ;`;
-
-  return await resolveQuery(query);
-}
-
-async function insertArtistsInFilenameArtist(artistsInFilenameID, artistID) {
-  const query = `
-  INSERT INTO artists_in_filename_artist(artists_in_filename_id, artist_id) 
-  VALUES(${artistsInFilenameID}, ${artistID})
   ;`;
 
   return await resolveQuery(query);
@@ -580,59 +312,6 @@ async function getArtistByName(artist) {
 
   return await resolveQuery(query);
 }
-
-async function insertArtistsInFilename(artists) {
-  const query = `
-    INSERT INTO artists_in_filename(artists)
-    VALUES("${artists}")
-  ;`;
-
-  return await resolveQuery(query);
-}
-
-async function truncateDatabase() {
-  const query = `
-  TRUNCATE TABLE lush.artist;
-  TRUNCATE TABLE lush.artist_in_filename;
-  TRUNCATE TABLE lush.artist_in_filename_artist;
-  TRUNCATE TABLE lush.audio;
-  TRUNCATE TABLE lush.audio_artist;
-  TRUNCATE TABLE lush.audio_filename;
-  TRUNCATE TABLE lush.image;
-  TRUNCATE TABLE lush.image_artist;
-  TRUNCATE TABLE lush.post;
-  TRUNCATE TABLE lush.post_audio;
-  TRUNCATE TABLE lush.post_image;
-  TRUNCATE TABLE lush.post_tag;
-  TRUNCATE TABLE lush.tag;
-  `;
-
-  return await resolveQuery(query);
-}
-
-async function getArtistsInFilename(artists) {
-  const query = `
-    SELECT id
-    FROM artists_in_filename 
-    WHERE artists = "${artists}"
-    ;`;
-
-  return await resolveQuery(query);
-}
-
-async function getArtistsInFilenameArtist(id) {
-  const query = `
-    SELECT * FROM artists_in_filename_artist 
-    WHERE artists_in_filename_id = ${id}
-    ;`;
-
-  return await resolveQuery(query);
-}
-
-// async function insertAudio(audio, title) {
-//   await insertAudioData(title);
-//   await insertAudioBLob(audio);
-// }
 
 async function insertAudioData(blobID, title) {
   const query = `
@@ -658,11 +337,162 @@ function trimExtension(filename) {
   return filename.replace(/\.[^\/.]+$/, "");
 }
 
-async function getFilename(filename) {
+app.get("/artists", (req, res) => {
+  res.sendFile(path.join(__dirname, "/public/html/artists.html"));
+});
+
+app.post("/artistsData", async (req, res, next) => {
+  const limit = req.body.limit,
+    offset = req.body.offset,
+    result = await getArtistsData(limit, offset),
+    artists = result.data || [],
+    error = result.error,
+    resJSON = {
+      status: error || 200,
+      artists: [],
+    };
+
+  for (const artist of artists) {
+    resJSON.artists.push({ ...artist });
+  }
+
+  res.send(resJSON);
+  res.end();
+});
+
+app.post("/imageBlob", async (req, res, next) => {
+  const blobID = req.body.blobID,
+    audioData = await fetchImageBlob(blobID);
+  // console.log("audioData:", audioData);
+
+  res.write(audioData.blob);
+  res.end();
+});
+
+app.post("/uploadImage", async (req, res, next) => {
+  try {
+    if (!req.files) {
+      res.status(200).send({
+        status: 200,
+        message: "No file uploaded.",
+      });
+
+      return next();
+    } else {
+      const image = req.files.image;
+      const name = trimExtension(image.name);
+      const artists = name;
+      // console.log("Image:", name);
+
+      const blobID = (await insertImageBLob(image.data)).data.insertId;
+      const audioID = (await insertImageData(blobID)).data.insertId;
+
+      if (artists) {
+        // const audioArtistSeparator = /, | & | [fF]?eat[.]*? /;
+        // const artistsArr = parseArtists(artists, audioArtistSeparator);
+        const artistsArr = [artists];
+
+        for (const [index, artist] of artistsArr.entries()) {
+          var artistID;
+          try {
+            artistID = (await getArtistByName(artist)).data[0].id;
+          } catch {
+            artistID = (await insertArtist(artist)).data.insertId;
+          }
+
+          await insertImageArtist(audioID, artistID, index + 1);
+        }
+      }
+
+      res.status(200).send({
+        status: 200,
+        message: "File uploaded.",
+        id: audioID,
+        name: name,
+      });
+    }
+  } catch (error) {
+    console.log("Error:", error);
+
+    res.status(500).send({
+      status: error,
+      message: "Uploading process has failed.",
+      name: audio.name,
+    });
+  }
+});
+
+async function insertImageBLob(image) {
   const query = `
-    SELECT *
-    FROM filename 
-    WHERE filename = "${filename}"
+    INSERT INTO image_blob SET ?
+    `,
+    values = {
+      image: image,
+    };
+
+  return await resolveQuery(query, values);
+}
+
+async function insertImageData(blobID) {
+  const query = `
+    INSERT INTO image(blob_id) 
+    VALUES("${blobID}")
+    ;`;
+
+  return await resolveQuery(query);
+}
+
+async function insertImageArtist(imageID, artistID) {
+  const query = `
+    INSERT INTO image_artist(image_id, artist_id) 
+    VALUES(${imageID}, ${artistID})
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function getArtistsData(limit, offset) {
+  var query = `
+  SELECT artist.name AS name, image.blob_id AS blob_id
+  FROM lush.artist
+  LEFT JOIN lush.image_artist
+  ON artist.id = image_artist.artist_id
+  LEFT JOIN lush.image
+  ON image.id = image_artist.image_id
+  LIMIT ${limit} OFFSET ${offset - 1}
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function getArtistBlob(blobID) {
+  var query = `
+  SELECT artist.name AS artist, image.blob_id AS blob_id
+  FROM lush.artist
+  LEFT JOIN lush.image_artist
+  ON artist.id = image_artist.artist_id
+  LEFT JOIN lush.image
+  ON image.id = image_artist.image_id
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function fetchImageBlob(blobID) {
+  const result = await getImage(blobID),
+    audioData = {
+      status: result.error || 200,
+      blob: result.data[0].image,
+    };
+
+  return audioData;
+}
+
+async function getImage(blobID) {
+  const query = `
+    SELECT image
+    FROM image_blob
+    WHERE id = ${blobID}
     ;`;
 
   return await resolveQuery(query);

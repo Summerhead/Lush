@@ -1,13 +1,17 @@
 import * as loadSongTemplate from "./loadSongTemplate.js";
 // import player from "./partials/audio.js";
 
-export default async function parseAudios() {
-  var songsDiv = document.getElementById("songs"),
-    songDiv = loadSongTemplate.songDiv;
+export default async function getAudios() {
+  const mainElement = document.getElementsByTagName("main")[0],
+    songsDiv = document.createElement("div");
+  songsDiv.setAttribute("id", "songs");
+
   const reqAudioData = {
-    limit: 10,
+    limit: 50,
     offset: 1,
   };
+
+  var metadataCount = 0;
 
   fetchRow(reqAudioData);
 
@@ -23,9 +27,10 @@ export default async function parseAudios() {
 
         if (data.status === 200) {
           for (const audio of data.audios) {
-            console.log("Audio:", audio);
-
-            const songDiv = player(parseArtists(audio.artists), audio.title),
+            const songDiv = constructPlayer(
+                parseArtists(audio.artists),
+                audio.title
+              ),
               reqAudioBlob = { blobID: audio.blob_id };
 
             fetchBlob(reqAudioBlob, songDiv);
@@ -55,16 +60,13 @@ export default async function parseAudios() {
             while (true) {
               const { done, value } = await reader.read();
 
-              // When no more data needs to be consumed, break the reading
               if (done) {
                 break;
               }
 
-              // Enqueue the next data chunk into our target stream
               controller.enqueue(value);
             }
 
-            // Close the stream
             controller.close();
             reader.releaseLock();
           },
@@ -90,30 +92,21 @@ export default async function parseAudios() {
     return artists;
   }
 
-  function player(artists, title) {
-    songDiv = songDiv.cloneNode(true);
+  function constructPlayer(artists, title) {
+    const songDiv = loadSongTemplate.songDiv.cloneNode(true);
 
     songDiv.querySelector(".audio-header>.artists").innerHTML = artists;
     songDiv.querySelector(".audio-header>.title").innerHTML = title;
 
     var audioPlayer = songDiv.querySelector("#audio-player");
 
-    //Время
-
     var progressBar = songDiv.querySelector("#audio-hud__progress-bar");
-    var currTime = songDiv.querySelector("#audio-hud__curr-time");
-    var durationTime = songDiv.querySelector("#audio-hud__duration");
-
-    //Кнопки
+    var currTime = songDiv.querySelector("#audio-hud__curr-time>span");
+    var durationTime = songDiv.querySelector("#audio-hud__duration>span");
 
     var actionButton = songDiv.querySelector("#audio-hud__action");
-    var muteButton = songDiv.querySelector("#audio-hud__mute");
-    var volumeScale = songDiv.querySelector("#audio-hud__volume");
-    var speedSelect = songDiv.querySelector("#audio-hud__speed");
 
     function audioAct() {
-      //Запускаем или ставим на паузу
-
       if (audioPlayer.paused) {
         audioPlayer.play();
 
@@ -121,6 +114,8 @@ export default async function parseAudios() {
           "class",
           "audio-hud__element audio-hud__action audio-hud__action_play"
         );
+
+        actionButton.innerHTML = `<img src="/public/content/icons/pause (2).png" />`;
       } else {
         audioPlayer.pause();
 
@@ -128,16 +123,12 @@ export default async function parseAudios() {
           "class",
           "audio-hud__element audio-hud__action audio-hud__action_pause"
         );
-      }
 
-      if (durationTime.innerHTML == "00:00") {
-        durationTime.innerHTML = audioTime(audioPlayer.duration); //Об этой функции чуть ниже
+        actionButton.innerHTML = `<img src="/public/content/icons/play.png" />`;
       }
     }
 
     function audioTime(time) {
-      //Рассчитываем время в секундах и минутах
-
       time = Math.floor(time);
 
       var minutes = Math.floor(time / 60);
@@ -157,8 +148,6 @@ export default async function parseAudios() {
     }
 
     function audioProgress() {
-      //Отображаем время воспроизведения
-
       const progress = Math.floor(
         audioPlayer.currentTime / (audioPlayer.duration / 100)
       );
@@ -168,7 +157,6 @@ export default async function parseAudios() {
     }
 
     function audioChangeTime(e) {
-      //Перематываем
       var mouseX = Math.floor(e.pageX - progressBar.offsetLeft);
       var progress = mouseX / (progressBar.offsetWidth / 100);
       audioPlayer.currentTime = audioPlayer.duration * (progress / 100);
@@ -183,6 +171,14 @@ export default async function parseAudios() {
       audioPlayer.addEventListener("timeupdate", audioProgress);
 
       progressBar.addEventListener("click", audioChangeTime);
+
+      metadataCount++;
+
+      if (metadataCount == reqAudioData.limit) {
+        console.log("All metadata loaded.");
+
+        mainElement.appendChild(songsDiv);
+      }
     };
 
     songsDiv.appendChild(songDiv);

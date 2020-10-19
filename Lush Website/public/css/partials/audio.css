@@ -1,4 +1,5 @@
 .audio-header {
+  font-size: 0.95em;
   display: flex;
   color: black;
 }
@@ -17,10 +18,14 @@
 }
 
 .audio-container {
-  padding: 10px 0;
+  display: grid;
+  grid-template-columns: 25px 1fr;
+  column-gap: 7px;
+  padding: 6px 0;
   width: 100%;
   color: #fff;
   border-bottom: 1px solid rgb(253, 207, 207);
+  cursor: default;
 }
 
 .audio-header {
@@ -33,60 +38,51 @@
 }
 
 .audio-hud {
+  position: relative;
+  height: 20px;
+  font-size: 0.8em;
   display: grid;
   grid-template-columns: auto auto 1fr auto;
   margin: 0;
   padding: 1px;
 }
 
+.audio-hud div {
+  height: 100%;
+}
+
 .audio-hud__element {
   color: black;
   cursor: pointer;
   display: inline-block;
-  height: 28px;
 }
 
 .audio-hud__curr-time > span,
 .audio-hud__duration > span {
-  display: inline-block;
-  vertical-align: middle;
-  transform: translateY(15%);
+  cursor: default;
 }
 
 .audio-hud__action {
+  position: relative;
+  column-count: 1;
   color: rgb(255, 151, 151);
-  margin-right: 12px;
 }
 
 .audio-hud__action > span {
-  font-size: 3em;
-  display: inline-block;
-  transform: translateY(-35%);
+  top: -12px;
+  font-size: 2.7em;
+}
+
+#audio-hud__action {
+  margin: auto;
+}
+
+#audio-hud__action > img {
+  width: 100%;
 }
 
 .audio-hud__progress-bar {
   grid-column: 3;
   width: auto;
-  height: 15px;
   margin: 0 12px;
-  transform: translateY(50%);
 }
-
-/* .audio-hud__mute {
-    width: 30px;
-    border-radius: 100px 100px 100px 100px;
-}
-
-.audio-hud__mute_true {
-    background: #c00;
-}
-
-.audio-hud__mute_false {
-    background: #ccc;
-}
-
-.audio-hud__download {
-    background: #ccc;
-    width: 30px;
-    border-radius: 0 0 100px 100px;
-} */

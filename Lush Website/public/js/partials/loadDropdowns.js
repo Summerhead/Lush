@@ -1,33 +1,36 @@
-// $("#nav-bar>li").each(function () {
-//     $(this)
-//         .append('<div class="dropdown"></div>')
-//         .find(".dropdown")
-//         .load("/public/html/partials/dropdowns.html");
-// });
-
 $.ajax({
-    type: "GET",
-    url: "/header",
-    dataType: "json",
-    success: function (data) {
-        console.log("Data:", data);
+  type: "GET",
+  url: "/header",
+  dataType: "json",
+  success: function (data) {
+    console.log("Data:", data);
 
-        displayHeaderInfo(data["results"]);
-    },
-    error: function (x, t, m) {
-        console.log("Error:", m);
-    },
+    displayHeaderInfo(data.results);
+  },
+  error: function (x, t, m) {
+    console.log("Error:", m);
+  },
 });
 
 function displayHeaderInfo(results) {
-    displayArtistsInHeader(results["artists"]);
+  for (const tab of document.querySelectorAll("#nav-bar>li")) {
+    const dropdown = document.createElement("div");
+    dropdown.setAttribute("class", "dropdown");
+    dropdown.addEventListener("scroll", () => {});
+
+    tab.append(dropdown);
+
+    displayArtistsInHeader(results.artists);
+  }
 }
 
 function displayArtistsInHeader(artists) {
-    $("#artists-tab").append('<div class="dropdown"></div>');
-    var i = 0;
-    artists.forEach((el) => {
-        $("#artists-tab").find(".dropdown").append(`<p>${el["artist"]}</p>`);
-        i++;
-    });
+  var i = 0;
+  artists.forEach((el) => {
+    $("#artists-tab")
+      // .find(".dropdownContainer")
+      .find(".dropdown")
+      .append(`<p>${el.artist}</p>`);
+    i++;
+  });
 }

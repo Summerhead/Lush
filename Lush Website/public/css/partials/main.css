@@ -5,14 +5,17 @@
   font-family: "Quicksand", serif;
 }
 
-/* body {
-  background-image: url("../content/Lush2.jpg");
+body {
+  /* background-image: url("../content/Lush2.jpg");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
-  background-color: rgb(255, 221, 221);
-} */
+  background-color: rgb(255, 221, 221); */
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 150px 1fr 100px;
+}
 
 header {
   position: relative;
@@ -25,4 +28,9 @@ main {
   max-width: 1920px;
   margin: 0 auto;
   z-index: 1;
+}
+
+footer {
+  height: 100px;
+  border: 1px solid black;
 }

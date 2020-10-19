@@ -6,16 +6,16 @@ async function handleFileSelect(e) {
   }
 
   for (const file of files) {
-    await Promise.resolve(uploadAudio(file));
+    await Promise.resolve(uploadImage(file));
   }
 }
 
-function uploadAudio(file) {
+function uploadImage(file) {
   return new Promise((resolve, reject) => {
     var xhr = new XMLHttpRequest();
     var fd = new FormData();
 
-    xhr.open("POST", "/uploadAudio", true);
+    xhr.open("POST", "/uploadImage", true);
     xhr.overrideMimeType("multipart/form-data");
     xhr.onreadystatechange = function () {
       if (xhr.readyState == 4 && xhr.status == 200) {
@@ -26,7 +26,7 @@ function uploadAudio(file) {
       }
     };
 
-    fd.append("audio", file);
+    fd.append("image", file);
     xhr.send(fd);
   });
 }
