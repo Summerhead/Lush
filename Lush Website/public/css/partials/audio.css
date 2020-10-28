@@ -24,7 +24,7 @@
   padding: 6px 0;
   width: 100%;
   color: #fff;
-  border-bottom: 1px solid rgb(253, 207, 207);
+  border-bottom: 1px solid rgb(0, 0, 0, 0.096);
   cursor: default;
 }
 
@@ -42,7 +42,7 @@
   height: 20px;
   font-size: 0.8em;
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: 30px 1fr 30px;
   margin: 0;
   padding: 1px;
 }
@@ -82,7 +82,7 @@
 }
 
 .audio-hud__progress-bar {
-  grid-column: 3;
+  /* visibility: hidden; */
   width: auto;
   margin: 0 12px;
 }

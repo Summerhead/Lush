@@ -5,13 +5,15 @@ export default async function getAudios() {
   const mainElement = document.getElementsByTagName("main")[0],
     songsDiv = document.createElement("div");
   songsDiv.setAttribute("id", "songs");
-
+  // console.log(document.location.pathname.split("/"));
   const reqAudioData = {
+    artistID: Number(document.location.pathname.split("/")[2]) || null,
     limit: 50,
-    offset: 1,
+    offset: 0,
   };
 
   var metadataCount = 0;
+  var rowReturned = 0;
 
   fetchRow(reqAudioData);
 
@@ -24,6 +26,8 @@ export default async function getAudios() {
       dataType: "json",
       success: function (data) {
         console.log("Data:", data);
+
+        rowReturned = data.audios.length;
 
         if (data.status === 200) {
           for (const audio of data.audios) {
@@ -156,6 +160,15 @@ export default async function getAudios() {
       currTime.innerHTML = audioTime(audioPlayer.currentTime);
     }
 
+    function playNext(e) {
+      actionButton.innerHTML = `<img src="/public/content/icons/play.png" />`;
+      currTime.innerHTML = "00:00";
+      progressBar.value = 0;
+      e.target.parentElement.nextSibling
+        .querySelector("#audio-hud__action")
+        .click();
+    }
+
     function audioChangeTime(e) {
       var mouseX = Math.floor(e.pageX - progressBar.offsetLeft);
       var progress = mouseX / (progressBar.offsetWidth / 100);
@@ -169,14 +182,14 @@ export default async function getAudios() {
 
       audioPlayer.addEventListener("click", audioAct);
       audioPlayer.addEventListener("timeupdate", audioProgress);
+      audioPlayer.addEventListener("ended", playNext);
 
       progressBar.addEventListener("click", audioChangeTime);
 
       metadataCount++;
 
-      if (metadataCount == reqAudioData.limit) {
+      if (metadataCount == rowReturned) {
         console.log("All metadata loaded.");
-
         mainElement.appendChild(songsDiv);
       }
     };

@@ -108,9 +108,17 @@ app.get("/", function (req, res) {
 });
 
 app.post("/audioData", async function (req, res, next) {
-  const limit = req.body.limit,
-    offset = req.body.offset,
+  console.log("Body:", req.body);
+  const artistID = req.body.artistID,
+    limit = req.body.limit,
+    offset = req.body.offset;
+
+  var audioData;
+  if (artistID) {
+    audioData = await fetchAudioDataByArtistID(artistID, limit, offset);
+  } else {
     audioData = await fetchAudioData(limit, offset);
+  }
 
   res.send(audioData);
 });
@@ -173,11 +181,65 @@ async function getAudioMetadata(limit, offset) {
     FROM audio
     WHERE id <= 
         (
-          SELECT id FROM audio 
+          SELECT id 
+          FROM audio 
           ORDER BY id DESC
-          LIMIT 1 OFFSET ${offset - 1}
+          LIMIT 1 OFFSET ${offset}
         )
     ORDER BY id DESC
+    LIMIT ${limit}
+    ;`;
+
+  return await resolveQuery(query);
+}
+
+async function fetchAudioDataByArtistID(artistID, limit, offset) {
+  const result = await getAudioMetadataByArtistID(artistID, limit, offset),
+    error = result.error,
+    audios = result.data || [],
+    audioData = {
+      status: error || 200,
+      audios: [],
+    };
+
+  for (const audio of audios) {
+    const result = await getArtistsByAudioID(audio.id),
+      artists = result.data;
+
+    audio.artists = [];
+
+    for (const artist of artists) {
+      audio.artists.push(artist.name);
+    }
+
+    audioData.audios.push({ ...audio });
+  }
+
+  return audioData;
+}
+
+async function getAudioMetadataByArtistID(artistID, limit, offset) {
+  const query = `
+    SELECT audio.id, blob_id, title
+    FROM audio
+    RIGHT JOIN audio_artist 
+    ON audio.id = audio_artist.audio_id
+    RIGHT JOIN artist 
+    ON audio_artist.artist_id = artist.id
+    WHERE artist.id = ${artistID}
+    AND audio.id <= 
+        (
+          SELECT audio.id 
+          FROM audio 
+          RIGHT JOIN audio_artist 
+          ON audio.id = audio_artist.audio_id
+          RIGHT JOIN artist 
+          ON audio_artist.artist_id = artist.id
+          WHERE artist.id = ${artistID}
+          ORDER BY audio.id DESC
+          LIMIT 1 OFFSET ${offset}
+        )
+    ORDER BY audio.id DESC
     LIMIT ${limit}
     ;`;
 
@@ -196,13 +258,14 @@ async function getAudio(audioID) {
 
 async function getArtistsByAudioID(audioID) {
   const query = `
-    SELECT name 
+    SELECT name, artist_position 
     FROM artist
         LEFT JOIN audio_artist 
         ON artist.id = artist_id
         LEFT JOIN audio
         ON audio.id = audio_id
     WHERE audio.id = ${audioID}
+    ORDER BY artist_position
     ;`;
 
   return await resolveQuery(query);
@@ -453,13 +516,15 @@ async function insertImageArtist(imageID, artistID) {
 
 async function getArtistsData(limit, offset) {
   var query = `
-  SELECT artist.name AS name, image.blob_id AS blob_id
+  SELECT artist.id AS artist_id, artist.name AS name, 
+  image.blob_id AS blob_id
   FROM lush.artist
   LEFT JOIN lush.image_artist
   ON artist.id = image_artist.artist_id
   LEFT JOIN lush.image
   ON image.id = image_artist.image_id
-  LIMIT ${limit} OFFSET ${offset - 1}
+  ORDER BY artist.id DESC
+  LIMIT ${limit} OFFSET ${offset}
   ;`;
 
   return await resolveQuery(query);
@@ -482,7 +547,7 @@ async function fetchImageBlob(blobID) {
   const result = await getImage(blobID),
     audioData = {
       status: result.error || 200,
-      blob: result.data[0].image,
+      blob: result.data[0] ? result.data[0].image : new Uint8Array(0),
     };
 
   return audioData;
@@ -497,3 +562,8 @@ async function getImage(blobID) {
 
   return await resolveQuery(query);
 }
+
+app.get("/artists/:artist", async (req, res) => {
+  // console.log("Body:", req.params);
+  res.sendFile(path.join(__dirname, "/public/html/artist.html"));
+});

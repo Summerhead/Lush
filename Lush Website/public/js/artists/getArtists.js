@@ -8,10 +8,11 @@ export default async function getAudios() {
 
   const reqArtistData = {
     limit: 200,
-    offset: 1,
+    offset: 0,
   };
 
   var metadataCount = 0;
+  var rowReturned = 0;
 
   fetchRow(reqArtistData);
 
@@ -25,16 +26,16 @@ export default async function getAudios() {
       success: function (data) {
         console.log("Data:", data);
 
-        if (data.status === 200) {
-          data.artists
-            .filter((artist) => artist.blob_id !== null)
-            .map((artist) => {
-              const artistDiv = constructArtist(artist.name);
-              artistsDiv.appendChild(artistDiv);
+        rowReturned = data.artists.length;
 
-              const reqImageBlob = { blobID: artist.blob_id };
-              fetchBlob(reqImageBlob, artistDiv);
-            });
+        if (data.status === 200) {
+          for (const artist of data.artists) {
+            const artistDiv = constructArtist(artist);
+            artistsDiv.appendChild(artistDiv);
+
+            const reqImageBlob = { blobID: artist.blob_id };
+            fetchBlob(reqImageBlob, artistDiv);
+          }
 
           mainElement.appendChild(artistsDiv);
         }
@@ -76,12 +77,16 @@ export default async function getAudios() {
       })
       .then((rs) => new Response(rs))
       .then((response) => response.blob())
-      .then((blob) => URL.createObjectURL(blob))
-      .then(
-        (url) =>
-          (songDiv.querySelector(
-            ".image"
-          ).style = `background-image: url(${url});`)
+      .then((blob) => {
+        if (blob.size) return URL.createObjectURL(blob);
+        return null;
+      })
+      .then((url) =>
+        url
+          ? (songDiv.querySelector(
+              ".image-wrapper"
+            ).style = `background-image:url("${url}")`)
+          : null
       )
       .catch(console.error);
   }
@@ -102,7 +107,8 @@ export default async function getAudios() {
   function constructArtist(artist) {
     const artistDiv = loadArtistTemplate.artistDiv.cloneNode(true);
 
-    artistDiv.querySelector(".artist-name").innerHTML = artist;
+    artistDiv.querySelector(".artist-name").innerHTML = artist.name;
+    artistDiv.querySelector(".artist-link").href += artist.artist_id;
 
     // const imageEl = artistDiv.querySelector(".image");
 
