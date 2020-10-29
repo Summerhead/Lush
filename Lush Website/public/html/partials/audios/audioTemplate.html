@@ -1,0 +1,60 @@
+<li class="audio-list-item">
+  <div class="audio-container">
+    <audio
+      src=""
+      class="audio-player"
+      id="audio-player"
+      preload="metadata"
+    ></audio>
+
+    <div
+      class="audio-hud__element audio-hud__action audio-hud__action_play"
+      id="audio-hud__action"
+    >
+      <img src="/public/content/icons/play.png" />
+    </div>
+    <div class="audio-content">
+      <div class="audio-header">
+        <div class="artists"></div>
+        <div class="title"></div>
+      </div>
+
+      <div class="audio-hud">
+        <div
+          class="audio-hud__element audio-hud__curr-time"
+          id="audio-hud__curr-time"
+        >
+          <span>00:00</span>
+        </div>
+
+        <progress
+          value="0"
+          max="100"
+          class="audio-hud__element audio-hud__progress-bar"
+          id="audio-hud__progress-bar"
+        ></progress>
+
+        <div
+          class="audio-hud__element audio-hud__duration"
+          id="audio-hud__duration"
+        >
+          <span>00:00</span>
+        </div>
+      </div>
+      <!-- <div class="more">
+        <button id="more-button" class="more-button"></button>
+        <div class="dropdown">
+          <div class="dropdown-content">
+            <div id="edit-button" class="edit-button"></div>
+            <div id="info-button" class="info-button"></div>
+          </div>
+        </div>
+      </div> -->
+      <div id="right-tab">
+        <button id="delete-button" class="delete-button"></button>
+        <button id="edit-button" class="edit-button"></button>
+        <button id="info-button" class="info-button"></button>
+      </div>
+    </div>
+  </div>
+</li>

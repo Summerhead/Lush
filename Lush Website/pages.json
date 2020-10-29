@@ -1,0 +1,38 @@
+{
+  "/": {
+    "links": [
+      "/public/css/partials/audio.css",
+      "/public/css/index.css",
+      "/public/css/partials/searchbar.css",
+      "/public/css/partials/editAudioWIndow.css"
+    ],
+    "scripts": [
+      { "type": "module", "link": "/public/js/audios/loadAudios.js" },
+      { "type": "", "link": "/public/js/audios/uploadAudio.js" },
+      { "type": "", "link": "/public/js/partials/loadSearchBar.js" },
+      { "type": "", "link": "/public/js/audios/loadEditAudioWindow.js" }
+    ]
+  },
+  "/artists": {
+    "links": ["/public/css/artists.css", "/public/css/partials/searchBar.css"],
+    "scripts": [
+      { "type": "module", "link": "/public/js/artists/loadArtists.js" },
+      { "type": "", "link": "/public/js/artists/uploadImage.js" },
+      { "type": "", "link": "/public/js/partials/loadSearchBar.js" }
+    ]
+  },
+  "/artists/:artist": {
+    "links": [
+      "/public/css/partials/audio.css",
+      "/public/css/index.css",
+      "/public/css/partials/searchbar.css",
+      "/public/css/partials/editAudioWIndow.css"
+    ],
+    "scripts": [
+      { "type": "module", "link": "/public/js/audios/loadAudios.js" },
+      { "type": "", "link": "/public/js/audios/uploadAudio.js" },
+      { "type": "", "link": "/public/js/partials/loadSearchBar.js" },
+      { "type": "", "link": "/public/js/audios/loadEditAudioWindow.js" }
+    ]
+  }
+}

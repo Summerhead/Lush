@@ -19,38 +19,15 @@
       type="text/css"
       href="/public/css/partials/main.css"
     />
-    <link rel="stylesheet" type="text/css" href="/public/css/index.css" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/public/css/partials/audio.css"
-    />
     <title>Lush</title>
   </head>
 
   <body>
     <header></header>
-
-    <main>
-      <div id="audio-search-bar-container">
-        <div id="audio-search-bar" class="search-bar">
-          <button id="import-pfx-button" class="upload-audio">Add</button>
-          <input
-            type="file"
-            accept=".mp3,audio/*"
-            id="file-input"
-            style="display: none"
-            multiple
-          />
-          <output id="list"></output>
-        </div>
-      </div>
-    </main>
-
+    <main></main>
     <footer></footer>
   </body>
   <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
   <script src="/public/js/partials/loadPartials.js"></script>
-  <script type="module" src="/public/js/audios/loadSongs.js"></script>
-  <script src="/public/js/audios/uploadAudio.js"></script>
+  <script src="/public/js/partials/loadContent.js"></script>
 </html>

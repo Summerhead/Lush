@@ -1,36 +1,13 @@
-#audio-search-bar-container {
-  height: 50px;
-  padding: 0 100px;
-}
-
-#audio-search-bar {
-  height: 100%;
-  position: relative;
-  /* background-color: rgba(250, 189, 189, 0.514); */
-}
-
-#import-pfx-button {
-  position: absolute;
-  width: 45px;
-  height: 30px;
-  right: 0px;
-  top: 15px;
-}
-
 #artists {
-  /* display: grid;
-  grid-template-columns: repeat(8, 200px);
-  min-width: 1920px; */
-  /* row-gap: 40px;
-  margin: 50px 0px 100px 0px;
-  padding: 0 100px;
-  justify-content: space-between; */
-  overflow: hidden;
+  margin: 50px 0 100px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#artists-ordered-list {
   display: flex;
   flex-wrap: wrap;
-  /* padding: 0 100px; */
+  list-style: none;
   justify-content: center;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .artist-container {
@@ -66,21 +43,3 @@
 .description {
   font-size: 0.8em;
 }
-
-/* @media screen and (max-width: 1800px) {
-  #artists {
-    grid-template-columns: repeat(7, 200px);
-  }
-}
-
-@media screen and (max-width: 1700px) {
-  #artists {
-    grid-template-columns: repeat(6, 200px);
-  }
-}
-
-@media screen and (max-width: 1000px) {
-  #artists {
-    grid-template-columns: repeat(4, 200px);
-  }
-} */

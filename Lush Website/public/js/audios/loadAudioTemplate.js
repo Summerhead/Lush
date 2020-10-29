@@ -1,7 +1,7 @@
 const xmlhttp = new XMLHttpRequest();
-var template, artistLi;
+var template, audioLi;
 
-export default function loadArtistTemplate() {
+export default function loadSongTemplate() {
   return new Promise((resolve, reject) => {
     xmlhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
@@ -9,19 +9,19 @@ export default function loadArtistTemplate() {
           this.responseText,
           "text/html"
         );
-        artistLi = template.getElementsByClassName("artist-list-item")[0];
+        audioLi = template.getElementsByClassName("audio-list-item")[0];
 
-        resolve(artistLi);
+        resolve(audioLi);
       }
     };
 
     xmlhttp.open(
       "GET",
-      `/public/html/partials/artists/artistTemplate.html`,
+      `/public/html/partials/audios/audioTemplate.html`,
       true
     );
     xmlhttp.send();
   });
 }
 
-export { artistLi };
+export { audioLi };

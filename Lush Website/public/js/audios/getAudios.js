@@ -1,11 +1,13 @@
-import * as loadSongTemplate from "./loadSongTemplate.js";
+import * as loadAudioTemplate from "./loadAudioTemplate.js";
 // import player from "./partials/audio.js";
 
 export default async function getAudios() {
   const mainElement = document.getElementsByTagName("main")[0],
-    songsDiv = document.createElement("div");
-  songsDiv.setAttribute("id", "songs");
-  // console.log(document.location.pathname.split("/"));
+    audiosDiv = document.createElement("div"),
+    audiosOl = document.createElement("ol");
+  audiosDiv.setAttribute("id", "audios");
+  audiosOl.setAttribute("id", "audios-ordered-list");
+
   const reqAudioData = {
     artistID: Number(document.location.pathname.split("/")[2]) || null,
     limit: 50,
@@ -14,6 +16,9 @@ export default async function getAudios() {
 
   var metadataCount = 0;
   var rowReturned = 0;
+
+  var currentAudio;
+  var currentDropdown;
 
   fetchRow(reqAudioData);
 
@@ -31,13 +36,25 @@ export default async function getAudios() {
 
         if (data.status === 200) {
           for (const audio of data.audios) {
-            const songDiv = constructPlayer(
+            const audioDiv = constructPlayer(
                 parseArtists(audio.artists),
                 audio.title
               ),
               reqAudioBlob = { blobID: audio.blob_id };
 
-            fetchBlob(reqAudioBlob, songDiv);
+            audioDiv.setAttribute("data-audio-id", audio.id);
+
+            var artistAttributes = "";
+            for (const [index, artist] of audio.artists.entries()) {
+              const dataArtistAttribute = "data-artist-" + (index + 1);
+              artistAttributes += dataArtistAttribute + " ";
+              audioDiv.setAttribute(dataArtistAttribute, artist);
+            }
+            artistAttributes = artistAttributes.trim();
+            audioDiv.setAttribute("data-artist-attributes", artistAttributes);
+            audioDiv.setAttribute("data-audio-title", audio.title);
+
+            fetchBlob(reqAudioBlob, audioDiv);
           }
         }
       },
@@ -97,20 +114,41 @@ export default async function getAudios() {
   }
 
   function constructPlayer(artists, title) {
-    const songDiv = loadSongTemplate.songDiv.cloneNode(true);
+    const audioDiv = loadAudioTemplate.audioLi.cloneNode(true),
+      audioPlayer = audioDiv.querySelector("#audio-player"),
+      progressBar = audioDiv.querySelector("#audio-hud__progress-bar"),
+      currTime = audioDiv.querySelector("#audio-hud__curr-time>span"),
+      durationTime = audioDiv.querySelector("#audio-hud__duration>span"),
+      actionButton = audioDiv.querySelector("#audio-hud__action"),
+      actionButtonImg = actionButton.querySelector("img"),
+      deleteButton = audioDiv.querySelector("#delete-button"),
+      editButton = audioDiv.querySelector("#edit-button"),
+      infoButton = audioDiv.querySelector("#info-button");
 
-    songDiv.querySelector(".audio-header>.artists").innerHTML = artists;
-    songDiv.querySelector(".audio-header>.title").innerHTML = title;
+    audioDiv.querySelector(".audio-header>.artists").innerHTML = artists;
+    audioDiv.querySelector(".audio-header>.title").innerHTML = title;
 
-    var audioPlayer = songDiv.querySelector("#audio-player");
-
-    var progressBar = songDiv.querySelector("#audio-hud__progress-bar");
-    var currTime = songDiv.querySelector("#audio-hud__curr-time>span");
-    var durationTime = songDiv.querySelector("#audio-hud__duration>span");
-
-    var actionButton = songDiv.querySelector("#audio-hud__action");
+    const audioObject = {};
+    audioObject.audioPlayer = audioPlayer;
+    audioObject.progressBar = progressBar;
+    audioObject.currTime = currTime;
+    audioObject.durationTime = durationTime;
+    audioObject.actionButton = actionButton;
+    audioObject.actionButtonImg = actionButtonImg;
 
     function audioAct() {
+      if (!!currentAudio && currentAudio !== audioObject) {
+        currentAudio.audioPlayer.pause();
+        currentAudio.audioPlayer.currentTime = 0;
+        currentAudio.actionButton.setAttribute(
+          "class",
+          "audio-hud__element audio-hud__action"
+        );
+        currentAudio.actionButtonImg.src = "/public/content/icons/play.png";
+      }
+
+      currentAudio = audioObject;
+
       if (audioPlayer.paused) {
         audioPlayer.play();
 
@@ -119,7 +157,7 @@ export default async function getAudios() {
           "audio-hud__element audio-hud__action audio-hud__action_play"
         );
 
-        actionButton.innerHTML = `<img src="/public/content/icons/pause (2).png" />`;
+        actionButtonImg.src = "/public/content/icons/pause (2).png";
       } else {
         audioPlayer.pause();
 
@@ -128,7 +166,7 @@ export default async function getAudios() {
           "audio-hud__element audio-hud__action audio-hud__action_pause"
         );
 
-        actionButton.innerHTML = `<img src="/public/content/icons/play.png" />`;
+        actionButtonImg.src = "/public/content/icons/play.png";
       }
     }
 
@@ -152,8 +190,9 @@ export default async function getAudios() {
     }
 
     function audioProgress() {
-      const progress = Math.floor(
-        audioPlayer.currentTime / (audioPlayer.duration / 100)
+      const progress = Math.ceil(
+        audioPlayer.currentTime /
+          (Math.floor(audioPlayer.duration) / progressBar.max)
       );
 
       progressBar.value = progress || 0;
@@ -161,41 +200,86 @@ export default async function getAudios() {
     }
 
     function playNext(e) {
-      actionButton.innerHTML = `<img src="/public/content/icons/play.png" />`;
-      currTime.innerHTML = "00:00";
-      progressBar.value = 0;
-      e.target.parentElement.nextSibling
-        .querySelector("#audio-hud__action")
-        .click();
+      var nextSibling;
+      if ((nextSibling = e.target.parentNode.parentNode.nextSibling)) {
+        nextSibling.querySelector("#audio-hud__action").click();
+      }
     }
 
     function audioChangeTime(e) {
-      var mouseX = Math.floor(e.pageX - progressBar.offsetLeft);
-      var progress = mouseX / (progressBar.offsetWidth / 100);
-      audioPlayer.currentTime = audioPlayer.duration * (progress / 100);
+      const mouseX = Math.floor(
+          e.pageX - progressBar.getBoundingClientRect().left
+        ),
+        progress = mouseX / progressBar.offsetWidth;
+      audioPlayer.currentTime = audioPlayer.duration * progress;
+    }
+
+    function progressBarAct() {
+      if (!!currentAudio && currentAudio !== audioObject) {
+        currentAudio.audioPlayer.pause();
+        currentAudio.audioPlayer.currentTime = 0;
+        currentAudio.actionButton.setAttribute(
+          "class",
+          "audio-hud__element audio-hud__action"
+        );
+        currentAudio.actionButtonImg.src = "/public/content/icons/play.png";
+      }
+
+      currentAudio = audioObject;
+
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+
+        actionButton.setAttribute(
+          "class",
+          "audio-hud__element audio-hud__action audio-hud__action_play"
+        );
+
+        actionButtonImg.src = "/public/content/icons/pause (2).png";
+      }
+    }
+
+    function editAudioButtonOnClick(e) {
+      const editAudioWindow = document.getElementById("edit-audio-window");
+      editAudioWindow.style.display = "block";
+
+      window.onclick = function (event) {
+        if (
+          !event.target.matches("#edit-audio-window") &&
+          !event.target.matches("#edit-button")
+        ) {
+          editAudioWindow.style.display = "none";
+        }
+      };
     }
 
     audioPlayer.onloadedmetadata = function () {
       durationTime.innerHTML = audioTime(audioPlayer.duration);
+      progressBar.max = Math.floor(audioPlayer.duration);
 
       actionButton.addEventListener("click", audioAct);
 
-      audioPlayer.addEventListener("click", audioAct);
       audioPlayer.addEventListener("timeupdate", audioProgress);
       audioPlayer.addEventListener("ended", playNext);
 
+      progressBar.addEventListener("click", progressBarAct);
       progressBar.addEventListener("click", audioChangeTime);
+
+      deleteButton.addEventListener("click", () => alert("Hello"));
+      editButton.addEventListener("click", editAudioButtonOnClick);
+      infoButton.addEventListener("click", () => alert("Hello"));
 
       metadataCount++;
 
       if (metadataCount == rowReturned) {
         console.log("All metadata loaded.");
-        mainElement.appendChild(songsDiv);
+        audiosDiv.appendChild(audiosOl);
+        mainElement.appendChild(audiosDiv);
       }
     };
 
-    songsDiv.appendChild(songDiv);
+    audiosOl.appendChild(audioDiv);
 
-    return songDiv;
+    return audioDiv;
   }
 }

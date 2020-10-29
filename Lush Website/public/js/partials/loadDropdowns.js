@@ -27,10 +27,7 @@ function displayHeaderInfo(results) {
 function displayArtistsInHeader(artists) {
   var i = 0;
   artists.forEach((el) => {
-    $("#artists-tab")
-      // .find(".dropdownContainer")
-      .find(".dropdown")
-      .append(`<p>${el.artist}</p>`);
+    $("#artists-tab").find(".dropdown").append(`<p>${el.artist}</p>`);
     i++;
   });
 }

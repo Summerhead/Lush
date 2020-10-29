@@ -1,0 +1,17 @@
+.search-bar-container {
+  height: 50px;
+  padding: 0 100px;
+}
+
+#audio-search-bar {
+  height: 100%;
+  position: relative;
+}
+
+#import-pfx-button {
+  position: absolute;
+  width: 45px;
+  height: 30px;
+  right: 0px;
+  top: 15px;
+}

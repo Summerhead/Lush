@@ -1,25 +1,9 @@
-#audio-search-bar-container {
-  height: 50px;
+#audios {
+  margin: 50px 0 100px;
   padding: 0 100px;
 }
 
-#audio-search-bar {
-  height: 100%;
-  position: relative;
-  /* background-color: rgba(250, 189, 189, 0.514); */
-}
-
-#import-pfx-button {
-  position: absolute;
-  width: 45px;
-  height: 30px;
-  right: 0px;
-  top: 15px;
-}
-
-#songs {
-  margin: 0px 0 100px;
-  padding: 0 100px;
+#audios-ordered-list {
   display: flex;
   flex-direction: column;
   align-items: center;
