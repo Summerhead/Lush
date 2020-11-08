@@ -29,7 +29,6 @@ header {
 }
 
 main {
-  position: relative;
   width: 100%;
   max-width: 1920px;
   margin: 0 auto;
@@ -41,6 +40,12 @@ footer {
   border: 1px solid black;
 }
 
-button {
+button,
+input {
   font-family: "Quicksand", "GothamSSm ExtraLight", serif;
+}
+
+input {
+  font-size: 1.02em;
+  color: black;
 }

@@ -1,7 +1,7 @@
-const xmlhttp = new XMLHttpRequest();
-var template, audioLi;
+export default function loadAudioTemplate() {
+  const xmlhttp = new XMLHttpRequest();
+  var template, audioLi;
 
-export default function loadSongTemplate() {
   return new Promise((resolve, reject) => {
     xmlhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
@@ -23,5 +23,3 @@ export default function loadSongTemplate() {
     xmlhttp.send();
   });
 }
-
-export { audioLi };

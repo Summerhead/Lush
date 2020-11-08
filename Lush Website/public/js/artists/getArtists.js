@@ -1,7 +1,7 @@
-import * as loadArtistTemplate from "./loadArtistTemplate.js";
+import insertNoResults from "../partials/insertNoResults.js";
 // import player from "./partials/audio.js";
 
-export default async function getAudios() {
+export default async function getArtists(artistLi) {
   const mainElement = document.getElementsByTagName("main")[0],
     artistsDiv = document.createElement("div"),
     artistsOl = document.createElement("ol");
@@ -14,7 +14,7 @@ export default async function getAudios() {
   };
 
   var metadataCount = 0;
-  var rowReturned = 0;
+  var returnedRows = 0;
 
   fetchRow(reqArtistData);
 
@@ -28,19 +28,24 @@ export default async function getAudios() {
       success: function (data) {
         console.log("Data:", data);
 
-        rowReturned = data.artists.length;
+        returnedRows = data.artists.length;
 
         if (data.status === 200) {
-          for (const artist of data.artists) {
-            const artistLi = constructArtist(artist);
-            artistsOl.appendChild(artistLi);
+          if (returnedRows) {
+            for (const artist of data.artists) {
+              const artistLi = constructArtist(artist);
+              artistsOl.appendChild(artistLi);
 
-            const reqImageBlob = { blobID: artist.blob_id };
-            fetchBlob(reqImageBlob, artistLi);
+              const reqImageBlob = { blobID: artist.blob_id };
+              fetchBlob(reqImageBlob, artistLi);
+            }
+
+            artistsDiv.appendChild(artistsOl);
+            mainElement.appendChild(artistsDiv);
+          } else if (!document.getElementById("artists")) {
+            console.log(returnedRows);
+            insertNoResults();
           }
-
-          artistsDiv.appendChild(artistsOl);
-          mainElement.appendChild(artistsDiv);
         }
       },
       error: function (error) {
@@ -88,7 +93,7 @@ export default async function getAudios() {
         url
           ? (songDiv.querySelector(
               ".image-wrapper"
-            ).style = `background-image:url("${url}")`)
+            ).style.backgroundImage = `url("${url}")`)
           : null
       )
       .catch(console.error);
@@ -108,22 +113,11 @@ export default async function getAudios() {
   }
 
   function constructArtist(artist) {
-    const artistLi = loadArtistTemplate.artistLi.cloneNode(true);
+    const artistLiClone = artistLi.cloneNode(true);
 
-    artistLi.querySelector(".artist-name").innerHTML = artist.name;
-    artistLi.querySelector(".artist-link").href += artist.artist_id;
+    artistLiClone.querySelector(".artist-name").innerText = artist.name;
+    artistLiClone.querySelector(".artist-link").href += artist.artist_id;
 
-    // const imageEl = artistDiv.querySelector(".image");
-
-    // imageEl.onloadedmetadata = () => {
-    //   console.log("artistDiv:", artistDiv.querySelector(".image"));
-    //   metadataCount++;
-
-    //   if (metadataCount == reqArtistData.limit) {
-    //     mainElement.appendChild(artistsDiv);
-    //   }
-    // };
-
-    return artistLi;
+    return artistLiClone;
   }
 }

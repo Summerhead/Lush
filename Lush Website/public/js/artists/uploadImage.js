@@ -39,10 +39,3 @@ function onFileLoaded(e) {
   var mimeType = match[1];
   var content = match[2];
 }
-
-$(function () {
-  $("#import-pfx-button").click(function (e) {
-    $("#file-input").click();
-  });
-  $("#file-input").change(handleFileSelect);
-});

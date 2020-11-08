@@ -1,13 +1,70 @@
-#edit-audio-window {
+#edit-audio-window-container {
   display: none;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 3;
+}
+
+#edit-audio-window {
   position: absolute;
-  width: 1000px;
-  height: 600px;
+  width: 700px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background-color: white;
-  border: 1px solid rgb(201, 201, 201);
-  border-radius: 25px;
-  z-index: 1;
+  background-color: rgb(253, 193, 193);
+  border: 1px solid rgb(138, 138, 138);
+  /* border-radius: 25px; */
+  /* box-shadow: 5px 8px 10px 5px rgba(0, 0, 0, 0.315),
+    -5px 8px 10px 5px rgba(0, 0, 0, 0.315); */
+}
+
+#edit-audio-window #close-button {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0);
+  cursor: pointer;
+}
+
+#edit-audio-window #close-button img {
+  position: relative;
+  top: 2.5px;
+  width: 15px;
+  height: 15px;
+}
+
+#edit-audio-window #content {
+  max-height: 400px;
+  margin: 50px 0px 70px 0px;
+  padding: 0 50px;
+  overflow: auto;
+}
+
+#edit-audio-window #content div {
+  margin-bottom: 60px;
+}
+
+#edit-audio-window #content div:last-child {
+  margin-bottom: 30px;
+}
+
+#edit-audio-window #content .section-name {
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid black;
+  font-size: 1.1em;
+}
+
+#edit-audio-window #content input {
+  width: 500px;
+  height: 30px;
+  margin: 8px 0;
+}
+
+#edit-audio-window #content input:last-child {
+  margin-bottom: 0;
 }

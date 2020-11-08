@@ -1,4 +1,4 @@
-(() => {
+export default function insertNoResults() {
   const xmlhttp = new XMLHttpRequest();
 
   xmlhttp.onreadystatechange = function () {
@@ -7,16 +7,12 @@
           this.responseText,
           "text/html"
         ),
-        editAudioWindow = template.getElementById("edit-audio-window");
+        noResults = template.getElementById("no-results");
 
-      document.getElementsByTagName("main")[0].prepend(editAudioWindow);
+      document.getElementsByTagName("main")[0].appendChild(noResults);
     }
   };
 
-  xmlhttp.open(
-    "GET",
-    "/public/html/partials/audios/editAudioWindow.html",
-    true
-  );
+  xmlhttp.open("GET", `/public/html/partials/noResults.html`, true);
   xmlhttp.send();
-})();
+}

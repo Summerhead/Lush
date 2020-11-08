@@ -1,7 +1,7 @@
-const xmlhttp = new XMLHttpRequest();
-var template, artistLi;
-
 export default function loadArtistTemplate() {
+  const xmlhttp = new XMLHttpRequest();
+  var template, artistLi;
+
   return new Promise((resolve, reject) => {
     xmlhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
@@ -23,5 +23,3 @@ export default function loadArtistTemplate() {
     xmlhttp.send();
   });
 }
-
-export { artistLi };

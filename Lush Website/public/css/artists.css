@@ -1,18 +1,42 @@
 #artists {
-  margin: 50px 0 100px;
+  margin-bottom: 100px;
+  padding: 0 100px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 #artists-ordered-list {
+  /* width: calc(100% - 180px); */
+  /* display: grid;
+  grid-template-columns: repeat(8, 200px);
+  column-gap: calc((1720px - (200px * 8)) / 7);
+  row-gap: 30px; */
   display: flex;
   flex-wrap: wrap;
-  list-style: none;
   justify-content: center;
+  list-style: none;
+}
+
+/* #artists-ordered-list::after {
+  content: "";
+  min-width: 200px;
+  max-width: 200px;
+  flex: 1;
+  margin: 20px 10px;
+} */
+
+.artist-list-item {
+  min-width: 200px;
+  max-width: 200px;
+  flex: 1;
+  margin: 20px 10px;
 }
 
 .artist-container {
   width: 200px;
-  margin: 20px 10px;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
 }
 
 .audio-container:last-child {
@@ -28,6 +52,7 @@
 
 .image-wrapper {
   height: 200px;
+  width: 200px;
   margin-bottom: 15px;
   background-repeat: no-repeat;
   background-size: cover;

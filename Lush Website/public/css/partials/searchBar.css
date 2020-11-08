@@ -1,6 +1,7 @@
 .search-bar-container {
   height: 50px;
   padding: 0 100px;
+  margin-bottom: 50px;
 }
 
 #audio-search-bar {
