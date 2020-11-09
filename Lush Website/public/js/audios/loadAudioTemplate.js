@@ -9,7 +9,7 @@ export default function loadAudioTemplate() {
           this.responseText,
           "text/html"
         );
-        audioLi = template.getElementsByClassName("audio-list-item")[0];
+        audioLi = template.getElementsByClassName("audio-container")[0];
 
         resolve(audioLi);
       }
@@ -17,7 +17,7 @@ export default function loadAudioTemplate() {
 
     xmlhttp.open(
       "GET",
-      `/public/html/partials/audios/audioTemplate.html`,
+      "/public/html/partials/audios/audioTemplate.html",
       true
     );
     xmlhttp.send();

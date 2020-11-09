@@ -4,6 +4,6 @@ import loadEditAudioWindow from "./editAudioWindow/loadEditAudioWindow.js";
 
 (async () => {
   Promise.all([loadAudioTemplate(), loadEditAudioWindow()]).then((responses) =>
-    getAudios(...responses)
+    getAudios(responses[0])
   );
 })();

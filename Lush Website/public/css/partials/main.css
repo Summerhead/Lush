@@ -18,7 +18,7 @@ body {
 }
 
 @font-face {
-  font-family: GothamSSm ExtraLight;
+  font-family: "GothamSSm ExtraLight";
   src: url("/public/content/fonts/GothamSSm ExtraLight.otf");
   letter-spacing: 1em;
 }
@@ -36,13 +36,41 @@ main {
 }
 
 footer {
-  height: 100px;
-  border: 1px solid black;
+  position: relative;
+  height: 80px;
+  border-top: 1px solid rgb(202, 202, 202);
+}
+
+#footer-wrapper {
+  position: absolute;
+  bottom: 10px;
+  right: 100px;
+}
+
+#footer-wrapper #copyright {
+  font-size: 0.8em;
+  cursor: default;
+}
+
+#footer-wrapper #copyright #terms {
+  font-size: 0.9em;
+}
+
+#footer-wrapper span {
+  display: inline-block;
 }
 
 button,
 input {
   font-family: "Quicksand", "GothamSSm ExtraLight", serif;
+  background-color: white;
+  border: 1px solid rgb(122, 122, 122);
+  border-radius: 2px;
+}
+
+button {
+  font-weight: bold;
+  cursor: pointer;
 }
 
 input {

@@ -1,10 +1,4 @@
-#audios {
-  margin-bottom: 100px;
-  padding: 0 100px;
-}
-
-#audios-ordered-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+main {
+  background: url("/public/content/icons/favicon/galaxy-spiral-shape.png")
+    center no-repeat;
 }

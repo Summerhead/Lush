@@ -1,18 +1,19 @@
 import insertNoResults from "../partials/insertNoResults.js";
-import playerConstructor from "./playerConstructor.js";
+import AudioPlayer from "./AudioPlayer.js";
 
 const mainElement = document.getElementsByTagName("main")[0],
   audiosDiv = document.createElement("div"),
   audiosOl = document.createElement("ol");
 audiosDiv.setAttribute("id", "audios");
 audiosOl.setAttribute("id", "audios-ordered-list");
+
 var returnedRows = 0;
 
-export default async function getAudios(audioLi, editAudioWindowContainer) {
+export default async function getAudios(audioContainer) {
   const reqAudioData = {
     artistID: Number(document.location.pathname.split("/")[2]) || null,
     limit: 20,
-    offset: 13082 - 11740 - 10,
+    offset: 0,
   };
 
   fetchRow(reqAudioData);
@@ -32,27 +33,31 @@ export default async function getAudios(audioLi, editAudioWindowContainer) {
         if (data.status === 200) {
           if (returnedRows) {
             for (const audio of data.audios) {
-              const audioDiv = playerConstructor(
-                  audioLi,
-                  editAudioWindowContainer,
+              const audioPlayer = new AudioPlayer(
+                  audioContainer,
                   parseArtists(audio.artists),
                   audio.title
                 ),
                 reqAudioBlob = { blobID: audio.blob_id };
 
-              audioDiv.setAttribute("data-audio-id", audio.id);
+              const audioLi = document.createElement("li");
+              audioLi.appendChild(audioPlayer);
+              audioLi.setAttribute("class", "audio-list-item");
+              audioLi.setAttribute("data-audio-id", audio.id);
+
+              audiosOl.appendChild(audioLi);
 
               var artistAttributes = "";
               for (const [index, artist] of audio.artists.entries()) {
                 const dataArtistAttribute = "data-artist-" + (index + 1);
                 artistAttributes += dataArtistAttribute + " ";
-                audioDiv.setAttribute(dataArtistAttribute, artist);
+                audioLi.setAttribute(dataArtistAttribute, artist);
               }
               artistAttributes = artistAttributes.trim();
-              audioDiv.setAttribute("data-artist-attributes", artistAttributes);
-              audioDiv.setAttribute("data-audio-title", audio.title);
+              audioLi.setAttribute("data-artist-attributes", artistAttributes);
+              audioLi.setAttribute("data-audio-title", audio.title);
 
-              fetchBlob(reqAudioBlob, audioDiv);
+              fetchBlob(reqAudioBlob, audioPlayer);
             }
           } else if (!document.getElementById("audios")) {
             console.log(returnedRows);
@@ -66,7 +71,7 @@ export default async function getAudios(audioLi, editAudioWindowContainer) {
     });
   }
 
-  function fetchBlob(reqAudioBlob, songDiv) {
+  function fetchBlob(reqAudioBlob, audioPlayer) {
     fetch("/audioBlob", {
       method: "POST",
       headers: {
@@ -98,7 +103,7 @@ export default async function getAudios(audioLi, editAudioWindowContainer) {
       .then((rs) => new Response(rs))
       .then((response) => response.blob())
       .then((blob) => URL.createObjectURL(blob))
-      .then((url) => (songDiv.querySelector("#audio-player").src = url))
+      .then((url) => audioPlayer.setAudioPlayerSrc(url))
       .catch(console.error);
   }
 

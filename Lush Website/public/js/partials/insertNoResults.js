@@ -13,6 +13,6 @@ export default function insertNoResults() {
     }
   };
 
-  xmlhttp.open("GET", `/public/html/partials/noResults.html`, true);
+  xmlhttp.open("GET", "/public/html/partials/noResults.html", true);
   xmlhttp.send();
 }

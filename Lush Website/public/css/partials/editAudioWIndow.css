@@ -38,18 +38,19 @@
 }
 
 #edit-audio-window #content {
-  max-height: 400px;
+  min-height: 240px;
+  max-height: 350px;
   margin: 50px 0px 70px 0px;
   padding: 0 50px;
   overflow: auto;
 }
 
 #edit-audio-window #content div {
-  margin-bottom: 60px;
+  margin-bottom: 30px;
 }
 
 #edit-audio-window #content div:last-child {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 #edit-audio-window #content .section-name {
@@ -57,14 +58,28 @@
   padding-bottom: 5px;
   border-bottom: 1px solid black;
   font-size: 1.1em;
+  cursor: default;
 }
 
 #edit-audio-window #content input {
-  width: 500px;
+  width: 100%;
   height: 30px;
   margin: 8px 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
 }
 
 #edit-audio-window #content input:last-child {
   margin-bottom: 0;
+}
+
+#edit-audio-window #submit-button {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 30px;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid rgb(141, 141, 141);
 }

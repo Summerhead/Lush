@@ -11,12 +11,10 @@
 
       document.getElementsByTagName("main")[0].prepend(searchBar);
 
-      $(() => {
-        const btn = $("#import-pfx-button");
-        btn.click(function (e) {
-          $("#file-input").click();
-          $("#file-input").change(handleFileSelect);
-        });
+      const btn = $("#import-pfx-button");
+      btn.click(function (e) {
+        $("#file-input").click();
+        $("#file-input").change(handleFileSelect);
       });
     }
   };

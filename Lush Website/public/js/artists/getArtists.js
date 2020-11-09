@@ -1,5 +1,4 @@
 import insertNoResults from "../partials/insertNoResults.js";
-// import player from "./partials/audio.js";
 
 export default async function getArtists(artistLi) {
   const mainElement = document.getElementsByTagName("main")[0],
@@ -13,7 +12,6 @@ export default async function getArtists(artistLi) {
     offset: 0,
   };
 
-  var metadataCount = 0;
   var returnedRows = 0;
 
   fetchRow(reqArtistData);

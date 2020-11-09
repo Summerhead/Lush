@@ -54,7 +54,7 @@ const pagesJSON = JSON.parse(pagesData);
 
 for (const [page, data] of Object.entries(pagesJSON)) {
   app.get(page, function (req, res) {
-    res.sendFile(path.join(__dirname, "/public/html/index.html"));
+    res.sendFile(path.join(__dirname, "/public/html/main.html"));
   });
 
   app.post(page, function (req, res) {
@@ -116,10 +116,6 @@ function executeQuery(query, values) {
     });
   });
 }
-
-app.get("/", function (req, res) {
-  res.sendFile(path.join(__dirname, "/public/html/index.html"));
-});
 
 app.post("/audioData", async function (req, res, next) {
   console.log("Body:", req.body);

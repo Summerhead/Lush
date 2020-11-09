@@ -81,7 +81,7 @@
 #nav-bar .dropdown {
   width: 800px;
   max-height: 500px;
-  min-height: 60px;
+  min-height: 110px;
   left: 50%;
   transform: translate(-50%, 0);
   padding: 10px 20px;

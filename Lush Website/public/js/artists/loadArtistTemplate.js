@@ -17,7 +17,7 @@ export default function loadArtistTemplate() {
 
     xmlhttp.open(
       "GET",
-      `/public/html/partials/artists/artistTemplate.html`,
+      "/public/html/partials/artists/artistTemplate.html",
       true
     );
     xmlhttp.send();

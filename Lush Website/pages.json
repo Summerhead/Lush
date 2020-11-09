@@ -1,9 +1,13 @@
 {
   "/": {
+    "links": ["/public/css/index.css"],
+    "scripts": [{ "type": "", "link": "" }]
+  },
+  "/music": {
     "links": [
       "/public/css/partials/audio.css",
-      "/public/css/index.css",
-      "/public/css/partials/searchbar.css",
+      "/public/css/music.css",
+      "/public/css/partials/searchBar.css",
       "/public/css/partials/editAudioWIndow.css",
       "/public/css/partials/noResults.css"
     ],
@@ -28,8 +32,8 @@
   "/artists/:artist": {
     "links": [
       "/public/css/partials/audio.css",
-      "/public/css/index.css",
-      "/public/css/partials/searchbar.css",
+      "/public/css/music.css",
+      "/public/css/partials/searchBar.css",
       "/public/css/partials/editAudioWIndow.css",
       "/public/css/partials/noResults.css"
     ],

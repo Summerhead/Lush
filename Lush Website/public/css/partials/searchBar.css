@@ -1,18 +1,32 @@
 .search-bar-container {
-  height: 50px;
+  height: 30px;
   padding: 0 100px;
-  margin-bottom: 50px;
+  margin: 45px 0 50px;
 }
 
 #audio-search-bar {
-  height: 100%;
+  display: grid;
+  grid-template-columns: auto 100px;
+  column-gap: 10px;
   position: relative;
+  height: 100%;
 }
 
-#import-pfx-button {
-  position: absolute;
-  width: 45px;
-  height: 30px;
-  right: 0px;
-  top: 15px;
+#audio-search-bar #list {
+  display: none;
+}
+
+#audio-search-bar #right-tab {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 10px;
+}
+
+#audio-search-bar #right-tab button {
+  background-color: rgb(240, 240, 240);
+}
+
+#audio-search-bar #right-tab #search-button {
+  background: rgb(240, 240, 240) url("/public/content/icons/loupe.svg")
+    center/10px no-repeat;
 }
