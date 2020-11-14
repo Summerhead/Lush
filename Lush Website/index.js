@@ -134,8 +134,11 @@ app.post("/audioData", async function (req, res, next) {
 });
 
 app.post("/audioBlob", async function (req, res, next) {
+  // console.log(req.body);
   const blobID = req.body.blobID,
     audioData = await fetchAudioBlob(blobID);
+  // console.log("url:", audioData.blob);
+  // console.log("url:", audioData.blob.length);
 
   res.write(audioData.blob);
   res.end();
@@ -157,7 +160,7 @@ async function fetchAudioData(limit, offset) {
     audio.artists = [];
 
     for (const artist of artists) {
-      audio.artists.push(artist.name);
+      audio.artists.push({ id: artist.id, name: artist.name });
     }
 
     audioData.audios.push({ ...audio });
@@ -219,7 +222,7 @@ async function fetchAudioDataByArtistID(artistID, limit, offset) {
     audio.artists = [];
 
     for (const artist of artists) {
-      audio.artists.push(artist.name);
+      audio.artists.push({ id: artist.id, name: artist.name });
     }
 
     audioData.audios.push({ ...audio });
@@ -268,7 +271,7 @@ async function getAudio(audioID) {
 
 async function getArtistsByAudioID(audioID) {
   const query = `
-  SELECT name, artist_position 
+  SELECT artist.id, name, artist_position 
   FROM artist
       LEFT JOIN audio_artist 
       ON artist.id = artist_id

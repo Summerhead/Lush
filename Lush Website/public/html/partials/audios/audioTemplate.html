@@ -14,16 +14,27 @@
 
     <div class="audio-content">
       <div class="audio-header">
-        <div class="artists"></div>
         <div class="title"></div>
+        <div class="artists"></div>
       </div>
 
       <div class="audio-hud">
-        <div
-          class="audio-hud__element audio-hud__curr-time"
-          id="audio-hud__curr-time"
-        >
-          <span>00:00</span>
+        <div id="time">
+          <div
+            class="audio-hud__element audio-hud__curr-time"
+            id="audio-hud__curr-time"
+          >
+            <span>00:00</span>
+          </div>
+
+          <div id="time-slash">/</div>
+
+          <div
+            class="audio-hud__element audio-hud__duration"
+            id="audio-hud__duration"
+          >
+            <span>00:00</span>
+          </div>
         </div>
 
         <progress
@@ -32,13 +43,6 @@
           class="audio-hud__element audio-hud__progress-bar"
           id="audio-hud__progress-bar"
         ></progress>
-
-        <div
-          class="audio-hud__element audio-hud__duration"
-          id="audio-hud__duration"
-        >
-          <span>00:00</span>
-        </div>
       </div>
 
       <div id="right-tab">

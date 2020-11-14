@@ -1,6 +1,8 @@
+var audioLi;
+
 export default function loadAudioTemplate() {
   const xmlhttp = new XMLHttpRequest();
-  var template, audioLi;
+  var template;
 
   return new Promise((resolve, reject) => {
     xmlhttp.onreadystatechange = function () {
@@ -23,3 +25,5 @@ export default function loadAudioTemplate() {
     xmlhttp.send();
   });
 }
+
+export { audioLi };

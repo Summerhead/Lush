@@ -1,5 +1,20 @@
 import insertNoResults from "../partials/insertNoResults.js";
 
+window.onscroll = function () {
+  if (
+    !atTheBottomObject.atTheBottom &&
+    window.innerHeight + window.scrollY >=
+      audiosOl.offsetTop + audiosOl.offsetHeight - 100
+  ) {
+    // console.log("At the bottom");
+    atTheBottomObject.atTheBottom = true;
+
+    globalReqAudioData.offset += globalReqAudioData.limit;
+    const reqAudioData = Object.assign({}, globalReqAudioData);
+    getArtists(reqAudioData);
+  }
+};
+
 export default async function getArtists(artistLi) {
   const mainElement = document.getElementsByTagName("main")[0],
     artistsDiv = document.createElement("div"),
@@ -14,9 +29,9 @@ export default async function getArtists(artistLi) {
 
   var returnedRows = 0;
 
-  fetchRow(reqArtistData);
+  fetchDataChunk(reqArtistData);
 
-  function fetchRow(audioReqData) {
+  function fetchDataChunk(audioReqData) {
     $.ajax({
       type: "POST",
       url: "/artistsData",

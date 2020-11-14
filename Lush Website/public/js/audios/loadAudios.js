@@ -3,7 +3,7 @@ import loadAudioTemplate from "./loadAudioTemplate.js";
 import loadEditAudioWindow from "./editAudioWindow/loadEditAudioWindow.js";
 
 (async () => {
-  Promise.all([loadAudioTemplate(), loadEditAudioWindow()]).then((responses) =>
-    getAudios(responses[0])
+  Promise.all([loadAudioTemplate(), loadEditAudioWindow()]).then(() =>
+    getAudios()
   );
 })();

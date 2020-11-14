@@ -42,4 +42,6 @@ export function openEditAudioWindow(editAudioWindowContainer, audioLi) {
   editAudioWindowContainer
     .querySelector("#title>.inputs")
     .appendChild(inputText);
+
+  editAudioWindowContainer.style.display = "block";
 }

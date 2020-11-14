@@ -74,6 +74,7 @@ button {
 }
 
 input {
+  padding: 0 2px;
   font-size: 1.02em;
   color: black;
 }
