@@ -11,13 +11,17 @@ var currentAudio;
 var reqCount = 0;
 
 export default class AudioPlayer extends HTMLElement {
-  constructor(audioLi, artists, title) {
+  constructor(audioLi, artists, title, duration) {
     super();
 
     this.innerHTML = audioLi.innerHTML;
 
     this.actionButton = this.querySelector("#audio-hud__action");
-    this.audioPlayer = this.querySelector("#audio-player");
+    this.audioPlayer = document.createElement("audio");
+    this.audioPlayer.setAttribute("src", "");
+    this.audioPlayer.setAttribute("id", "audio-player");
+    this.audioPlayer.setAttribute("class", "audio-player");
+    this.audioPlayer.setAttribute("preload", "metadata");
 
     this.progressBar = this.querySelector("#audio-hud__progress-bar");
     this.currentTime = this.querySelector("#audio-hud__curr-time>span");
@@ -27,15 +31,21 @@ export default class AudioPlayer extends HTMLElement {
     this.editButton = this.querySelector("#edit-button");
     this.infoButton = this.querySelector("#info-button");
 
-    this.configureAudioPlayer(artists, title);
+    this.configureAudioPlayer(artists, title, duration);
   }
 }
 
-AudioPlayer.prototype.configureAudioPlayer = function (artists, title) {
+AudioPlayer.prototype.configureAudioPlayer = function (
+  artists,
+  title,
+  duration
+) {
   this.setAttribute("class", "audio-container");
 
   this.insertArtists(artists);
   this.querySelector(".audio-header>.title").innerText = title;
+  this.durationTime.innerText = this.audioTime(duration);
+  this.progressBar.max = Math.floor(duration);
 
   this.addEventListeners();
 };
@@ -79,7 +89,7 @@ AudioPlayer.prototype.insertArtists = function (artists) {
 AudioPlayer.prototype.parseArtists = function (artists) {
   artists = artists.map((artist) => {
     const aElement = document.createElement("a");
-    aElement.setAttribute("href", "/artists/" + artist.id);
+    aElement.setAttribute("href", `/artists/${artist.name}?id=${artist.id}`);
     aElement.innerText = artist.name;
     return aElement.outerHTML;
   });
@@ -160,23 +170,25 @@ AudioPlayer.prototype.audioAct = async function () {
   ) {
     this.stopAudio();
     this.revokeObjectURL();
+    this.progressBar.style.display = "none";
     this.audioPlayer.onloadeddata = null;
-  }
-
-  if (this.actionButton.classList.contains("audio-hud__action_play")) {
-    if (this.audioPlayer.src === document.location.href) {
-      this.revoke = false;
-
-      await this.fetchBlob({
-        blobID: Number(
-          this.closest(".audio-list-item").getAttribute("data-blob-id")
-        ),
-      });
-    }
-
-    this.audioPlayer.play();
   } else {
-    this.audioPlayer.pause();
+    this.progressBar.style.display = "block";
+    if (this.actionButton.classList.contains("audio-hud__action_play")) {
+      if (this.audioPlayer.src === document.location.href) {
+        this.revoke = false;
+
+        await this.fetchBlob({
+          blobID: Number(
+            this.closest(".audio-list-item").getAttribute("data-blob-id")
+          ),
+        });
+      }
+
+      this.audioPlayer.play();
+    } else {
+      this.audioPlayer.pause();
+    }
   }
 };
 
@@ -260,7 +272,7 @@ AudioPlayer.prototype.playNext = function (e) {
   );
 
   var nextSibling;
-  if ((nextSibling = e.target.closest(".audio-list-item").nextSibling)) {
+  if ((nextSibling = this.closest(".audio-list-item").nextSibling)) {
     var nextAudio = nextSibling.querySelector(".audio-container");
 
     currentAudio = nextAudio;

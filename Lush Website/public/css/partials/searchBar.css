@@ -1,7 +1,7 @@
 .search-bar-container {
   height: 30px;
   padding: 0 100px;
-  margin: 45px 0 50px;
+  margin: 25px 0 50px;
 }
 
 #audio-search-bar {
@@ -23,10 +23,10 @@
 }
 
 #audio-search-bar #right-tab button {
-  background-color: rgb(240, 240, 240);
+  background-color: rgb(253, 105, 105);
 }
 
 #audio-search-bar #right-tab #search-button {
-  background: rgb(240, 240, 240) url("/public/content/icons/loupe.svg")
+  background: rgb(253, 105, 105) url("/public/content/icons/loupe.svg")
     center/10px no-repeat;
 }

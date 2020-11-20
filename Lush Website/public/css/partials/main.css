@@ -64,7 +64,7 @@ button,
 input {
   font-family: "Quicksand", "GothamSSm ExtraLight", serif;
   background-color: white;
-  border: 1px solid rgb(122, 122, 122);
+  border: none;
   border-radius: 2px;
 }
 
@@ -77,4 +77,5 @@ input {
   padding: 0 2px;
   font-size: 1.02em;
   color: black;
+  border: 1px solid rgb(180, 180, 180);
 }

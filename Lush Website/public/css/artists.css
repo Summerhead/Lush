@@ -5,23 +5,10 @@
 }
 
 #artists-ordered-list {
-  /* display: flex;
-  flex-wrap: wrap;
-  justify-content: center; */
   display: grid;
-  grid-template-columns: repeat(8, 200px);
-  justify-content: space-between;
-  /* column-gap: calc(120px / 7); */
-  row-gap: 40px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 40px 25px;
   list-style: none;
-}
-
-.artist-container {
-  /* width: 200px;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%); */
-  height: 100%;
 }
 
 .audio-container:last-child {
@@ -36,7 +23,7 @@
 }
 
 .image-wrapper {
-  height: 200px;
+  /* height: 200px; */
   margin-bottom: 15px;
   background-repeat: no-repeat;
   background-size: cover;
@@ -53,7 +40,7 @@
   font-size: 0.8em;
 }
 
-@media screen and (max-width: 1919px) {
+/* @media screen and (max-width: 1919px) {
   #artists-ordered-list {
     display: grid;
     grid-template-columns: repeat(7, 200px);
@@ -134,4 +121,4 @@
     height: 260px;
     border-radius: 50%;
   }
-}
+} */

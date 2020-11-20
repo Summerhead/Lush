@@ -119,7 +119,11 @@ function executeQuery(query, values) {
 
 app.post("/audioData", async function (req, res, next) {
   console.log("Body:", req.body);
-  const artistID = req.body.artistID,
+  const searchArtistID = req.body.searchArtistID,
+    numberArtistID = searchArtistID
+      ? Number(searchArtistID.split("=")[1])
+      : null,
+    artistID = numberArtistID ? numberArtistID : null,
     limit = req.body.limit,
     offset = req.body.offset;
 
@@ -134,11 +138,8 @@ app.post("/audioData", async function (req, res, next) {
 });
 
 app.post("/audioBlob", async function (req, res, next) {
-  // console.log(req.body);
   const blobID = req.body.blobID,
     audioData = await fetchAudioBlob(blobID);
-  // console.log("url:", audioData.blob);
-  // console.log("url:", audioData.blob.length);
 
   res.write(audioData.blob);
   res.end();
@@ -190,7 +191,7 @@ async function getNumOfRows() {
 
 async function getAudioMetadata(limit, offset) {
   const query = `
-  SELECT id, blob_id, title
+  SELECT id, blob_id, title, duration
   FROM audio
   WHERE id <= 
       (
@@ -233,7 +234,7 @@ async function fetchAudioDataByArtistID(artistID, limit, offset) {
 
 async function getAudioMetadataByArtistID(artistID, limit, offset) {
   const query = `
-  SELECT audio.id, blob_id, title
+  SELECT audio.id, blob_id, title, duration
   FROM audio
   RIGHT JOIN audio_artist 
   ON audio.id = audio_artist.audio_id
@@ -341,7 +342,7 @@ app.post("/uploadAudio", async function (req, res, next) {
 
     res.status(500).send({
       status: error,
-      message: "Uploading process has failed.",
+      message: "Failed to upload.",
       name: audio.name,
     });
   }
@@ -435,7 +436,6 @@ app.post("/artistsData", async (req, res, next) => {
 app.post("/imageBlob", async (req, res, next) => {
   const blobID = req.body.blobID,
     audioData = await fetchImageBlob(blobID);
-  // console.log("audioData:", audioData);
 
   res.write(audioData.blob);
   res.end();
@@ -567,6 +567,26 @@ async function getImage(blobID) {
     FROM image_blob
     WHERE id = ${blobID}
     ;`;
+
+  return await resolveQuery(query);
+}
+
+app.post("/uploadAudioDurations", async (req, res, next) => {
+  const blobID = req.body.blobID,
+    duration = req.body.duration;
+  console.log(req.body);
+  await uploadAudioDurations(blobID, duration);
+
+  // res.send("Done");
+  res.end();
+});
+
+async function uploadAudioDurations(blobID, duration) {
+  const query = `
+  UPDATE audio 
+  SET duration = ${duration}
+  WHERE id = ${blobID}
+  ;`;
 
   return await resolveQuery(query);
 }

@@ -10,12 +10,12 @@ audiosOl.setAttribute("id", "audios-ordered-list");
 audiosDiv.appendChild(audiosOl);
 mainElement.appendChild(audiosDiv);
 
-var offset = 0;
+var offset = 13082 - 11740 - 10;
 const globalReqAudioData = {
-  artistID: Number(document.location.pathname.split("/")[2]) || null,
-  limit: 50,
+  searchArtistID: document.location.search || null,
+  limit: 100,
   //13082-11740-10
-  offset: offset,
+  offset: 0,
 };
 
 var metadataCountObject = 0;
@@ -23,7 +23,7 @@ var returnedRows = 0;
 
 const atTheBottomObject = { atTheBottom: false };
 
-var audios = [];
+const audios = [];
 
 window.onscroll = function () {
   if (
@@ -43,6 +43,7 @@ export default async function getAudios(reqAudioDataSpec) {
   const audioContainer = audioLi;
   const reqAudioData = reqAudioDataSpec || globalReqAudioData;
   metadataCountObject = { metadataCount: 0 };
+  audios.length = 0;
 
   fetchDataChunk(reqAudioData);
 
@@ -62,11 +63,11 @@ export default async function getAudios(reqAudioDataSpec) {
           if (returnedRows) {
             for (const audio of data.audios) {
               const audioPlayer = new AudioPlayer(
-                  audioContainer,
-                  audio.artists,
-                  audio.title
-                ),
-                reqAudioBlob = { blobID: audio.blob_id };
+                audioContainer,
+                audio.artists,
+                audio.title,
+                audio.duration
+              );
 
               const audioLi = document.createElement("li");
               audioLi.appendChild(audioPlayer);
@@ -85,12 +86,12 @@ export default async function getAudios(reqAudioDataSpec) {
               artistAttributes = artistAttributes.trim();
               audioLi.setAttribute("data-artist-attributes", artistAttributes);
               audioLi.setAttribute("data-audio-title", audio.title);
-
-              audioPlayer.setOnLoadedMetadataActionListener();
-
-              audioPlayer.fetchBlob(reqAudioBlob, audioPlayer);
             }
-          } else if (!document.getElementById("audios")) {
+
+            audios.forEach((audio) => audiosOl.appendChild(audio));
+
+            atTheBottomObject.atTheBottom = false;
+          } else if (!document.getElementById("audios-ordered-list")) {
             insertNoResults();
           }
         }

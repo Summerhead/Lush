@@ -1,11 +1,11 @@
 <li class="audio-list-item">
   <audio-player class="audio-container">
-    <audio
+    <!-- <audio
       src=""
       class="audio-player"
       id="audio-player"
       preload="metadata"
-    ></audio>
+    ></audio> -->
 
     <div
       class="audio-hud__element audio-hud__action"
@@ -19,6 +19,12 @@
       </div>
 
       <div class="audio-hud">
+        <div id="right-tab">
+          <button id="delete-button" class="delete-button"></button>
+          <button id="edit-button" class="edit-button"></button>
+          <button id="info-button" class="info-button"></button>
+        </div>
+
         <div id="time">
           <div
             class="audio-hud__element audio-hud__curr-time"
@@ -36,20 +42,14 @@
             <span>00:00</span>
           </div>
         </div>
-
-        <progress
-          value="0"
-          max="100"
-          class="audio-hud__element audio-hud__progress-bar"
-          id="audio-hud__progress-bar"
-        ></progress>
       </div>
 
-      <div id="right-tab">
-        <button id="delete-button" class="delete-button"></button>
-        <button id="edit-button" class="edit-button"></button>
-        <button id="info-button" class="info-button"></button>
-      </div>
+      <progress
+        value="0"
+        max="100"
+        class="audio-hud__element audio-hud__progress-bar"
+        id="audio-hud__progress-bar"
+      ></progress>
     </div>
   </audio-player>
 </li>

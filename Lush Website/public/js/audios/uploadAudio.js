@@ -2,7 +2,7 @@ async function handleFileSelect(e) {
   const files = e.target.files;
 
   if (files.length < 1) {
-    return;
+    return 0;
   }
 
   for (const file of files) {
