@@ -1,6 +1,6 @@
-import insertNoResults from "../partials/insertNoResults.js";
+import insertNoResults from "../../partials/insertNoResults.js";
 
-const artistsOl = document.getElementById("artists-ol");
+const artistPic = document.getElementById("artist-pic");
 
 const globalReqArtistData = {
   artistID: Number(document.location.pathname.split("/")[2]) || null,
@@ -8,13 +8,11 @@ const globalReqArtistData = {
   offset: 0,
 };
 
+var returnedRows = 0;
+
 const atTheBottomObject = { atTheBottom: false };
 
-function outputsize(imageWrapper) {
-  imageWrapper.style.height = imageWrapper.offsetWidth + "px";
-}
-
-export default async function getArtists(artistLi, reqArtistDataSpec) {
+export default async function getArtist(artistLi, reqArtistDataSpec) {
   const reqArtistData = reqArtistDataSpec || globalReqArtistData;
 
   fetchDataChunk(reqArtistData);
@@ -29,23 +27,17 @@ export default async function getArtists(artistLi, reqArtistDataSpec) {
       success: function (data) {
         console.log("Data:", data);
 
-        const returnedRows = data.artists.length;
+        returnedRows = data.artists.length;
 
         if (data.status === 200) {
           if (returnedRows) {
             for (const artist of data.artists) {
               const artistLi = constructArtist(artist),
                 imageWrapper = artistLi.querySelector(".image-wrapper");
-              artistsOl.appendChild(artistLi);
+              artistPic.appendChild(artistLi);
 
               const reqImageBlob = { blobID: artist.blob_id };
               fetchBlob(reqImageBlob, imageWrapper);
-
-              outputsize(imageWrapper);
-
-              new ResizeObserver(() => outputsize(imageWrapper)).observe(
-                artistLi
-              );
             }
 
             atTheBottomObject.atTheBottom = false;
@@ -116,13 +108,13 @@ export default async function getArtists(artistLi, reqArtistDataSpec) {
     if (
       !atTheBottomObject.atTheBottom &&
       window.innerHeight + window.scrollY >=
-        artistsOl.offsetTop + artistsOl.offsetHeight - 100
+        artistPic.offsetTop + artistPic.offsetHeight - 100
     ) {
       atTheBottomObject.atTheBottom = true;
 
       globalReqArtistData.offset += globalReqArtistData.limit;
       const reqArtistData = Object.assign({}, globalReqArtistData);
-      getArtists(artistLi, reqArtistData);
+      getArtist(artistLi, reqArtistData);
     }
   };
 }

@@ -49,18 +49,21 @@ app.use(
   })
 );
 
-const pagesData = fs.readFileSync("pages.json");
-const pagesJSON = JSON.parse(pagesData);
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/html/main.html"));
+});
 
-for (const [page, data] of Object.entries(pagesJSON)) {
-  app.get(page, function (req, res) {
-    res.sendFile(path.join(__dirname, "/public/html/main.html"));
-  });
+app.get("/music", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/html/music.html"));
+});
 
-  app.post(page, function (req, res) {
-    res.send(data);
-  });
-}
+app.get("/artists", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/html/artists.html"));
+});
+
+app.get("/artists/:artist_id", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/html/artist.html"));
+});
 
 app.get("/header", async function (req, res, next) {
   const result = await getHeaderInfo(),
@@ -119,20 +122,17 @@ function executeQuery(query, values) {
 
 app.post("/audioData", async function (req, res, next) {
   console.log("Body:", req.body);
-  const searchArtistID = req.body.searchArtistID,
-    numberArtistID = searchArtistID
-      ? Number(searchArtistID.split("=")[1])
-      : null,
-    artistID = numberArtistID ? numberArtistID : null,
-    limit = req.body.limit,
-    offset = req.body.offset;
 
-  var audioData;
-  if (artistID) {
-    audioData = await fetchAudioDataByArtistID(artistID, limit, offset);
-  } else {
-    audioData = await fetchAudioData(limit, offset);
-  }
+  const artistID = Number(req.body.artistID);
+
+  const params = {};
+  [params.artistID, params.limit, params.offset] = [
+    artistID,
+    req.body.limit,
+    req.body.offset,
+  ];
+
+  const audioData = await fetchAudioData(params);
 
   res.send(audioData);
 });
@@ -145,8 +145,8 @@ app.post("/audioBlob", async function (req, res, next) {
   res.end();
 });
 
-async function fetchAudioData(limit, offset) {
-  const result = await getAudioMetadata(limit, offset),
+async function fetchAudioData(params) {
+  const result = await getAudioMetadata(params),
     error = result.error,
     audios = result.data || [],
     audioData = {
@@ -189,70 +189,49 @@ async function getNumOfRows() {
   await resolveQuery(query);
 }
 
-async function getAudioMetadata(limit, offset) {
-  const query = `
-  SELECT id, blob_id, title, duration
-  FROM audio
-  WHERE id <= 
-      (
-        SELECT id 
-        FROM audio 
-        ORDER BY id DESC
-        LIMIT 1 OFFSET ${offset}
-      )
-  ORDER BY id DESC
-  LIMIT ${limit}
-  ;`;
+async function getAudioMetadata({ artistID, limit, offset }) {
+  var artistIDJoinClause = "",
+    artistIDWhereClause = "",
+    artistIDJoinSubquery = "",
+    artistIDWhereSubquery = "";
+  if (artistID) {
+    artistIDJoinClause = `
+    LEFT JOIN audio_artist 
+    ON audio.id = audio_artist.audio_id
+    LEFT JOIN artist 
+    ON audio_artist.artist_id = artist.id
+    `;
 
-  return await resolveQuery(query);
-}
+    artistIDWhereClause = `
+    AND artist.id = ${artistID}
+    `;
 
-async function fetchAudioDataByArtistID(artistID, limit, offset) {
-  const result = await getAudioMetadataByArtistID(artistID, limit, offset),
-    error = result.error,
-    audios = result.data || [],
-    audioData = {
-      status: error || 200,
-      audios: [],
-    };
+    artistIDJoinSubquery = `
+    LEFT JOIN audio_artist 
+    ON audio.id = audio_artist.audio_id
+    LEFT JOIN artist 
+    ON audio_artist.artist_id = artist.id
+    `;
 
-  for (const audio of audios) {
-    const result = await getArtistsByAudioID(audio.id),
-      artists = result.data;
-
-    audio.artists = [];
-
-    for (const artist of artists) {
-      audio.artists.push({ id: artist.id, name: artist.name });
-    }
-
-    audioData.audios.push({ ...audio });
+    artistIDWhereSubquery = `
+    WHERE artist.id = ${artistID}
+    `;
   }
 
-  return audioData;
-}
-
-async function getAudioMetadataByArtistID(artistID, limit, offset) {
   const query = `
   SELECT audio.id, blob_id, title, duration
   FROM audio
-  RIGHT JOIN audio_artist 
-  ON audio.id = audio_artist.audio_id
-  RIGHT JOIN artist 
-  ON audio_artist.artist_id = artist.id
-  WHERE artist.id = ${artistID}
-  AND audio.id <= 
+  ${artistIDJoinClause}
+  WHERE audio.id <= 
       (
         SELECT audio.id 
         FROM audio 
-        RIGHT JOIN audio_artist 
-        ON audio.id = audio_artist.audio_id
-        RIGHT JOIN artist 
-        ON audio_artist.artist_id = artist.id
-        WHERE artist.id = ${artistID}
+        ${artistIDJoinSubquery}
+        ${artistIDWhereSubquery}
         ORDER BY audio.id DESC
         LIMIT 1 OFFSET ${offset}
       )
+  ${artistIDWhereClause}
   ORDER BY audio.id DESC
   LIMIT ${limit}
   ;`;
@@ -315,7 +294,7 @@ app.post("/uploadAudio", async function (req, res, next) {
 
       if (artists) {
         const audioArtistSeparator = /, | & | [fF]?eat[.]*? /;
-        const artistsArr = parseArtists(artists, audioArtistSeparator);
+        const artistsArr = artists.split(audioArtistSeparator);
 
         for (const [index, artist] of artistsArr.entries()) {
           var artistID;
@@ -347,11 +326,6 @@ app.post("/uploadAudio", async function (req, res, next) {
     });
   }
 });
-
-function parseArtists(artists, separator) {
-  artists = artists.split(separator);
-  return artists;
-}
 
 async function insertAudioLanguage(audioID, languageID) {
   const query = `
@@ -415,9 +389,18 @@ function trimExtension(filename) {
 }
 
 app.post("/artistsData", async (req, res, next) => {
-  const limit = req.body.limit,
-    offset = req.body.offset,
-    result = await getArtistsData(limit, offset),
+  const artistID = Number(req.body.artistID);
+  console.log(req.body);
+  console.log(artistID);
+
+  const params = {};
+  [params.artistID, params.limit, params.offset] = [
+    artistID,
+    req.body.limit,
+    req.body.offset,
+  ];
+
+  const result = await getArtistsData(params),
     artists = result.data || [],
     error = result.error,
     resJSON = {
@@ -522,17 +505,53 @@ async function insertImageArtist(imageID, artistID) {
   return await resolveQuery(query);
 }
 
-async function getArtistsData(limit, offset) {
+async function getArtistsData({ artistID, limit, offset }) {
+  var artistIDJoinClause = "",
+    artistIDWhereClause = "",
+    artistIDJoinSubquery = "",
+    artistIDWhereSubquery = "";
+  console.log(artistID);
+  if (artistID) {
+    artistIDWhereClause = `
+  AND artist.id = ${artistID}
+  `;
+
+    artistIDJoinSubquery = `
+  LEFT JOIN audio_artist 
+  ON audio.id = audio_artist.audio_id
+  LEFT JOIN artist 
+  ON audio_artist.artist_id = artist.id
+  `;
+
+    artistIDWhereSubquery = `
+  WHERE artist.id = ${artistID}
+  `;
+  }
+
   const query = `
   SELECT artist.id AS artist_id, artist.name AS name, 
   image.blob_id AS blob_id
-  FROM lush.artist
-  LEFT JOIN lush.image_artist
+  FROM artist
+  LEFT JOIN image_artist
   ON artist.id = image_artist.artist_id
-  LEFT JOIN lush.image
+  LEFT JOIN image
   ON image.id = image_artist.image_id
+  ${artistIDJoinClause}
+  WHERE artist.id <= 
+    (
+      SELECT artist.id 
+      FROM artist 
+      LEFT JOIN image_artist
+      ON artist.id = image_artist.artist_id
+      LEFT JOIN image
+      ON image.id = image_artist.image_id
+      ${artistIDWhereSubquery}
+      ORDER BY artist.id DESC
+      LIMIT 1 OFFSET ${offset}
+    )
+  ${artistIDWhereClause}
   ORDER BY artist.id DESC
-  LIMIT ${limit} OFFSET ${offset}
+  LIMIT ${limit}
   ;`;
 
   return await resolveQuery(query);
@@ -567,26 +586,6 @@ async function getImage(blobID) {
     FROM image_blob
     WHERE id = ${blobID}
     ;`;
-
-  return await resolveQuery(query);
-}
-
-app.post("/uploadAudioDurations", async (req, res, next) => {
-  const blobID = req.body.blobID,
-    duration = req.body.duration;
-  console.log(req.body);
-  await uploadAudioDurations(blobID, duration);
-
-  // res.send("Done");
-  res.end();
-});
-
-async function uploadAudioDurations(blobID, duration) {
-  const query = `
-  UPDATE audio 
-  SET duration = ${duration}
-  WHERE id = ${blobID}
-  ;`;
 
   return await resolveQuery(query);
 }

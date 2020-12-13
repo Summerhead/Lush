@@ -1,4 +1,4 @@
-export default function loadAudioTemplate() {
+export default function loadArtistTemplate() {
   const xmlhttp = new XMLHttpRequest();
 
   return new Promise((resolve, reject) => {
@@ -8,15 +8,15 @@ export default function loadAudioTemplate() {
             this.responseText,
             "text/html"
           ),
-          audioLi = template.getElementsByClassName("audio-container")[0];
+          artistLi = template.getElementsByClassName("artist-container")[0];
 
-        resolve(audioLi);
+        resolve(artistLi);
       }
     };
 
     xmlhttp.open(
       "GET",
-      "/public/html/partials/audios/audioTemplate.html",
+      "/public/html/partials/artists/artist/artistTemplate.html",
       true
     );
     xmlhttp.send();

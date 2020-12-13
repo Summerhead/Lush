@@ -1,5 +1,3 @@
-var artistLi;
-
 export default function loadArtistTemplate() {
   const xmlhttp = new XMLHttpRequest();
 
@@ -7,10 +5,10 @@ export default function loadArtistTemplate() {
     xmlhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
         const template = new DOMParser().parseFromString(
-          this.responseText,
-          "text/html"
-        );
-        artistLi = template.getElementsByClassName("artist-list-item")[0];
+            this.responseText,
+            "text/html"
+          ),
+          artistLi = template.getElementsByClassName("artist-li")[0];
 
         resolve(artistLi);
       }
@@ -24,5 +22,3 @@ export default function loadArtistTemplate() {
     xmlhttp.send();
   });
 }
-
-export { artistLi };

@@ -1,0 +1,11 @@
+#artist-pic {
+  margin: 0 100px;
+}
+
+#artist-pic .image-wrapper {
+  height: 300px;
+  /* margin: 15px 100px; */
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}

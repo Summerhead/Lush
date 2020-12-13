@@ -5,14 +5,14 @@
   color: black;
 }
 
-.audio-list-item {
+.audio-li {
   width: 100%;
   list-style: none;
   cursor: default;
   border-top: 1px solid rgba(0, 0, 0, 0.116);
 }
 
-.audio-list-item:last-child {
+.audio-li:last-child {
   border-bottom: 1px solid rgba(0, 0, 0, 0.116);
 }
 
@@ -180,13 +180,13 @@
   background: url("/public/content/icons/info.svg") center/10px no-repeat;
 }
 
-.audio-list-item #right-tab {
+.audio-li #right-tab {
   display: flex;
   justify-content: flex-end;
   margin: 0 -6px 3px 0;
 }
 
-.audio-list-item #right-tab button {
+.audio-li #right-tab button {
   width: 18px;
   height: 15px;
   margin-right: 2px;
@@ -195,18 +195,18 @@
   cursor: pointer;
 }
 
-.audio-list-item #right-tab button:last-child {
+.audio-li #right-tab button:last-child {
   margin: 0;
 }
 
-.audio-list-item #right-tab .delete-button {
+.audio-li #right-tab .delete-button {
   background-image: url("/public/content/icons/cancel.svg");
 }
 
-.audio-list-item #right-tab .edit-button {
+.audio-li #right-tab .edit-button {
   background-image: url("/public/content/icons/pencil.svg");
 }
 
-.audio-list-item #right-tab .info-button {
+.audio-li #right-tab .info-button {
   background-image: url("/public/content/icons/info.svg");
 }

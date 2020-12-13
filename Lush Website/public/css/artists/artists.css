@@ -1,0 +1,40 @@
+#artists {
+  margin-bottom: 100px;
+  padding: 0 100px;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#artists-ol {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 40px 25px;
+  list-style: none;
+}
+
+.audio-container:last-child {
+  margin-bottom: 0;
+  border: none;
+}
+
+.artist-link {
+  list-style: none;
+  text-decoration: none;
+  color: black;
+}
+
+.image-wrapper {
+  margin-bottom: 15px;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+.artist-name {
+  font-size: 0.9em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.description {
+  font-size: 0.8em;
+}

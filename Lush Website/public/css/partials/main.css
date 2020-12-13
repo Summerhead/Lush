@@ -4,23 +4,23 @@
   box-sizing: border-box;
 }
 
-body {
-  /* background-image: url("../content/Lush2.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  background-color: rgb(255, 221, 221); */
-  height: 100vh;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  font-family: "Quicksand", "GothamSSm ExtraLight", serif;
+@font-face {
+  font-family: "Quicksand";
+  src: url(/public/content/fonts/Quicksand/Quicksand-VariableFont_wght.ttf)
+    format("truetype");
 }
 
 @font-face {
-  font-family: "GothamSSm ExtraLight";
-  src: url("/public/content/fonts/GothamSSm ExtraLight.otf");
-  letter-spacing: 1em;
+  font-family: "Codec Warm Trial Light";
+  src: url(/public/content/fonts/codec-family/codec.warm-trial-light.ttf)
+    format("truetype");
+}
+
+body {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  font-family: "Quicksand", "Codec Warm Trial Light", sans-serif;
 }
 
 header {
@@ -62,7 +62,7 @@ footer {
 
 button,
 input {
-  font-family: "Quicksand", "GothamSSm ExtraLight", serif;
+  font-family: "Quicksand", "Codec Warm Trial Light", sans-serif;
   background-color: white;
   border: none;
   border-radius: 2px;

@@ -1,48 +1,20 @@
-import { audioLi } from "./loadAudioTemplate.js";
 import AudioPlayer from "./AudioPlayer.js";
 import insertNoResults from "../partials/insertNoResults.js";
 
-const mainElement = document.getElementsByTagName("main")[0],
-  audiosDiv = document.createElement("div"),
-  audiosOl = document.createElement("ol");
-audiosDiv.setAttribute("id", "audios");
-audiosOl.setAttribute("id", "audios-ordered-list");
-audiosDiv.appendChild(audiosOl);
-mainElement.appendChild(audiosDiv);
+const audiosOl = document.getElementById("audios-ol");
 
-var offset = 13082 - 11740 - 10;
+// var offset = 13082 - 11740 - 10;
 const globalReqAudioData = {
-  searchArtistID: document.location.search || null,
+  artistID: document.location.pathname.split("/")[2] || null,
   limit: 100,
-  //13082-11740-10
   offset: 0,
 };
 
-var metadataCountObject = 0;
-var returnedRows = 0;
-
 const atTheBottomObject = { atTheBottom: false };
-
 const audios = [];
 
-window.onscroll = function () {
-  if (
-    !atTheBottomObject.atTheBottom &&
-    window.innerHeight + window.scrollY >=
-      audiosOl.offsetTop + audiosOl.offsetHeight - 100
-  ) {
-    atTheBottomObject.atTheBottom = true;
-
-    globalReqAudioData.offset += globalReqAudioData.limit;
-    const reqAudioData = Object.assign({}, globalReqAudioData);
-    getAudios(reqAudioData);
-  }
-};
-
-export default async function getAudios(reqAudioDataSpec) {
-  const audioContainer = audioLi;
+export default async function getAudios(audioContainer, reqAudioDataSpec) {
   const reqAudioData = reqAudioDataSpec || globalReqAudioData;
-  metadataCountObject = { metadataCount: 0 };
   audios.length = 0;
 
   fetchDataChunk(reqAudioData);
@@ -57,7 +29,7 @@ export default async function getAudios(reqAudioDataSpec) {
       success: function (data) {
         console.log("Data:", data);
 
-        returnedRows = data.audios.length;
+        const returnedRows = data.audios.length;
 
         if (data.status === 200) {
           if (returnedRows) {
@@ -71,7 +43,7 @@ export default async function getAudios(reqAudioDataSpec) {
 
               const audioLi = document.createElement("li");
               audioLi.appendChild(audioPlayer);
-              audioLi.setAttribute("class", "audio-list-item");
+              audioLi.setAttribute("class", "audio-li");
               audioLi.setAttribute("data-audio-id", audio.id);
               audioLi.setAttribute("data-blob-id", audio.blob_id);
 
@@ -91,24 +63,26 @@ export default async function getAudios(reqAudioDataSpec) {
             audios.forEach((audio) => audiosOl.appendChild(audio));
 
             atTheBottomObject.atTheBottom = false;
-          } else if (!document.getElementById("audios-ordered-list")) {
-            insertNoResults();
           }
         }
       },
-      error: function (error) {
-        console.log("Error:", error);
-      },
+      // else if (!document.getElementById("audios-ol")) {
+      //   insertNoResults();
+      // }
     });
   }
-}
 
-export {
-  mainElement,
-  audiosDiv,
-  audiosOl,
-  returnedRows,
-  metadataCountObject,
-  atTheBottomObject,
-  audios,
-};
+  window.onscroll = function () {
+    if (
+      !atTheBottomObject.atTheBottom &&
+      window.innerHeight + window.scrollY >=
+        audiosOl.offsetTop + audiosOl.offsetHeight - 100
+    ) {
+      atTheBottomObject.atTheBottom = true;
+
+      globalReqAudioData.offset += globalReqAudioData.limit;
+      const reqAudioData = Object.assign({}, globalReqAudioData);
+      getAudios(audioContainer, reqAudioData);
+    }
+  };
+}
