@@ -16,82 +16,26 @@
       href="/public/css/partials/main.css"
     />
     <link rel="stylesheet" href="/public/css/index.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="/public/css/partials/header.css"
+    />
+    <link rel="stylesheet" href="/public/css/partials/footer.css" />
+    <link rel="stylesheet" href="/public/css/music.css" />
+    <link rel="stylesheet" href="/public/css/partials/editAudioWIndow.css" />
+    <link rel="stylesheet" href="/public/css/artists/artists.css" />
+    <link rel="stylesheet" href="/public/css/artists/artist/artist.css" />
+    <link rel="stylesheet" href="/public/css/partials/searchBar.css" />
     <title>Lush</title>
   </head>
 
   <body>
-    <header></header>
-    <main></main>
-    <footer></footer>
+    <header id="header"></header>
+    <main id="main"></main>
+    <footer id="footer"></footer>
 
     <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
     <script type="module" src="/public/js/partials/loadPartials.js"></script>
-    <script>
-      // (() => {
-      //   var blobID = 1401;
-      //   const reqBlobID = { blobID: blobID };
-
-      //   const dur = () => {
-      //     console.log(reqBlobID);
-
-      //     fetch("/audioBlob", {
-      //       method: "POST",
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //       body: JSON.stringify(reqBlobID),
-      //     })
-      //       .then((response) => response.body)
-      //       .then((rs) => {
-      //         const reader = rs.getReader();
-
-      //         return new ReadableStream({
-      //           async start(controller) {
-      //             while (true) {
-      //               const { done, value } = await reader.read();
-
-      //               if (done) {
-      //                 break;
-      //               }
-
-      //               controller.enqueue(value);
-      //             }
-
-      //             controller.close();
-      //             reader.releaseLock();
-      //           },
-      //         });
-      //       })
-      //       .then((rs) => new Response(rs))
-      //       .then((response) => response.blob())
-      //       .then((blob) => (blob.size ? URL.createObjectURL(blob) : null))
-      //       .then((url) => {
-      //         const audioPlayer = document.createElement("audio");
-      //         audioPlayer.src = url;
-      //         audioPlayer.onloadedmetadata = async () => {
-      //           console.log("Duration:", audioPlayer.duration);
-
-      //           reqBlobID.duration = audioPlayer.duration;
-      //           URL.revokeObjectURL(url);
-      //           var result = await fetch("/uploadAudioDurations", {
-      //             method: "POST",
-      //             headers: {
-      //               "Content-Type": "application/json",
-      //             },
-      //             body: JSON.stringify(reqBlobID),
-      //           });
-
-      //           reqBlobID.blobID++;
-      //           if (reqBlobID.blobID <= 13082) {
-      //             dur(reqBlobID);
-      //           }
-      //         };
-      //       })
-      //       .catch((err) => console.log(err));
-      //   };
-
-      //   dur(reqBlobID);
-      // })();
-    </script>
   </body>
 </html>

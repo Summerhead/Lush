@@ -1,32 +1,42 @@
 import AudioPlayer from "./AudioPlayer.js";
 import insertNoResults from "../partials/insertNoResults.js";
 
-const audiosOl = document.getElementById("audios-ol");
+export default class AudiosConfigurator {
+  constructor(audioContainer, reqAudioDataSpec) {
+    this.audiosOl = document.getElementById("audios-ol");
 
-// var offset = 13082 - 11740 - 10;
-const globalReqAudioData = {
-  artistID: document.location.pathname.split("/")[2] || null,
-  limit: 100,
-  offset: 0,
-};
+    // var offset = 13082 - 11740 - 10;
+    this.globalReqAudioData = {
+      artistID: document.location.pathname.split("/")[2] || null,
+      limit: 100,
+      offset: 0,
+    };
 
-const atTheBottomObject = { atTheBottom: false };
-const audios = [];
+    this.atTheBottomObject = { atTheBottom: false };
+    this.audios = [];
 
-export default async function getAudios(audioContainer, reqAudioDataSpec) {
-  const reqAudioData = reqAudioDataSpec || globalReqAudioData;
-  audios.length = 0;
+    this.audioContainer = audioContainer;
+    this.reqAudioDataSpec = reqAudioDataSpec || this.globalReqAudioData;
 
-  fetchDataChunk(reqAudioData);
+    this.getAudios(this.audioContainer, this.reqAudioDataSpec);
 
-  function fetchDataChunk(audioReqData) {
+    this.applyWindowOnScroll();
+  }
+
+  getAudios = async () => {
+    this.audios.length = 0;
+
+    this.fetchDataChunk();
+  };
+
+  fetchDataChunk = () => {
     $.ajax({
       type: "POST",
       url: "/audioData",
-      data: JSON.stringify(audioReqData),
+      data: JSON.stringify(this.reqAudioDataSpec),
       contentType: "application/json",
       dataType: "json",
-      success: function (data) {
+      success: (data) => {
         console.log("Data:", data);
 
         const returnedRows = data.audios.length;
@@ -35,7 +45,7 @@ export default async function getAudios(audioContainer, reqAudioDataSpec) {
           if (returnedRows) {
             for (const audio of data.audios) {
               const audioPlayer = new AudioPlayer(
-                audioContainer,
+                this.audioContainer,
                 audio.artists,
                 audio.title,
                 audio.duration
@@ -47,7 +57,7 @@ export default async function getAudios(audioContainer, reqAudioDataSpec) {
               audioLi.setAttribute("data-audio-id", audio.id);
               audioLi.setAttribute("data-blob-id", audio.blob_id);
 
-              audios.push(audioLi);
+              this.audios.push(audioLi);
 
               var artistAttributes = "";
               for (const [index, artist] of audio.artists.entries()) {
@@ -60,9 +70,9 @@ export default async function getAudios(audioContainer, reqAudioDataSpec) {
               audioLi.setAttribute("data-audio-title", audio.title);
             }
 
-            audios.forEach((audio) => audiosOl.appendChild(audio));
+            this.audios.forEach((audio) => this.audiosOl.appendChild(audio));
 
-            atTheBottomObject.atTheBottom = false;
+            this.atTheBottomObject.atTheBottom = false;
           }
         }
       },
@@ -70,19 +80,20 @@ export default async function getAudios(audioContainer, reqAudioDataSpec) {
       //   insertNoResults();
       // }
     });
-  }
+  };
 
-  window.onscroll = function () {
-    if (
-      !atTheBottomObject.atTheBottom &&
-      window.innerHeight + window.scrollY >=
-        audiosOl.offsetTop + audiosOl.offsetHeight - 100
-    ) {
-      atTheBottomObject.atTheBottom = true;
+  applyWindowOnScroll = () => {
+    window.onscroll = () => {
+      if (
+        !this.atTheBottomObject.atTheBottom &&
+        window.innerHeight + window.scrollY >=
+          this.audiosOl.offsetTop + this.audiosOl.offsetHeight - 100
+      ) {
+        this.atTheBottomObject.atTheBottom = true;
 
-      globalReqAudioData.offset += globalReqAudioData.limit;
-      const reqAudioData = Object.assign({}, globalReqAudioData);
-      getAudios(audioContainer, reqAudioData);
-    }
+        this.globalReqAudioData.offset += this.globalReqAudioData.limit;
+        this.getAudios();
+      }
+    };
   };
 }

@@ -1,4 +1,16 @@
-export default async function handleFileSelect(e) {
+export default function getSearchBar(searchBar) {
+  document.getElementById("search-bar-container").replaceWith(searchBar);
+  addUploadAction();
+}
+
+function addUploadAction() {
+  $("#import-pfx-button").click(function (e) {
+    $("#file-input").click();
+  });
+  $("#file-input").change(handleFileSelect);
+}
+
+async function handleFileSelect(e) {
   const files = e.target.files;
 
   if (files.length < 1) {
@@ -37,10 +49,3 @@ function onFileLoaded(e) {
     throw "Could not parse result";
   }
 }
-
-$(function () {
-  $("#import-pfx-button").click(function (e) {
-    $("#file-input").click();
-  });
-  $("#file-input").change(handleFileSelect);
-});

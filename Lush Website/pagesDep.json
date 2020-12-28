@@ -1,0 +1,49 @@
+{
+  "/": {
+    "links": ["/public/css/index.css"],
+    "scripts": [{ "type": "", "link": "" }]
+  },
+  "/music": {
+    "links": [
+      "/public/css/partials/audio.css",
+      "/public/css/music.css",
+      "/public/css/partials/searchBar.css",
+      "/public/css/partials/editAudioWIndow.css",
+      "/public/css/partials/noResults.css",
+      "https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap"
+    ],
+    "scripts": [
+      { "type": "module", "link": "/public/js/audios/loadAudios.js" },
+      { "type": "", "link": "/public/js/audios/uploadAudio.js" },
+      { "type": "", "link": "/public/js/partials/loadSearchBar.js" },
+      { "type": "", "link": "/public/js/audios/searchBar/searchBar.js" }
+    ]
+  },
+  "/artists": {
+    "links": [
+      "/public/css/artists.css",
+      "/public/css/partials/searchBar.css",
+      "/public/css/partials/noResults.css"
+    ],
+    "scripts": [
+      { "type": "module", "link": "/public/js/artists/loadArtists.js" },
+      { "type": "", "link": "/public/js/artists/uploadImage.js" },
+      { "type": "", "link": "/public/js/partials/loadSearchBar.js" }
+    ]
+  },
+  "/artists/:artist": {
+    "links": [
+      "/public/css/partials/audio.css",
+      "/public/css/music.css",
+      "/public/css/partials/searchBar.css",
+      "/public/css/partials/editAudioWindow.css",
+      "/public/css/partials/noResults.css"
+    ],
+    "scripts": [
+      { "type": "module", "link": "/public/js/artists/loadArtists.js" },
+      { "type": "module", "link": "/public/js/audios/loadAudios.js" },
+      { "type": "", "link": "/public/js/audios/uploadAudio.js" },
+      { "type": "", "link": "/public/js/partials/loadSearchBar.js" }
+    ]
+  }
+}

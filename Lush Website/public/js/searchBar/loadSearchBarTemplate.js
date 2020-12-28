@@ -1,4 +1,4 @@
-export default function loadArtistTemplate() {
+export default function loadSearchBarTemplate() {
   const xmlhttp = new XMLHttpRequest();
 
   return new Promise((resolve, reject) => {
@@ -8,17 +8,13 @@ export default function loadArtistTemplate() {
             this.responseText,
             "text/html"
           ),
-          artistLi = template.getElementById("artist-container");
+          searchBar = template.getElementById("search-bar-container");
 
-        resolve(artistLi);
+        resolve(searchBar);
       }
     };
 
-    xmlhttp.open(
-      "GET",
-      "/public/html/partials/artists/artist/artistTemplate.html",
-      true
-    );
+    xmlhttp.open("GET", "/public/html/partials/searchBar.html", true);
     xmlhttp.send();
   });
 }

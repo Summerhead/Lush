@@ -1,7 +1,6 @@
-.search-bar-container {
+#search-bar-container {
   height: 30px;
-  padding: 0 100px;
-  margin: 25px 0 50px;
+  margin: 25px 0 15px;
 }
 
 #audio-search-bar {
@@ -23,10 +22,11 @@
 }
 
 #audio-search-bar #right-tab button {
-  background-color: rgb(253, 105, 105);
+  /* background-color: rgb(253, 105, 105); */
+  border: 1px solid #b4b4b4;
 }
 
 #audio-search-bar #right-tab #search-button {
-  background: rgb(253, 105, 105) url("/public/content/icons/loupe.svg")
-    center/10px no-repeat;
+  background: url("/public/content/icons/loupe.svg") center/10px no-repeat;
+  border: 1px solid #b4b4b4;
 }

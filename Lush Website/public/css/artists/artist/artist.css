@@ -1,11 +1,41 @@
 #artist-pic {
-  margin: 0 100px;
+  position: relative;
+  height: 370px;
+  margin-bottom: 30px;
+  background-color: rgb(88, 88, 88);
+  overflow: hidden;
 }
 
-#artist-pic .image-wrapper {
-  height: 300px;
-  /* margin: 15px 100px; */
+#artist-pic #image-wrapper {
+  width: 45%;
+  height: 370px;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
+  margin-left: auto;
+}
+
+#artist-background {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 45%;
+  height: 370px;
+  margin-left: auto;
+  z-index: 2;
+}
+
+#artist-container {
+  position: relative;
+}
+
+#artist-name {
+  position: absolute;
+  top: 50px;
+  left: 100px;
+  color: white;
+  font-size: 50px;
+  font-weight: bold;
+  /* text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000; */
 }

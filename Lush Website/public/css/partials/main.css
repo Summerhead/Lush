@@ -23,41 +23,11 @@ body {
   font-family: "Quicksand", "Codec Warm Trial Light", sans-serif;
 }
 
-header {
-  position: relative;
-  z-index: 2;
-}
-
 main {
   width: 100%;
   max-width: 1920px;
   margin: 0 auto;
   z-index: 1;
-}
-
-footer {
-  position: relative;
-  height: 80px;
-  border-top: 1px solid rgb(202, 202, 202);
-}
-
-#footer-wrapper {
-  position: absolute;
-  bottom: 10px;
-  right: 100px;
-}
-
-#footer-wrapper #copyright {
-  font-size: 0.8em;
-  cursor: default;
-}
-
-#footer-wrapper #copyright #terms {
-  font-size: 0.9em;
-}
-
-#footer-wrapper span {
-  display: inline-block;
 }
 
 button,
@@ -78,4 +48,8 @@ input {
   font-size: 1.02em;
   color: black;
   border: 1px solid rgb(180, 180, 180);
+}
+
+#container {
+  padding: 0 100px;
 }

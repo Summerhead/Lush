@@ -1,49 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script type="text/javascript" src="http://livejs.com/live.js"></script>
-    <link
-      id="favicon"
-      rel="shortcut icon"
-      type="image/png"
-      href="/public/content/icons/favicon/galaxy-spiral-shape.png"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/public/css/partials/main.css"
-    />
-    <link rel="stylesheet" href="/public/css/partials/audio.css" />
-    <link rel="stylesheet" href="/public/css/music.css" />
-    <link rel="stylesheet" href="/public/css/artists/artist/artist.css" />
-    <link rel="stylesheet" href="/public/css/partials/searchBar.css" />
-    <link rel="stylesheet" href="/public/css/partials/editAudioWindow.css" />
-    <link rel="stylesheet" href="/public/css/partials/noResults.css" />
-    <title>Lush</title>
-  </head>
-
-  <body>
-    <header></header>
-    <main>
-      <div id="artist">
-        <div id="artist-pic"></div>
-        <div id="audios">
-          <div id="audios-ol"></div>
-        </div>
+<main id="main">
+  <div id="artist">
+    <div id="artist-pic">
+      <div id="artist-background"></div>
+    </div>
+    <div id="container">
+      <div id="search-bar-container"></div>
+      <div id="audios">
+        <div id="audios-ol"></div>
       </div>
-    </main>
-    <footer></footer>
-
-    <script src="https://code.jquery.com/jquery-3.5.0.min.js"></script>
-    <script type="module" src="/public/js/partials/loadPartials.js"></script>
-    <script
-      type="module"
-      src="/public/js/artists/artist/loadArtist.js"
-    ></script>
-    <script type="module" src="/public/js/audios/loadAudios.js"></script>
-    <script src="/public/js/audios/uploadAudio.js"></script>
-    <script src="/public/js/partials/loadSearchBar.js"></script>
-  </body>
-</html>
+    </div>
+  </div>
+</main>

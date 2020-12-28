@@ -1,6 +1,16 @@
+import loadHeader from "../header/loadHeader.js";
 import loadFooter from "./loadFooter.js";
+import showPage from "./loadContent.js";
 
-$("header").load("/public/html/partials/header.html");
-// $("footer").load("/public/html/partials/footer.html");
-
+loadHeader();
 loadFooter();
+
+showPage(location);
+
+window.onpopstate = function (e) {
+  if (e.state) {
+    console.log(e.state.html);
+    document.getElementById("main").innerHTML = e.state.html;
+    document.title = e.state.pageTitle;
+  }
+};

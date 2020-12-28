@@ -49,20 +49,37 @@ app.use(
   })
 );
 
+const pagesJSON = JSON.parse(fs.readFileSync("./pages.json"));
+console.log(pagesJSON);
+
+for (const [link, path] of Object.entries(pagesJSON)) {
+  app.post(link, function (req, res) {
+    res.send(path);
+  });
+}
+
 app.get("/", function (req, res) {
   res.sendFile(path.join(__dirname, "/public/html/main.html"));
 });
 
 app.get("/music", function (req, res) {
-  res.sendFile(path.join(__dirname, "/public/html/music.html"));
+  res.sendFile(path.join(__dirname, "/public/html/main.html"));
 });
 
 app.get("/artists", function (req, res) {
-  res.sendFile(path.join(__dirname, "/public/html/artists.html"));
+  res.sendFile(path.join(__dirname, "/public/html/main.html"));
 });
 
-app.get("/artists/:artist_id", function (req, res) {
-  res.sendFile(path.join(__dirname, "/public/html/artist.html"));
+app.get("/artists/:artist_id/:artist_name", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/html/main.html"));
+});
+
+app.get("/genres", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/html/main.html"));
+});
+
+app.get("/playlists", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/html/main.html"));
 });
 
 app.get("/header", async function (req, res, next) {

@@ -1,32 +1,42 @@
 import insertNoResults from "../partials/insertNoResults.js";
+import showPage from "../partials/loadContent.js";
 
-const artistsOl = document.getElementById("artists-ol");
+export default class ArtistsConfigurator {
+  constructor(artistLi, reqArtistDataSpec) {
+    this.artistsOl = document.getElementById("artists-ol");
 
-const globalReqArtistData = {
-  artistID: Number(document.location.pathname.split("/")[2]) || null,
-  limit: 120,
-  offset: 0,
-};
+    this.globalReqArtistData = {
+      artistID: Number(document.location.pathname.split("/")[2]) || null,
+      limit: 140,
+      offset: 0,
+    };
 
-const atTheBottomObject = { atTheBottom: false };
+    this.atTheBottomObject = { atTheBottom: false };
 
-function outputsize(imageWrapper) {
-  imageWrapper.style.height = imageWrapper.offsetWidth + "px";
-}
+    this.artistLi = artistLi;
+    this.reqArtistDataSpec = reqArtistDataSpec || this.globalReqArtistData;
 
-export default async function getArtists(artistLi, reqArtistDataSpec) {
-  const reqArtistData = reqArtistDataSpec || globalReqArtistData;
+    this.getArtists();
 
-  fetchDataChunk(reqArtistData);
+    this.applyWindowOnScroll(this.artistLi, this.reqArtistDataSpec);
+  }
 
-  function fetchDataChunk(artistReqData) {
+  getArtists = () => {
+    this.fetchDataChunk(this.reqArtistData);
+  };
+
+  outputsize = (imageWrapper) => {
+    imageWrapper.style.height = imageWrapper.offsetWidth + "px";
+  };
+
+  fetchDataChunk = () => {
     $.ajax({
       type: "POST",
       url: "/artistsData",
-      data: JSON.stringify(artistReqData),
+      data: JSON.stringify(this.reqArtistDataSpec),
       contentType: "application/json",
       dataType: "json",
-      success: function (data) {
+      success: (data) => {
         console.log("Data:", data);
 
         const returnedRows = data.artists.length;
@@ -34,21 +44,28 @@ export default async function getArtists(artistLi, reqArtistDataSpec) {
         if (data.status === 200) {
           if (returnedRows) {
             for (const artist of data.artists) {
-              const artistLi = constructArtist(artist),
+              const artistLi = this.constructArtist(artist),
                 imageWrapper = artistLi.querySelector(".image-wrapper");
-              artistsOl.appendChild(artistLi);
+              this.artistsOl.appendChild(artistLi);
 
               const reqImageBlob = { blobID: artist.blob_id };
-              fetchBlob(reqImageBlob, imageWrapper);
+              this.fetchBlob(reqImageBlob, imageWrapper);
 
-              outputsize(imageWrapper);
+              this.outputsize(imageWrapper);
 
-              new ResizeObserver(() => outputsize(imageWrapper)).observe(
+              new ResizeObserver(() => this.outputsize(imageWrapper)).observe(
                 artistLi
               );
             }
 
-            atTheBottomObject.atTheBottom = false;
+            this.atTheBottomObject.atTheBottom = false;
+
+            [...document.getElementsByTagName("a")].forEach((link) => {
+              link.onclick = () => {
+                showPage(link);
+                return false;
+              };
+            });
 
             // window.scroll(0, document.body.scrollHeight);
           }
@@ -58,13 +75,13 @@ export default async function getArtists(artistLi, reqArtistDataSpec) {
           // }
         }
       },
-      error: function (error) {
+      error: (error) => {
         console.log("Error:", error);
       },
     });
-  }
+  };
 
-  function fetchBlob(reqImageBlob, imageWrapper) {
+  fetchBlob = (reqImageBlob, imageWrapper) => {
     fetch("/imageBlob", {
       method: "POST",
       headers: {
@@ -97,32 +114,37 @@ export default async function getArtists(artistLi, reqArtistDataSpec) {
       .then((response) => response.blob())
       .then((blob) => (blob.size ? URL.createObjectURL(blob) : null))
       .then((url) => {
-        url ? (imageWrapper.style.backgroundImage = `url("${url}")`) : null;
+        if (url) {
+          imageWrapper.style.backgroundImage = `url("${url}")`;
+        }
         // URL.revokeObjectURL(url);
       })
       .catch(console.error);
-  }
+  };
 
-  function constructArtist(artist) {
-    const artistLiClone = artistLi.cloneNode(true);
+  constructArtist = (artist) => {
+    const artistLiClone = this.artistLi.cloneNode(true);
 
     artistLiClone.querySelector(".artist-name").innerText = artist.name;
-    artistLiClone.querySelector(".artist-link").href += artist.artist_id;
+    artistLiClone.querySelector(".artist-link").href += `${
+      artist.artist_id
+    }/${artist.name.split(" ").join("+")}`;
 
     return artistLiClone;
-  }
+  };
 
-  window.onscroll = function () {
-    if (
-      !atTheBottomObject.atTheBottom &&
-      window.innerHeight + window.scrollY >=
-        artistsOl.offsetTop + artistsOl.offsetHeight - 100
-    ) {
-      atTheBottomObject.atTheBottom = true;
+  applyWindowOnScroll = () => {
+    window.onscroll = () => {
+      if (
+        !this.atTheBottomObject.atTheBottom &&
+        window.innerHeight + window.scrollY >=
+          this.artistsOl.offsetTop + this.artistsOl.offsetHeight - 100
+      ) {
+        this.atTheBottomObject.atTheBottom = true;
 
-      globalReqArtistData.offset += globalReqArtistData.limit;
-      const reqArtistData = Object.assign({}, globalReqArtistData);
-      getArtists(artistLi, reqArtistData);
-    }
+        this.globalReqArtistData.offset += this.globalReqArtistData.limit;
+        this.getArtists(this.artistLi);
+      }
+    };
   };
 }

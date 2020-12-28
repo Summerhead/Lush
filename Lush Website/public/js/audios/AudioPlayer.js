@@ -76,7 +76,7 @@ export default class AudioPlayer extends HTMLElement {
       const aElement = document.createElement("a");
       aElement.setAttribute(
         "href",
-        `/artists/${artist.name.split(" ").join("+")}/?id=${artist.id}`
+        `/artists/${artist.id}/${artist.name.split(" ").join("+")}`
       );
       aElement.innerText = artist.name;
       return aElement.outerHTML;

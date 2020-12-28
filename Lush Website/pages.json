@@ -1,0 +1,17 @@
+{
+  "/": { "pagepath": "/public/html/hero.html", "scripts": [] },
+  "/music": {
+    "pagepath": "/public/html/music.html",
+    "scripts": ["loadSearchBar", "loadAudios"]
+  },
+  "/artists": {
+    "pagepath": "/public/html/artists.html",
+    "scripts": ["loadSearchBar", "loadArtists"]
+  },
+  "/artists/:artistId/:artistName": {
+    "pagepath": "/public/html/artist.html",
+    "scripts": ["loadSearchBar", "loadArtist", "loadAudios"]
+  },
+  "/genres": { "pagepath": "/public/html/main.html", "scripts": [] },
+  "/playlists": { "pagepath": "/public/html/main.html", "scripts": [] }
+}
