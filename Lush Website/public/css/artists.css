@@ -1,5 +1,4 @@
 #main #artists {
-  margin-bottom: 100px;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
@@ -8,6 +7,10 @@
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 40px 25px;
   list-style: none;
+}
+
+.artist-li {
+  background-color: white;
 }
 
 .audio-container:last-child {
@@ -28,10 +31,15 @@
   background-position: center;
 }
 
+.no-cover {
+  background: url("/public/content/musical-note.svg") no-repeat center / 100px;
+}
+
 .artist-name {
   font-size: 0.9em;
   font-weight: bold;
   margin-bottom: 10px;
+  white-space: pre-wrap;
 }
 
 .description {

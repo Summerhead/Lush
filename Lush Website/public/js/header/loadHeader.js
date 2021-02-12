@@ -1,9 +1,11 @@
 import { headerS } from "./loadDropdowns.js";
+import showPage from "../partials/loadContent.js";
 
 export default async function loadHeader() {
-  await Promise.resolve(getHeader()).then((header) =>
-    displayHeaderRelated(header)
-  );
+  await Promise.resolve(getHeader()).then((header) => {
+    displayHeaderRelated(header);
+    // applyFixedHeaderAction(header);
+  });
 }
 
 function getHeader() {
@@ -27,9 +29,43 @@ function getHeader() {
   });
 }
 
+function applyFixedHeaderAction(header) {
+  var mousePos;
+
+  document.onmousemove = handleMouseMove;
+  setInterval(getMousePosition, 100); // setInterval repeats every X ms
+
+  function handleMouseMove(event) {
+    event = event || window.event; // IE-ism
+
+    mousePos = {
+      x: event.clientX,
+      y: event.clientY,
+    };
+  }
+
+  function getMousePosition() {
+    const pos = mousePos;
+    if (pos) {
+      if (pos.y <= header.offsetHeight) {
+        header.style.position = "fixed";
+      } else {
+        header.style.position = "relative";
+      }
+    }
+  }
+}
+
 function displayHeaderRelated(header) {
   const body = document.getElementsByTagName("body")[0];
   body.replaceChild(header, document.getElementById("header"));
 
-  headerS();
+  [...document.getElementsByTagName("a")].forEach((link) => {
+    link.onclick = () => {
+      showPage(link.href);
+      return false;
+    };
+  });
+
+  // headerS();
 }

@@ -1,14 +1,15 @@
-// import { returnedRows, metadataCountObject, audios } from "./getAudios.js";
-import { openEditAudioWindow } from "./editAudioWindow/editAudioWindow.js";
+import { editAudioWindow } from "./loadAudios.js";
+import showPage from "../partials/loadContent.js";
 
 var currentAudio;
-// var reqCount = 0;
 
 export default class AudioPlayer extends HTMLElement {
-  constructor(audioLi, artists, title, duration) {
+  constructor(audioLi, audio) {
     super();
 
-    this.innerHTML = audioLi.innerHTML;
+    this.innerHTML = audioLi && audioLi.innerHTML;
+
+    this.clickableBackground = this.querySelector("#clickable-background");
 
     this.actionButton = this.querySelector("#audio-hud__action");
 
@@ -22,15 +23,19 @@ export default class AudioPlayer extends HTMLElement {
     this.currentTime = this.querySelector("#audio-hud__curr-time>span");
     this.durationTime = this.querySelector("#audio-hud__duration>span");
 
+    this.addButton = this.querySelector("#add-button");
     this.deleteButton = this.querySelector("#delete-button");
     this.editButton = this.querySelector("#edit-button");
     this.infoButton = this.querySelector("#info-button");
 
-    this.configureAudioPlayer(artists, title, duration);
+    this.hiddenTime = this.querySelector("#time .hidden");
+
+    // console.log(audio);
+    this.configureAudioPlayer(audio);
   }
 
-  configureAudioPlayer(artists, title, duration) {
-    this.setAttribute("class", "audio-container");
+  configureAudioPlayer({ artists, title, duration }) {
+    // this.clickableBackground.onfocus = () => alert("focused");
 
     this.insertArtists(artists);
     this.querySelector(".audio-header>.title").innerText = title;
@@ -46,72 +51,54 @@ export default class AudioPlayer extends HTMLElement {
     );
     mutationObserver.observe(this.actionButton, { attributes: true });
 
-    this.actionButton.addEventListener("click", this.actionButtonChangeClass);
+    this.actionButton.addEventListener("click", this.changeClass);
+    this.clickableBackground.addEventListener("click", this.changeClass);
 
     this.audioPlayer.addEventListener("timeupdate", this.audioProgress);
-    this.audioPlayer.addEventListener("ended", (audioElement) =>
-      this.playNext(audioElement)
-    );
+    this.audioPlayer.addEventListener("ended", this.playNext);
 
     this.progressBar.addEventListener("click", this.progressBarAct);
 
+    this.addButton.addEventListener("click", () => alert("Add"));
     this.deleteButton.addEventListener("click", () => alert("Delete"));
     this.editButton.addEventListener("click", this.editAudioButtonOnClick);
     this.infoButton.addEventListener("click", () => alert("Info"));
   }
 
-  // setOnLoadedMetadataActionListener() {
-  //   this.audioPlayer.onloadedmetadata = () =>
-  //     this.audioPlayerOnLoadedMetadata();
-  // }
-
   insertArtists(artists) {
     const parsedArtists = this.parseArtists(artists),
       artistsDiv = this.querySelector(".audio-header>.artists");
-    artistsDiv.innerHTML = parsedArtists;
+
+    // console.log(parsedArtists);
+    artistsDiv.replaceWith(parsedArtists);
   }
 
   parseArtists(artists) {
-    artists = artists.map((artist) => {
-      const aElement = document.createElement("a");
-      aElement.setAttribute(
-        "href",
-        `/artists/${artist.id}/${artist.name.split(" ").join("+")}`
-      );
+    const artistsDiv = document.createElement("div");
+    artistsDiv.setAttribute("class", "artists");
+
+    artists.forEach((artist, index) => {
+      if (index != 0) {
+        const span = document.createElement("span");
+        span.innerHTML = index == artists.length - 1 ? " & " : ", ";
+        artistsDiv.appendChild(span);
+      }
+
+      const aElement = document.createElement("a"),
+        link = `/artists/${artist.artist_id}/${artist.name
+          .split(" ")
+          .join("+")}`;
+      aElement.setAttribute("href", link);
+      aElement.onclick = () => {
+        showPage(aElement.href);
+        return false;
+      };
       aElement.innerText = artist.name;
-      return aElement.outerHTML;
+      artistsDiv.appendChild(aElement);
     });
 
-    if (artists.length > 1) {
-      artists = [
-        artists.slice(0, artists.length - 1).join(", "),
-        artists[artists.length - 1],
-      ].join(" & ");
-    }
-
-    return artists;
+    return artistsDiv;
   }
-
-  // audioPlayerOnLoadedMetadata() {
-  //   this.durationTime.innerHTML = this.audioTime(this.audioPlayer.duration);
-  //   this.progressBar.max = Math.floor(this.audioPlayer.duration);
-
-  //   this.revokeObjectURL();
-
-  //   metadataCountObject.metadataCount++;
-  //   if (metadataCountObject.metadataCount == returnedRows) {
-  //     console.log("All metadata loaded.");
-
-  //     audios.forEach((audio) => audiosOl.appendChild(audio));
-
-  //     reqCount++;
-  //     console.log("Req count:", reqCount);
-
-  //     // window.scrollTo(0, document.body.scrollHeight);
-  //   }
-
-  //   this.audioPlayer.onloadedmetadata = null;
-  // }
 
   revokeObjectURL() {
     URL.revokeObjectURL(this.audioPlayer.src);
@@ -126,8 +113,10 @@ export default class AudioPlayer extends HTMLElement {
     });
   };
 
-  actionButtonChangeClass = (e) => {
+  changeClass = () => {
     if (currentAudio && currentAudio !== this) {
+      currentAudio.closest(".audio-li").classList.remove("playing");
+
       currentAudio.actionButton.setAttribute(
         "class",
         "audio-hud__element audio-hud__action"
@@ -135,8 +124,9 @@ export default class AudioPlayer extends HTMLElement {
     }
 
     currentAudio = this;
+    currentAudio.closest(".audio-li").classList.add("playing");
 
-    if (e.target.classList.contains("audio-hud__action_play")) {
+    if (this.actionButton.classList.contains("audio-hud__action_play")) {
       this.actionButton.setAttribute(
         "class",
         "audio-hud__element audio-hud__action audio-hud__action_pause"
@@ -156,14 +146,16 @@ export default class AudioPlayer extends HTMLElement {
     ) {
       this.stopAudio();
       this.revokeObjectURL();
+
       this.progressBar.style.display = "none";
+      this.hiddenTime.style.display = "none";
       this.audioPlayer.onloadeddata = null;
     } else {
       this.progressBar.style.display = "block";
+      this.hiddenTime.style.display = "flex";
+
       if (this.actionButton.classList.contains("audio-hud__action_play")) {
         if (this.audioPlayer.src === document.location.href) {
-          this.revoke = false;
-
           await this.fetchBlob({
             blobID: Number(
               this.closest(".audio-li").getAttribute("data-blob-id")
@@ -253,7 +245,8 @@ export default class AudioPlayer extends HTMLElement {
     this.currentTime.innerHTML = this.audioTime(this.audioPlayer.currentTime);
   };
 
-  playNext() {
+  playNext = () => {
+    this.closest(".audio-li").classList.remove("playing");
     this.actionButton.setAttribute(
       "class",
       "audio-hud__element audio-hud__action"
@@ -261,29 +254,30 @@ export default class AudioPlayer extends HTMLElement {
 
     var nextSibling;
     if ((nextSibling = this.closest(".audio-li").nextSibling)) {
-      var nextAudio = nextSibling.querySelector(".audio-container");
+      var nextAudio = nextSibling.querySelector("audio-player");
 
       currentAudio = nextAudio;
 
+      currentAudio.closest(".audio-li").classList.add("playing");
       currentAudio.actionButton.setAttribute(
         "class",
         "audio-hud__element audio-hud__action audio-hud__action_play"
       );
+    } else {
+      currentAudio = null;
     }
-  }
+  };
 
-  audioChangeTime(e) {
+  audioChangeTime = (e) => {
     const mouseX = Math.floor(
         e.pageX - this.progressBar.getBoundingClientRect().left
       ),
       progress = mouseX / this.progressBar.offsetWidth;
     this.audioPlayer.currentTime = this.audioPlayer.duration * progress;
-  }
+  };
 
   progressBarAct = async (e) => {
     if (this.audioPlayer.src === document.location.href) {
-      this.revoke = false;
-
       await this.fetchBlob({
         blobID: Number(this.closest(".audio-li").getAttribute("data-blob-id")),
       });
@@ -312,16 +306,9 @@ export default class AudioPlayer extends HTMLElement {
     }
   };
 
-  editAudioButtonOnClick(e) {
-    const editAudioWindowContainer = document.getElementById(
-      "edit-audio-window-container"
-    );
-
-    openEditAudioWindow(
-      editAudioWindowContainer,
-      e.target.closest(".audio-li")
-    );
-  }
+  editAudioButtonOnClick = () => {
+    editAudioWindow.openEditAudioWindow(this.closest(".audio-li"));
+  };
 
   setAudioPlayerSrc(url) {
     this.audioPlayer.src = url;
@@ -329,3 +316,5 @@ export default class AudioPlayer extends HTMLElement {
 }
 
 window.customElements.define("audio-player", AudioPlayer);
+
+export { currentAudio };

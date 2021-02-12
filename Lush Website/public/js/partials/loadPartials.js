@@ -1,16 +1,16 @@
 import loadHeader from "../header/loadHeader.js";
 import loadFooter from "./loadFooter.js";
 import showPage from "./loadContent.js";
+import { headerS } from "../header/loadDropdowns.js";
 
 loadHeader();
 loadFooter();
 
-showPage(location);
+showPage(location.pathname);
 
-window.onpopstate = function (e) {
-  if (e.state) {
-    console.log(e.state.html);
-    document.getElementById("main").innerHTML = e.state.html;
-    document.title = e.state.pageTitle;
+window.onpopstate = function (event) {
+  if (event.state) {
+    // console.log(e.state);
+    showPage(event.state.pathname, true);
   }
 };

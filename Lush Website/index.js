@@ -50,7 +50,6 @@ app.use(
 );
 
 const pagesJSON = JSON.parse(fs.readFileSync("./pages.json"));
-console.log(pagesJSON);
 
 for (const [link, path] of Object.entries(pagesJSON)) {
   app.post(link, function (req, res) {
@@ -82,27 +81,34 @@ app.get("/playlists", function (req, res) {
   res.sendFile(path.join(__dirname, "/public/html/main.html"));
 });
 
-app.get("/header", async function (req, res, next) {
-  const result = await getHeaderInfo(),
+app.post("/artistsForDropdown", async function (req, res, next) {
+  const artistName = req.body.artistName;
+  const result = await getArtists(artistName),
     artists = result.data || [],
     error = result.error,
     resJSON = {
-      status: error || "success",
-      results: { artists: [] },
+      status: error || 200,
+      artists: [],
     };
 
   for (const artist of artists) {
-    resJSON.results.artists.push({ ...artist });
+    resJSON.artists.push({ ...artist });
   }
 
   res.send(resJSON);
-  res.end();
 });
 
-async function getHeaderInfo() {
+async function getArtists(artistName) {
+  var whereArtist = "";
+  if (artistName) {
+    whereArtist = `WHERE artist.name COLLATE utf8mb4_0900_ai_ci LIKE '%${artistName}%'`;
+  }
+
   const query = `
-  SELECT name AS artist
+  SELECT id, name
   FROM artist
+  ${whereArtist}
+  ORDER BY id DESC
   ;`;
 
   return await resolveQuery(query);
@@ -140,11 +146,10 @@ function executeQuery(query, values) {
 app.post("/audioData", async function (req, res, next) {
   console.log("Body:", req.body);
 
-  const artistID = Number(req.body.artistID);
-
   const params = {};
-  [params.artistID, params.limit, params.offset] = [
-    artistID,
+  [params.artistID, params.search, params.limit, params.offset] = [
+    req.body.artistID,
+    req.body.search,
     req.body.limit,
     req.body.offset,
   ];
@@ -162,29 +167,29 @@ app.post("/audioBlob", async function (req, res, next) {
   res.end();
 });
 
+const groupBy = function (xs, key) {
+  return xs.reduce(function (rv, x) {
+    rv[x[key]] = rv[x[key]] || { artists: [] };
+    rv[x[key]].audio_id = x.audio_id;
+    rv[x[key]].blob_id = x.blob_id;
+    rv[x[key]].title = x.title;
+    rv[x[key]].artists.push({ artist_id: x.artist_id, name: x.name });
+    rv[x[key]].duration = x.duration;
+    return rv;
+  }, {});
+};
+
 async function fetchAudioData(params) {
   const result = await getAudioMetadata(params),
-    error = result.error,
-    audios = result.data || [],
-    audioData = {
-      status: error || 200,
-      audios: [],
+    audiosSpread = result.data.map((audio) => ({ ...audio })) || [],
+    audiosGrouped = groupBy(audiosSpread, "audio_id"),
+    audiosValues = Object.values(audiosGrouped).reverse(),
+    audiosData = {
+      status: result.error || 200,
+      audios: audiosValues,
     };
 
-  for (const audio of audios) {
-    const result = await getArtistsByAudioID(audio.id),
-      artists = result.data;
-
-    audio.artists = [];
-
-    for (const artist of artists) {
-      audio.artists.push({ id: artist.id, name: artist.name });
-    }
-
-    audioData.audios.push({ ...audio });
-  }
-
-  return audioData;
+  return audiosData;
 }
 
 async function fetchAudioBlob(blobID) {
@@ -206,52 +211,86 @@ async function getNumOfRows() {
   await resolveQuery(query);
 }
 
-async function getAudioMetadata({ artistID, limit, offset }) {
-  var artistIDJoinClause = "",
-    artistIDWhereClause = "",
-    artistIDJoinSubquery = "",
-    artistIDWhereSubquery = "";
+function constructWhereClause(whereClauses) {
+  return whereClauses.length
+    ? "WHERE " + [whereClauses[0], ...whereClauses.slice(1)].join(" AND ")
+    : "";
+}
+
+async function getAudioMetadata({ artistID, search, limit, offset }) {
+  var artistIDWhereClause = "",
+    searchQuery = "",
+    queryWhereClauses = [],
+    subqueryWhereClauses = [],
+    concatedArtists = "";
+
   if (artistID) {
-    artistIDJoinClause = `
-    LEFT JOIN audio_artist 
-    ON audio.id = audio_artist.audio_id
-    LEFT JOIN artist 
-    ON audio_artist.artist_id = artist.id
-    `;
+    // concatedArtists = "GROUP_CONCAT(artist.name) AS name, ";
 
     artistIDWhereClause = `
-    AND artist.id = ${artistID}
+    artist.id = ${artistID}
     `;
 
-    artistIDJoinSubquery = `
-    LEFT JOIN audio_artist 
-    ON audio.id = audio_artist.audio_id
-    LEFT JOIN artist 
-    ON audio_artist.artist_id = artist.id
-    `;
-
-    artistIDWhereSubquery = `
-    WHERE artist.id = ${artistID}
-    `;
+    queryWhereClauses.push(artistIDWhereClause);
+    subqueryWhereClauses.push(artistIDWhereClause);
   }
 
+  if (search) {
+    searchQuery = `
+    (
+      audio.title COLLATE utf8mb4_0900_ai_ci LIKE '%${search}%'
+      OR artist.name COLLATE utf8mb4_0900_ai_ci LIKE '%${search}%'
+    )
+    `;
+
+    queryWhereClauses.push(searchQuery);
+    subqueryWhereClauses.push(searchQuery);
+  }
+
+  const queryWhereClause = constructWhereClause(queryWhereClauses);
+
+  const subquery = `
+  audio.id <= 
+    (
+      SELECT audio.id 
+      FROM audio 
+      INNER JOIN audio_artist 
+      ON audio.id = audio_artist.audio_id
+      INNER JOIN artist 
+      ON audio_artist.artist_id = artist.id
+      ${queryWhereClause}
+      GROUP BY audio.id
+      ORDER BY audio.id DESC
+      LIMIT 1 OFFSET ${offset}
+    )
+  `;
+
+  subqueryWhereClauses.push(subquery);
+
+  const subqueryWhereClause = constructWhereClause(subqueryWhereClauses);
+
   const query = `
-  SELECT audio.id, blob_id, title, duration
-  FROM audio
-  ${artistIDJoinClause}
-  WHERE audio.id <= 
-      (
-        SELECT audio.id 
-        FROM audio 
-        ${artistIDJoinSubquery}
-        ${artistIDWhereSubquery}
-        ORDER BY audio.id DESC
-        LIMIT 1 OFFSET ${offset}
-      )
-  ${artistIDWhereClause}
-  ORDER BY audio.id DESC
-  LIMIT ${limit}
+  SELECT audio_id AS audio_id, blob_id, title, artist.id AS artist_id, artist.name, duration 
+  FROM (
+    SELECT audio.id, blob_id, title, ${concatedArtists}duration 
+    FROM audio
+    INNER JOIN audio_artist 
+    ON audio.id = audio_artist.audio_id
+    INNER JOIN artist 
+    ON audio_artist.artist_id = artist.id
+    ${subqueryWhereClause}
+    GROUP BY audio.id
+    ORDER BY audio.id DESC
+    LIMIT ${limit}
+    )
+  audio
+  INNER JOIN audio_artist 
+  ON audio.id = audio_artist.audio_id
+  INNER JOIN artist 
+  ON audio_artist.artist_id = artist.id
   ;`;
+
+  // console.log(query);
 
   return await resolveQuery(query);
 }
@@ -270,10 +309,10 @@ async function getArtistsByAudioID(audioID) {
   const query = `
   SELECT artist.id, name, artist_position 
   FROM artist
-      LEFT JOIN audio_artist 
-      ON artist.id = artist_id
-      LEFT JOIN audio
-      ON audio.id = audio_id
+    LEFT JOIN audio_artist 
+    ON artist.id = artist_id
+    LEFT JOIN audio
+    ON audio.id = audio_id
   WHERE audio.id = ${audioID}
   ORDER BY artist_position
   ;`;
@@ -296,6 +335,7 @@ app.post("/uploadAudio", async function (req, res, next) {
       const audio = req.files.audio;
       const name = trimExtension(audio.name);
       var title = name;
+      const duration = req.body.duration;
 
       const separator = " - ";
       const separatorIndex = name.indexOf(separator);
@@ -306,7 +346,8 @@ app.post("/uploadAudio", async function (req, res, next) {
       }
 
       const blobID = (await insertAudioBLob(audio.data)).data.insertId;
-      const audioID = (await insertAudioData(blobID, title)).data.insertId;
+      const audioID = (await insertAudioData(blobID, title, duration)).data
+        .insertId;
       await insertAudioLanguage(audioID, 1);
 
       if (artists) {
@@ -381,10 +422,10 @@ async function getArtistByName(artist) {
   return await resolveQuery(query);
 }
 
-async function insertAudioData(blobID, title) {
+async function insertAudioData(blobID, title, duration) {
   const query = `
-  INSERT INTO audio(blob_id, title) 
-  VALUES("${blobID}", "${title}")
+  INSERT INTO audio(blob_id, title, duration) 
+  VALUES("${blobID}", "${title}", "${duration}")
   ;`;
 
   return await resolveQuery(query);
@@ -406,13 +447,12 @@ function trimExtension(filename) {
 }
 
 app.post("/artistsData", async (req, res, next) => {
-  const artistID = Number(req.body.artistID);
-  console.log(req.body);
-  console.log(artistID);
+  console.log("Body:", req.body);
 
   const params = {};
-  [params.artistID, params.limit, params.offset] = [
-    artistID,
+  [params.artistID, params.search, params.limit, params.offset] = [
+    req.body.artistID,
+    req.body.search,
     req.body.limit,
     req.body.offset,
   ];
@@ -441,59 +481,60 @@ app.post("/imageBlob", async (req, res, next) => {
   res.end();
 });
 
-app.post("/uploadImage", async (req, res, next) => {
-  try {
-    if (!req.files) {
-      res.status(200).send({
-        status: 200,
-        message: "No file uploaded.",
-      });
+// app.post("/uploadImage", async (req, res, next) => {
+//   try {
+//     if (!req.files) {
+//       res.status(200).send({
+//         status: 200,
+//         message: "No file uploaded.",
+//       });
 
-      return next();
-    } else {
-      const image = req.files.image;
-      const name = trimExtension(image.name);
-      const artists = name;
+//       return next();
+//     } else {
+//       const image = req.files.image;
+//       const artistID = req.body.artistID;
 
-      const blobID = (await insertImageBLob(image.data)).data.insertId;
-      const audioID = (await insertImageData(blobID)).data.insertId;
+//       const blobID = (await insertImageBlob(image.data)).data.insertId;
+//       const imageID = (await insertImageData(blobID)).data.insertId;
 
-      if (artists) {
-        const artistsArr = [artists];
+//       if (artists) {
+//         const artistsArr = [artists];
 
-        for (const [index, artist] of artistsArr.entries()) {
-          var artistID;
-          const getArtistByNameResult = (await getArtistByName(artist))
-            .getArtistByNameResult.data[0];
-          if (getArtistByNameResult) {
-            artistID = getArtistByNameResult.id;
-          } else {
-            artistID = (await insertArtist(artist)).data.insertId;
-          }
+//         for (const [index, artist] of artistsArr.entries()) {
+//           var artistID;
+//           const getArtistByNameResult = (await getArtistByName(artist))
+//             .getArtistByNameResult.data[0];
+//           if (getArtistByNameResult) {
+//             artistID = getArtistByNameResult.id;
+//           } else {
+//             artistID = (await insertArtist(artist)).data.insertId;
+//           }
 
-          await insertImageArtist(audioID, artistID, index + 1);
-        }
-      }
+//           await insertImageArtist(imageID, artistID, index + 1);
+//         }
+//       }
 
-      res.status(200).send({
-        status: 200,
-        message: "File uploaded.",
-        id: audioID,
-        name: name,
-      });
-    }
-  } catch (error) {
-    console.log("Error:", error);
+//       res.status(200).send({
+//         status: 200,
+//         message: "File uploaded.",
+//         id: imageID,
+//         name: name,
+//       });
+//     }
+//   } catch (error) {
+//     console.log("Error:", error);
 
-    res.status(500).send({
-      status: error,
-      message: "Uploading process has failed.",
-      name: audio.name,
-    });
-  }
-});
+//     res.status(500).send({
+//       status: error,
+//       message: "Uploading process has failed.",
+//       name: audio.name,
+//     });
 
-async function insertImageBLob(image) {
+//     return next();
+//   }
+// });
+
+async function insertImageBlob(image) {
   const query = `
   INSERT INTO image_blob SET ?
   `,
@@ -522,54 +563,64 @@ async function insertImageArtist(imageID, artistID) {
   return await resolveQuery(query);
 }
 
-async function getArtistsData({ artistID, limit, offset }) {
-  var artistIDJoinClause = "",
-    artistIDWhereClause = "",
-    artistIDJoinSubquery = "",
-    artistIDWhereSubquery = "";
-  console.log(artistID);
-  if (artistID) {
-    artistIDWhereClause = `
-  AND artist.id = ${artistID}
-  `;
+async function getArtistsData({ artistID, search, limit, offset }) {
+  var artistIDWhereClause = "",
+    queryWhereClauses = [],
+    subquery = "",
+    subqueryWhereClauses = [],
+    searchQuery = "";
 
-    artistIDJoinSubquery = `
-  LEFT JOIN audio_artist 
-  ON audio.id = audio_artist.audio_id
-  LEFT JOIN artist 
-  ON audio_artist.artist_id = artist.id
-  `;
+  const whereClauseDeleted = "artist.deleted = 0";
+  queryWhereClauses.push(whereClauseDeleted);
 
-    artistIDWhereSubquery = `
-  WHERE artist.id = ${artistID}
-  `;
+  if (search) {
+    searchQuery = `
+    (
+      artist.name COLLATE utf8mb4_0900_ai_ci LIKE '%${search}%'
+    )`;
+
+    queryWhereClauses.push(searchQuery);
+    subqueryWhereClauses.push(searchQuery);
   }
 
+  if (artistID) {
+    artistIDWhereClause = `
+    artist.id = ${artistID}
+    `;
+
+    queryWhereClauses.push(artistIDWhereClause);
+    subqueryWhereClauses.push(artistIDWhereClause);
+  } else {
+    const subqueryWhereClause = constructWhereClause(subqueryWhereClauses);
+
+    subquery = `
+    artist.id <= 
+    (
+      SELECT artist.id 
+      FROM artist 
+      ${subqueryWhereClause}
+      ORDER BY artist.id DESC
+      LIMIT 1 OFFSET ${offset}
+    )`;
+
+    queryWhereClauses.push(subquery);
+  }
+
+  const queryWhereClause = constructWhereClause(queryWhereClauses);
+
   const query = `
-  SELECT artist.id AS artist_id, artist.name AS name, 
-  image.blob_id AS blob_id
+  SELECT artist.id AS artist_id, name, blob_id
   FROM artist
   LEFT JOIN image_artist
   ON artist.id = image_artist.artist_id
   LEFT JOIN image
   ON image.id = image_artist.image_id
-  ${artistIDJoinClause}
-  WHERE artist.id <= 
-    (
-      SELECT artist.id 
-      FROM artist 
-      LEFT JOIN image_artist
-      ON artist.id = image_artist.artist_id
-      LEFT JOIN image
-      ON image.id = image_artist.image_id
-      ${artistIDWhereSubquery}
-      ORDER BY artist.id DESC
-      LIMIT 1 OFFSET ${offset}
-    )
-  ${artistIDWhereClause}
+  ${queryWhereClause}
   ORDER BY artist.id DESC
   LIMIT ${limit}
   ;`;
+
+  // console.log(query);
 
   return await resolveQuery(query);
 }
@@ -599,10 +650,150 @@ async function fetchImageBlob(blobID) {
 
 async function getImage(blobID) {
   const query = `
-    SELECT image
-    FROM image_blob
-    WHERE id = ${blobID}
-    ;`;
+  SELECT image
+  FROM image_blob
+  WHERE id = ${blobID}
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+app.patch("/editAudio", async function (req, res) {
+  console.log("Body:", req.body);
+
+  const params = {},
+    audioId = req.body.audioId,
+    title = req.body.title,
+    artists = req.body.artists;
+  params.audioId = audioId;
+  params.limit = 1;
+  params.offset = 0;
+  await editAudio(audioId, title);
+  await deleteAudioArtistRelations(audioId);
+  artists.forEach(async (artistID, index) => {
+    artistID &&
+      (await insertAudioArtistRelations(audioId, artistID, index + 1));
+  });
+  const audioData = await fetchAudioDataById(audioId);
+
+  res.send(audioData);
+});
+
+async function editAudio(audioId, title) {
+  const query = `
+  UPDATE audio
+  SET title = "${title}"
+  WHERE id = ${audioId}
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function fetchAudioDataById(audioID) {
+  const result = await getAudioMetadataById(audioID),
+    audiosSpread = result.data.map((audio) => ({ ...audio })) || [],
+    audiosGrouped = groupBy(audiosSpread, "audio_id"),
+    audiosValues = Object.values(audiosGrouped)[0],
+    audiosData = {
+      status: result.error || 200,
+      audio: audiosValues,
+    };
+
+  return audiosData;
+}
+
+async function deleteAudioArtistRelations(audioID) {
+  const query = `
+  DELETE FROM audio_artist
+  WHERE audio_id = ${audioID}
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function insertAudioArtistRelations(audioID, artistID, artistPosition) {
+  console.log(audioID, artistID);
+
+  const query = `
+  INSERT INTO audio_artist(audio_id, artist_id, artist_position) 
+  VALUES(${audioID}, ${artistID}, ${artistPosition})
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+app.post("/submitArtist", async function (req, res) {
+  console.log("Body:", req.body);
+  console.log("Body:", req.files);
+
+  const artistMetadata = JSON.parse(req.body.artistMetadata);
+  var artistID = artistMetadata.artistID;
+  const artistName = artistMetadata.artistName;
+  const image = req.files?.image;
+
+  console.log(artistMetadata);
+  console.log(artistID);
+  console.log(artistName);
+  console.log(image);
+
+  // if (artistID) {
+  //   await editArtist(artistID, artistName);
+  // } else {
+  //   artistID = (await insertArtist(artistName)).data.insertId;
+  // }
+
+  // if (image) {
+  //   const blobID = (await insertImageBlob(image.data)).data.insertId;
+  //   const imageID = await (await insertImageData(blobID)).data.insertId;
+  //   await insertImageArtist(imageID, artistID);
+  // }
+
+  res.send({ result: 200 });
+});
+
+async function editArtist(artistId, artistName) {
+  const query = `
+  UPDATE artist
+  SET name = "${artistName}"
+  WHERE id = ${artistId}
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function getAudioMetadataById(audioID) {
+  const query = `
+  SELECT audio_id AS audio_id, blob_id, title, artist.id AS artist_id, artist.name, duration 
+  FROM audio
+  INNER JOIN audio_artist 
+  ON audio.id = audio_artist.audio_id
+  INNER JOIN artist 
+  ON audio_artist.artist_id = artist.id
+  WHERE audio_id = ${audioID}
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+app.delete("/deleteArtist", async function (req, res, next) {
+  console.log("Body:", req.body);
+  const artistID = req.body.artistID;
+
+  const result = await editArtist(artistID);
+  audiosData = {
+    status: result.error || 200,
+    audios: result.data,
+  };
+
+  res.send(audiosData);
+});
+
+async function editArtist(artistId) {
+  const query = `
+  UPDATE artist
+  SET deleted = 1
+  WHERE id = ${artistId}
+  ;`;
 
   return await resolveQuery(query);
 }

@@ -3,7 +3,7 @@
   margin: 25px 0 15px;
 }
 
-#audio-search-bar {
+.search-bar {
   display: grid;
   grid-template-columns: auto 100px;
   column-gap: 10px;
@@ -11,22 +11,29 @@
   height: 100%;
 }
 
-#audio-search-bar #list {
+.search-bar #list {
   display: none;
 }
 
-#audio-search-bar #right-tab {
+.search-bar #right-tab {
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 10px;
 }
 
-#audio-search-bar #right-tab button {
-  /* background-color: rgb(253, 105, 105); */
+.search-bar #right-tab button {
   border: 1px solid #b4b4b4;
 }
 
-#audio-search-bar #right-tab #search-button {
-  background: url("/public/content/icons/loupe.svg") center/10px no-repeat;
+.search-bar #right-tab #search-audio,
+.search-bar #right-tab #search-artist {
+  background: white url("/public/content/icons/loupe.svg") center/10px no-repeat;
   border: 1px solid #b4b4b4;
+}
+
+.search-bar #right-tab #upload-audio,
+.search-bar #right-tab #add-artist {
+  background: white
+    url("/public/content/icons/plus-positive-add-mathematical-symbol.svg")
+    center/10px no-repeat;
 }

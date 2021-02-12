@@ -3,13 +3,20 @@
   position: fixed;
   width: 100vw;
   height: 100vh;
+  background-color: rgba(0, 0, 0, 0.281);
   z-index: 3;
+}
+
+#edit-audio-window-background {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
 }
 
 #edit-audio-window {
   position: absolute;
   width: 700px;
-  top: 50%;
+  top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
   background-color: rgb(228, 228, 228);
@@ -45,11 +52,11 @@
   overflow: auto;
 }
 
-#edit-audio-window #content div {
+#edit-audio-window #content > div {
   margin-bottom: 30px;
 }
 
-#edit-audio-window #content div:last-child {
+#edit-audio-window #content > div:last-child {
   margin-bottom: 20px;
 }
 
@@ -61,7 +68,8 @@
   cursor: default;
 }
 
-#edit-audio-window #content input {
+#edit-audio-window #content input,
+#edit-audio-window #content select {
   width: 100%;
   height: 25px;
   margin: 8px 0;
@@ -83,4 +91,15 @@
   height: 30px;
   background-color: rgb(255, 255, 255);
   border: 1px solid rgb(141, 141, 141);
+}
+
+#edit-audio-window #content .dropdown {
+  max-height: 100px;
+  overflow-y: scroll;
+}
+
+#edit-audio-window #content .dropdown > p {
+  line-height: 1.3em;
+  white-space: pre-wrap;
+  cursor: pointer;
 }

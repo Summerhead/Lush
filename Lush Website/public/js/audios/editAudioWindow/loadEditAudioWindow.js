@@ -1,4 +1,4 @@
-import configureEditAudioWindow from "./editAudioWindow.js";
+import EditAudioWindow from "./EditAudioWindow.js";
 
 export default function loadEditAudioWindow() {
   const xmlhttp = new XMLHttpRequest();
@@ -13,12 +13,6 @@ export default function loadEditAudioWindow() {
           editAudioWindowContainer = template.getElementById(
             "edit-audio-window-container"
           );
-
-        configureEditAudioWindow(editAudioWindowContainer);
-
-        document
-          .getElementsByTagName("body")[0]
-          .prepend(editAudioWindowContainer);
 
         resolve(editAudioWindowContainer);
       }

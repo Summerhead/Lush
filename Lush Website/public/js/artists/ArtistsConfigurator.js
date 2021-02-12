@@ -1,35 +1,37 @@
 import insertNoResults from "../partials/insertNoResults.js";
 import showPage from "../partials/loadContent.js";
+import { editArtistWindow } from "./loadArtists.js";
 
 export default class ArtistsConfigurator {
-  constructor(artistLi, reqArtistDataSpec) {
+  constructor(artistLi, href, reqArtistDataSpec) {
     this.artistsOl = document.getElementById("artists-ol");
 
     this.globalReqArtistData = {
-      artistID: Number(document.location.pathname.split("/")[2]) || null,
+      artistID: document.location.pathname.split("/")[2] || null,
+      search: "",
       limit: 140,
-      offset: 0,
+      offset: 900,
     };
 
-    this.atTheBottomObject = { atTheBottom: false };
-
+    this.atTheBottom = true;
     this.artistLi = artistLi;
     this.reqArtistDataSpec = reqArtistDataSpec || this.globalReqArtistData;
 
-    this.getArtists();
+    this.href = href;
 
+    this.getArtists();
     this.applyWindowOnScroll(this.artistLi, this.reqArtistDataSpec);
   }
 
-  getArtists = () => {
+  getArtists() {
     this.fetchDataChunk(this.reqArtistData);
-  };
+  }
 
-  outputsize = (imageWrapper) => {
+  outputsize(imageWrapper) {
     imageWrapper.style.height = imageWrapper.offsetWidth + "px";
-  };
+  }
 
-  fetchDataChunk = () => {
+  fetchDataChunk() {
     $.ajax({
       type: "POST",
       url: "/artistsData",
@@ -58,16 +60,22 @@ export default class ArtistsConfigurator {
               );
             }
 
-            this.atTheBottomObject.atTheBottom = false;
-
             [...document.getElementsByTagName("a")].forEach((link) => {
               link.onclick = () => {
-                showPage(link);
+                showPage(link.href);
                 return false;
               };
             });
 
+            // console.log(document.getElementById("main").innerHTML);
+
+            // pushState(this.href);
+
             // window.scroll(0, document.body.scrollHeight);
+
+            if (returnedRows === this.reqArtistDataSpec.limit) {
+              this.atTheBottom = false;
+            }
           }
           // else if (!document.getElementById("artists")) {
           //   console.log(returnedRows);
@@ -79,9 +87,9 @@ export default class ArtistsConfigurator {
         console.log("Error:", error);
       },
     });
-  };
+  }
 
-  fetchBlob = (reqImageBlob, imageWrapper) => {
+  fetchBlob(reqImageBlob, imageWrapper) {
     fetch("/imageBlob", {
       method: "POST",
       headers: {
@@ -115,14 +123,15 @@ export default class ArtistsConfigurator {
       .then((blob) => (blob.size ? URL.createObjectURL(blob) : null))
       .then((url) => {
         if (url) {
+          imageWrapper.classList.remove("no-cover");
           imageWrapper.style.backgroundImage = `url("${url}")`;
         }
         // URL.revokeObjectURL(url);
       })
       .catch(console.error);
-  };
+  }
 
-  constructArtist = (artist) => {
+  constructArtist(artist) {
     const artistLiClone = this.artistLi.cloneNode(true);
 
     artistLiClone.querySelector(".artist-name").innerText = artist.name;
@@ -130,21 +139,56 @@ export default class ArtistsConfigurator {
       artist.artist_id
     }/${artist.name.split(" ").join("+")}`;
 
-    return artistLiClone;
-  };
+    artistLiClone.setAttribute("data-artist-id", artist.artist_id);
+    artistLiClone.setAttribute("data-artist-name", artist.name);
 
-  applyWindowOnScroll = () => {
+    artistLiClone
+      .querySelector("#edit-artist")
+      .addEventListener("click", this.editAction);
+
+    artistLiClone
+      .querySelector("#delete-artist")
+      .addEventListener("click", this.deleteAction);
+
+    return artistLiClone;
+  }
+
+  editAction(event) {
+    editArtistWindow.openEditArtistWindow(event.target.closest(".artist-li"));
+  }
+
+  deleteAction(event) {
+    const xhr = new XMLHttpRequest();
+    xhr.open("DELETE", "/deleteArtist", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        const response = JSON.parse(xhr.response);
+        console.log(response);
+      }
+    };
+
+    const dataJSON = {
+      artistID: event.target
+        .closest(".artist-li")
+        .getAttribute("data-artist-id"),
+    };
+
+    xhr.send(JSON.stringify(dataJSON));
+  }
+
+  applyWindowOnScroll() {
     window.onscroll = () => {
       if (
-        !this.atTheBottomObject.atTheBottom &&
+        !this.atTheBottom &&
         window.innerHeight + window.scrollY >=
           this.artistsOl.offsetTop + this.artistsOl.offsetHeight - 100
       ) {
-        this.atTheBottomObject.atTheBottom = true;
+        this.atTheBottom = true;
 
         this.globalReqArtistData.offset += this.globalReqArtistData.limit;
         this.getArtists(this.artistLi);
       }
     };
-  };
+  }
 }

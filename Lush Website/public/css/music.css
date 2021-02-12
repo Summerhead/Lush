@@ -1,7 +1,3 @@
-#audios {
-  margin-bottom: 100px;
-}
-
 #audios-ol {
   display: flex;
   flex-direction: column;
@@ -18,12 +14,29 @@
 .audio-li {
   width: 100%;
   list-style: none;
-  cursor: default;
+  cursor: pointer;
   border-top: 1px solid rgba(0, 0, 0, 0.116);
+  background-color: rgba(255, 255, 255, 0.95);
 }
 
 .audio-li:last-child {
   border-bottom: 1px solid rgba(0, 0, 0, 0.116);
+}
+
+.playing > .audio-container {
+  background-color: rgba(224, 224, 224, 0.562);
+}
+
+.audio-container {
+  padding: 0 5px;
+}
+
+.audio-container:hover {
+  background-color: rgba(224, 224, 224, 0.562);
+}
+
+.audio-container:hover #right-tab {
+  display: flex;
 }
 
 .audio-container {
@@ -32,11 +45,19 @@
 }
 
 #audio-main {
+  position: relative;
   display: grid;
   grid-template-columns: 28px 1fr;
   column-gap: 5px;
   padding: 5px 0;
   width: 100%;
+}
+
+#clickable-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
 .audio-content {
@@ -45,18 +66,41 @@
   grid-template-columns: 1fr auto;
 }
 
+.audio-header {
+  align-items: flex-start;
+}
+
+.audio-header div {
+  line-height: 1.3em;
+  padding-right: 5px;
+  height: 18px;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
 .audio-header .title {
-  font-weight: 200;
+  cursor: default;
+  z-index: 2;
 }
 
 .audio-header .artists {
   color: rgb(141, 141, 141);
+  z-index: 2;
 }
 
 .audio-header .artists a {
   text-decoration: none;
   color: rgb(141, 141, 141);
   font-size: 0.95em;
+}
+
+.audio-header .artists a:hover {
+  /* border-bottom: 0.5px solid rgba(141, 141, 141, 0.8); */
+  text-decoration: underline;
+}
+
+.audio-header .artists span {
+  cursor: default;
 }
 
 .audio-player {
@@ -73,12 +117,20 @@
 
 .audio-hud__element {
   cursor: pointer;
+  z-index: 2;
 }
 
 #time {
   display: flex;
+  align-self: flex-end;
   bottom: 0px;
   font-size: 0.65em;
+  cursor: default;
+  z-index: 2;
+}
+
+.hidden {
+  display: none;
 }
 
 .audio-hud__duration {
@@ -132,68 +184,16 @@
   border-radius: 2.5px;
   color: lightblue;
   background-color: rgba(116, 116, 116, 0.322);
+  z-index: 2;
 }
 
 .audio-hud__progress-bar::-webkit-progress-value {
   border-radius: 2.5px;
-  background-color: rgb(255, 165, 165);
+  background-color: rgb(102, 102, 102);
 }
 
 .audio-hud__progress-bar::-webkit-progress-bar {
   background-color: rgba(216, 216, 216, 0);
-}
-
-.more {
-  display: none;
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  width: 20px;
-  height: 15px;
-}
-
-.more-button {
-  position: absolute;
-  width: inherit;
-  height: inherit;
-  border: none;
-  background: white url("/public/content/icons/more.svg") center no-repeat;
-  cursor: pointer;
-}
-
-.more .dropdown {
-  width: 40px;
-  top: 16px;
-  right: 0;
-  border: 1px solid rgb(161, 161, 161);
-  border-radius: 5px;
-  z-index: 1;
-}
-
-.more .dropdown-content {
-  display: flex;
-  flex-direction: column;
-  background-color: white;
-  border-radius: inherit;
-}
-
-.more .dropdown-content > div {
-  width: 100%;
-  height: 18px;
-  border-bottom: 1px solid rgb(145, 145, 145);
-  cursor: pointer;
-}
-
-.more .dropdown-content > div:last-child {
-  border: none;
-}
-
-.more .dropdown .edit-button {
-  background: url("/public/content/icons/pencil.svg") center/10px no-repeat;
-}
-
-.more .dropdown .info-button {
-  background: url("/public/content/icons/info.svg") center/10px no-repeat;
 }
 
 .audio-li #right-tab {
@@ -209,20 +209,25 @@
   background: center/10px no-repeat;
   border: none;
   cursor: pointer;
+  z-index: 2;
 }
 
 .audio-li #right-tab button:last-child {
   margin: 0;
 }
 
-.audio-li #right-tab .delete-button {
+.audio-li #right-tab #add-button {
+  background-image: url("/public/content/icons/plus-positive-add-mathematical-symbol.svg");
+}
+
+.audio-li #right-tab #delete-button {
   background-image: url("/public/content/icons/cancel.svg");
 }
 
-.audio-li #right-tab .edit-button {
+.audio-li #right-tab #edit-button {
   background-image: url("/public/content/icons/pencil.svg");
 }
 
-.audio-li #right-tab .info-button {
+.audio-li #right-tab #info-button {
   background-image: url("/public/content/icons/info.svg");
 }

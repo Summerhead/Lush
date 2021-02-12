@@ -1,11 +1,12 @@
 import insertNoResults from "../../partials/insertNoResults.js";
+// import { pushState } from "../../partials/loadContent.js";
 
 export default class ArtistConfigurator {
-  constructor(artistLi, reqArtistDataSpec) {
+  constructor(artistLi, reqArtistDataSpec, href) {
     this.artistPic = document.getElementById("artist-pic");
 
     this.globalReqArtistData = {
-      artistID: Number(document.location.pathname.split("/")[2]) || null,
+      artistID: document.location.pathname.split("/")[2] || null,
       limit: 120,
       offset: 0,
     };
@@ -15,15 +16,17 @@ export default class ArtistConfigurator {
     this.artistLi = artistLi;
     this.reqArtistDataSpec = reqArtistDataSpec || this.globalReqArtistData;
 
+    this.href = href;
+
     this.getArtist();
     this.applyWindowOnScroll();
   }
 
-  getArtist = () => {
+  getArtist() {
     this.fetchDataChunk();
-  };
+  }
 
-  fetchDataChunk = () => {
+  fetchDataChunk() {
     $.ajax({
       type: "POST",
       url: "/artistsData",
@@ -46,7 +49,9 @@ export default class ArtistConfigurator {
               this.fetchBlob(reqImageBlob, imageWrapper);
             }
 
-            this.atTheBottomObject.atTheBottom = false;
+            // this.atTheBottomObject.atTheBottom = false;
+
+            // pushState(this.href);
 
             // window.scroll(0, document.body.scrollHeight);
           }
@@ -60,9 +65,9 @@ export default class ArtistConfigurator {
         console.log("Error:", error);
       },
     });
-  };
+  }
 
-  fetchBlob = (reqImageBlob, imageWrapper) => {
+  fetchBlob(reqImageBlob, imageWrapper) {
     fetch("/imageBlob", {
       method: "POST",
       headers: {
@@ -97,6 +102,8 @@ export default class ArtistConfigurator {
       .then((url) => {
         if (url) {
           imageWrapper.style.backgroundImage = `url("${url}")`;
+          // imageWrapper.style.backgroundImage = ``;
+          // document.body.style.backgroundImage = `url("${url}")`;
         }
         return url;
         // URL.revokeObjectURL(url);
@@ -107,27 +114,49 @@ export default class ArtistConfigurator {
 
         img.onload = function () {
           const { r, g, b } = getAverageRGB(img);
+
           document.getElementById(
             "artist-background"
-          ).style.background = `linear-gradient(0.25turn, rgba(${r}, ${g}, ${b}, 1), rgba(${r}, ${g}, ${b}, 0))`;
+          ).style.background = `linear-gradient(0.5turn, rgba(${r}, ${g}, ${b}, 1), rgba(${r}, ${g}, ${b}, 0))`;
+
           document.getElementById(
-            "artist-pic"
+            "header"
           ).style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+
+          const brightness = Math.round(
+            (parseInt(r) * 299 + parseInt(g) * 587 + parseInt(b) * 114) / 1000
+          );
+          const bw = brightness > 125 ? "black" : "white";
+          const op = bw === "black" ? "white" : "black";
+          const p = 0.7;
+          document.getElementById("artist-name").style.color = bw;
+          document.getElementById(
+            "artist-name"
+          ).style.textShadow = `-${p}px -${p}px 0 rgb(${r}, ${g}, ${b}), ${p}px -${p}px 0 rgb(${r}, ${g}, ${b}), -${p}px ${p}px 0 rgb(${r}, ${g}, ${b}), ${p}px ${p}px 0 rgb(${r}, ${g}, ${b})`;
+          // ).style.textShadow = `-0.5px -0.5px 0 ${op}, 0.5px -0.5px 0 ${op}, -0.5px 0.5px 0 ${op}, 0.5px 0.5px 0 ${op}`;
+
+          document
+            .querySelectorAll("#header a")
+            .forEach((a) => (a.style.color = bw));
+
+          // document
+          //   .querySelectorAll("#nav-bar a")
+          //   .forEach((a) => (a.style.color = "black"));
         };
       })
       .catch(console.error);
-  };
+  }
 
-  constructArtist = (artist) => {
+  constructArtist(artist) {
     const artistLiClone = this.artistLi.cloneNode(true);
 
     artistLiClone.querySelector("#artist-name").innerText = artist.name;
     // artistLiClone.querySelector(".artist-link").href += artist.artist_id;
 
     return artistLiClone;
-  };
+  }
 
-  applyWindowOnScroll = () => {
+  applyWindowOnScroll() {
     window.onscroll = () => {
       if (
         !this.atTheBottomObject.atTheBottom &&
@@ -136,11 +165,11 @@ export default class ArtistConfigurator {
       ) {
         this.atTheBottomObject.atTheBottom = true;
 
-        this.globalReqArtistData.offset += globalReqArtistData.limit;
+        this.globalReqArtistData.offset += this.globalReqArtistData.limit;
         this.getArtist();
       }
     };
-  };
+  }
 }
 
 function getAverageRGB(imgEl) {

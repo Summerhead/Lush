@@ -1,16 +1,16 @@
 {
-  "/": { "pagepath": "/public/html/hero.html", "scripts": [] },
+  "/": { "pagepath": "/public/html/hero.html", "scripts": ["loadMain"] },
   "/music": {
     "pagepath": "/public/html/music.html",
-    "scripts": ["loadSearchBar", "loadAudios"]
+    "scripts": ["loadAudioSearchBar", "loadAudios"]
   },
   "/artists": {
     "pagepath": "/public/html/artists.html",
-    "scripts": ["loadSearchBar", "loadArtists"]
+    "scripts": ["loadArtistSearchBar", "loadArtists"]
   },
   "/artists/:artistId/:artistName": {
     "pagepath": "/public/html/artist.html",
-    "scripts": ["loadSearchBar", "loadArtist", "loadAudios"]
+    "scripts": ["loadAudioSearchBar", "loadArtist", "loadAudios"]
   },
   "/genres": { "pagepath": "/public/html/main.html", "scripts": [] },
   "/playlists": { "pagepath": "/public/html/main.html", "scripts": [] }

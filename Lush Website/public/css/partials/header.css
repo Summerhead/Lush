@@ -1,71 +1,51 @@
-header {
-  position: relative;
-  z-index: 2;
-}
-
-#first-bar {
+#header {
   position: relative;
   width: 100%;
-  max-width: 1920px;
-  height: 70px;
-  margin: 0 auto;
+  height: 40px;
+  z-index: 2;
+  background-color: rgb(255, 255, 255);
 }
 
 #logo {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(calc(-50% + 0.5em), -50%);
+  transform: translate(calc(-50% + 0.8em), -50%);
   text-decoration: none;
-  color: #fff;
+  color: rgb(0, 0, 0);
   font-style: italic;
-  font-size: 2.8em;
+  font-size: 1.6em;
   display: block;
   letter-spacing: 1em;
-  /* text-shadow: -2px -2px 0 rgb(255, 123, 123); */
-  text-shadow: -2px -2px 0 rgb(88, 88, 88);
   z-index: 1;
 }
 
 #bulwark {
+  display: none;
   position: absolute;
   left: 50%;
   transform: translate(-50%, 0%);
-  /* width: 960px; */
-  /* width: 100%; */
-  /* width: 600px; */
+  width: 960px;
   height: 90%;
   border-bottom: 1px solid rgb(197, 197, 197);
 }
 
-#second-bar {
-  position: relative;
-  height: 40px;
-  /* background-color: rgb(253, 105, 105); */
-  font-size: 0.95em;
-  letter-spacing: 0.1em;
-  display: flex;
-  border-bottom: 1px solid rgb(180, 180, 180);
-}
-
 #nav-bar {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  padding: 0 100px;
+  bottom: 10px;
+  right: 0;
   list-style: none;
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
+  font-size: 0.9em;
 }
 
 #nav-bar > li {
-  height: 100%;
-  margin-right: 50px;
+  margin-right: 5px;
 }
 
 #nav-bar > li:last-child {
-  height: 100%;
-  margin-right: 0;
+  margin-right: 20px;
 }
 
 #nav-bar > li > a {
@@ -75,58 +55,10 @@ header {
   text-decoration: none;
   color: rgb(0, 0, 0);
   cursor: pointer;
-  /* border-bottom: 1px solid black; */
 }
 
 #nav-bar > li > a > div {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
-}
-
-.dropdown {
-  display: none;
-  position: absolute;
-}
-
-.shown {
-  display: block;
-}
-
-#nav-bar .dropdown {
-  width: 800px;
-  max-height: 500px;
-  min-height: 110px;
-  left: 50%;
-  transform: translate(-50%, 0);
-  padding: 10px 20px;
-  color: rgb(0, 0, 0);
-  cursor: default;
-  background-color: rgb(255, 255, 255);
-  white-space: nowrap;
-  overflow: auto;
-  border: 1px solid rgba(0, 0, 0, 0.555);
-  border-top: none;
-  z-index: -1;
-}
-
-.dropdown > p {
-  padding: 10px 5px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.096);
-  overflow: hidden;
-}
-
-.dropdown > p:last-child {
-  border: none;
-}
-
-#nav-bar li:hover .dropdown {
-  display: block;
-}
-
-@media screen and (max-width: 850px) {
-  #nav-bar .dropdown {
-    width: 100%;
-    height: calc(100vh - 150px);
-  }
 }

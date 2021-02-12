@@ -1,0 +1,112 @@
+#edit-artist-window-container {
+  display: none;
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.281);
+  z-index: 3;
+}
+
+#edit-artist-window-background {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+}
+
+#edit-artist-window {
+  position: absolute;
+  width: 700px;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(228, 228, 228);
+  border: 1px solid rgb(138, 138, 138);
+  /* border-radius: 25px; */
+  /* box-shadow: 5px 8px 10px 5px rgba(0, 0, 0, 0.315),
+    -5px 8px 10px 5px rgba(0, 0, 0, 0.315); */
+}
+
+#edit-artist-window #close-button {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0);
+  cursor: pointer;
+}
+
+#edit-artist-window #close-button img {
+  position: relative;
+  top: 2.5px;
+  width: 15px;
+  height: 15px;
+}
+
+#edit-artist-window #content {
+  min-height: 220px;
+  max-height: 350px;
+  margin: 50px 0px 70px 0px;
+  padding: 0 50px;
+  overflow: auto;
+}
+
+#edit-artist-window #content > div {
+  margin-bottom: 30px;
+}
+
+#edit-artist-window #content > div:last-child {
+  margin-bottom: 20px;
+}
+
+#edit-artist-window #content .section-name {
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid black;
+  font-size: 1.1em;
+  cursor: default;
+}
+
+#edit-artist-window #content input,
+#edit-artist-window #content select {
+  width: 100%;
+  height: 25px;
+  margin: 8px 0;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 0.9em;
+  border: 1px solid rgb(141, 141, 141);
+}
+
+#edit-artist-window #content input:last-child {
+  margin-bottom: 0;
+}
+
+#edit-artist-window #submit-button {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70px;
+  height: 30px;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid rgb(141, 141, 141);
+}
+
+#image-wrapper {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+}
+
+#cover button {
+  height: 17px;
+  width: 25px;
+  border: 1px solid #b4b4b4;
+}
+
+#cover #upload-cover {
+  background: white
+    url("/public/content/icons/plus-positive-add-mathematical-symbol.svg")
+    center/10px no-repeat;
+}

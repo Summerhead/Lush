@@ -1,18 +1,15 @@
+import { loadMain } from ".././loadMain.js";
 import { loadAudios } from "../audios/loadAudios.js";
 import { loadArtists } from "../artists/loadArtists.js";
 import { loadArtist } from "../artists/artist/loadArtist.js";
-import { loadSearchBar } from "../searchBar/loadSearchBar.js";
+import { loadAudioSearchBar } from "../searchBar/audios/loadAudioSearchBar.js";
+import { loadArtistSearchBar } from "../searchBar/artists/loadArtistSearchBar.js";
 
-const state = {};
-var url = "";
-
-export default async function showPage(link) {
-  url = link.href;
-
-  await Promise.resolve(getPages(link.pathname))
-    .then(({ pagepath, scripts }) => loadPage(link, pagepath, scripts))
+export default async function showPage(url, skipPushState) {
+  await Promise.resolve(getPages(url))
+    .then(({ pagepath, scripts }) => loadPage(pagepath, scripts))
     .then(({ main, scripts }) => displayMain(main, scripts))
-    .then((scripts) => (scripts ? runScripts(scripts) : 0));
+    .then((scripts) => (scripts ? runScripts(scripts, url, skipPushState) : 0));
 }
 
 function getPages(pathname) {
@@ -22,17 +19,14 @@ function getPages(pathname) {
     xhr.responseType = "json";
     xhr.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
-        const pageJSON = this.response;
-
-        resolve(pageJSON);
+        resolve(this.response);
       }
     };
     xhr.send();
   });
 }
 
-function loadPage(link, pagepath, scripts) {
-  console.log(pagepath);
+function loadPage(pagepath, scripts) {
   return new Promise((resolve, reject) => {
     var xhr = new XMLHttpRequest();
     xhr.open("GET", pagepath);
@@ -43,12 +37,6 @@ function loadPage(link, pagepath, scripts) {
           "text/html"
         );
 
-        history.pushState(
-          { html: document.getElementById("main").innerHTML },
-          "",
-          link.href
-        );
-
         resolve({ main: page.getElementById("main"), scripts: scripts });
       }
     };
@@ -57,23 +45,39 @@ function loadPage(link, pagepath, scripts) {
 }
 
 function displayMain(main, scripts) {
-  document
-    .getElementsByTagName("body")[0]
-    .replaceChild(main, document.getElementById("main"));
+  document.getElementById("main").replaceWith(main);
+
   return scripts;
 }
 
-function runScripts(scripts) {
+function runScripts(scripts, pathname, skipPushState) {
   scripts.forEach((script) => eval(script)());
+
+  if (!skipPushState) {
+    // console.log(history.state);
+    // console.log(pathname);
+    history.pushState({ pathname: String(pathname) }, "", pathname);
+    // console.log(history.state);
+    // console.log(history);
+  }
 }
 
-function executeFunctionByName(functionName, context) {
-  var namespaces = functionName.split(".");
-  var func = namespaces.pop();
-  for (var i = 0; i < namespaces.length; i++) {
-    console.log(context);
-    context = context[namespaces[i]];
-  }
-  console.log(context, func);
-  return context[func].apply(context);
-}
+// function executeFunctionByName(functionName, context) {
+//   var namespaces = functionName.split(".");
+//   var func = namespaces.pop();
+//   for (var i = 0; i < namespaces.length; i++) {
+//     console.log(context);
+//     context = context[namespaces[i]];
+//   }
+//   console.log(context, func);
+//   return context[func].apply(context);
+// }
+
+// export function pushState(href) {
+//   history.pushState(
+//     { html: document.getElementsByTagName("body")[0].innerHTML },
+//     "",
+//     href
+//   );
+//   // console.log(history);
+// }
