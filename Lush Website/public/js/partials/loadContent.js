@@ -4,31 +4,33 @@ import { loadArtists } from "../artists/loadArtists.js";
 import { loadArtist } from "../artists/artist/loadArtist.js";
 import { loadAudioSearchBar } from "../searchBar/audios/loadAudioSearchBar.js";
 import { loadArtistSearchBar } from "../searchBar/artists/loadArtistSearchBar.js";
+import { loadGenres } from "../genres/loadGenres.js";
 
-export default async function showPage(url, skipPushState) {
-  await Promise.resolve(getPages(url))
+export default async function showPage(href, skipPushState) {
+  await Promise.resolve(getPages(href))
     .then(({ pagepath, scripts }) => loadPage(pagepath, scripts))
     .then(({ main, scripts }) => displayMain(main, scripts))
-    .then((scripts) => (scripts ? runScripts(scripts, url, skipPushState) : 0));
+    .then((scripts) => scripts && runScripts(scripts, href, skipPushState));
 }
 
-function getPages(pathname) {
+function getPages(href) {
   return new Promise((resolve, reject) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", pathname);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", href);
     xhr.responseType = "json";
     xhr.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
         resolve(this.response);
       }
     };
+
     xhr.send();
   });
 }
 
 function loadPage(pagepath, scripts) {
   return new Promise((resolve, reject) => {
-    var xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.open("GET", pagepath);
     xhr.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {

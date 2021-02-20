@@ -63,7 +63,7 @@
 .audio-content {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 2fr auto auto;
 }
 
 .audio-header {
@@ -108,6 +108,33 @@
   margin: 0;
 }
 
+#audios-ol #genres {
+  /* background-color: coral; */
+  /* max-width: 50%; */
+  display: flex;
+  align-self: flex-start;
+  /* align-self: flex-end; */
+  overflow: hidden;
+  font-size: 0.75em;
+  padding-right: 10px;
+  /* border-left: 1px solid rgb(182, 182, 182); */
+}
+
+#audios-ol #genres .genre {
+  margin-right: 10px;
+  padding: 0px 5px;
+  z-index: 1;
+  text-decoration: none;
+  color: black;
+  background-color: rgb(177 205 255);
+  border: 1px solid rgb(189, 189, 189);
+  border-radius: 2.5px;
+}
+
+#audios-ol #genres .genre:last-child {
+  margin-right: 0;
+}
+
 .audio-hud {
   display: flex;
   flex-direction: column;
@@ -120,7 +147,7 @@
   z-index: 2;
 }
 
-#time {
+#audios-ol #time {
   display: flex;
   align-self: flex-end;
   bottom: 0px;

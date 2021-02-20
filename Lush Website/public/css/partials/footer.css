@@ -1,7 +1,7 @@
 footer {
   position: relative;
   height: 80px;
-  border-top: 1px solid rgb(202, 202, 202);
+  /* border-top: 1px solid rgb(202, 202, 202); */
 }
 
 #footer-wrapper {

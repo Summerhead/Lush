@@ -1,8 +1,9 @@
 import insertNoResults from "../../partials/insertNoResults.js";
-// import { pushState } from "../../partials/loadContent.js";
+
+var rgb, bw;
 
 export default class ArtistConfigurator {
-  constructor(artistLi, reqArtistDataSpec, href) {
+  constructor(artistLi, reqArtistDataSpec) {
     this.artistPic = document.getElementById("artist-pic");
 
     this.globalReqArtistData = {
@@ -15,8 +16,6 @@ export default class ArtistConfigurator {
 
     this.artistLi = artistLi;
     this.reqArtistDataSpec = reqArtistDataSpec || this.globalReqArtistData;
-
-    this.href = href;
 
     this.getArtist();
     this.applyWindowOnScroll();
@@ -112,8 +111,14 @@ export default class ArtistConfigurator {
         const img = document.createElement("img");
         img.src = url;
 
+        if (!url) {
+          rgb = "";
+          bw = "";
+        }
+
         img.onload = function () {
-          const { r, g, b } = getAverageRGB(img);
+          rgb = getAverageRGB(img);
+          const { r, g, b } = rgb;
 
           document.getElementById(
             "artist-background"
@@ -122,11 +127,12 @@ export default class ArtistConfigurator {
           document.getElementById(
             "header"
           ).style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+          document.getElementById("header").style.borderBottom = "0px";
 
           const brightness = Math.round(
             (parseInt(r) * 299 + parseInt(g) * 587 + parseInt(b) * 114) / 1000
           );
-          const bw = brightness > 125 ? "black" : "white";
+          bw = brightness > 125 ? "black" : "white";
           const op = bw === "black" ? "white" : "black";
           const p = 0.7;
           document.getElementById("artist-name").style.color = bw;
@@ -218,3 +224,5 @@ function getAverageRGB(imgEl) {
 
   return rgb;
 }
+
+export { rgb, bw };

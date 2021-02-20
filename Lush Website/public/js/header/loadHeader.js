@@ -2,8 +2,8 @@ import { headerS } from "./loadDropdowns.js";
 import showPage from "../partials/loadContent.js";
 
 export default async function loadHeader() {
-  await Promise.resolve(getHeader()).then((header) => {
-    displayHeaderRelated(header);
+  await Promise.resolve(getHeader()).then((headerContent) => {
+    displayHeaderRelated(headerContent);
     // applyFixedHeaderAction(header);
   });
 }
@@ -18,9 +18,9 @@ function getHeader() {
             this.responseText,
             "text/html"
           ),
-          header = template.getElementById("header");
+          headerContent = template.getElementById("header");
 
-        resolve(header);
+        resolve(headerContent);
       }
     };
 
@@ -56,9 +56,10 @@ function applyFixedHeaderAction(header) {
   }
 }
 
-function displayHeaderRelated(header) {
+function displayHeaderRelated(headerContent) {
   const body = document.getElementsByTagName("body")[0];
-  body.replaceChild(header, document.getElementById("header"));
+  // body.prepend(headerContent.querySelector("#header-clearfix"));
+  body.replaceChild(headerContent, document.getElementById("header"));
 
   [...document.getElementsByTagName("a")].forEach((link) => {
     link.onclick = () => {

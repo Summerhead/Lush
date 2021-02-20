@@ -1,4 +1,6 @@
 .galaxy-background {
   background: url("/public/content/icons/favicon/galaxy-spiral-shape.png")
     center no-repeat;
+  /* -webkit-filter: invert(1);
+  filter: invert(1); */
 }

@@ -14,7 +14,11 @@ export default function loadSearchBarTemplate() {
       }
     };
 
-    xmlhttp.open("GET", "/public/html/partials/artistSearchBar.html", true);
+    xmlhttp.open(
+      "GET",
+      "/public/html/partials/searchBar/artistSearchBar.html",
+      true
+    );
     xmlhttp.send();
   });
 }

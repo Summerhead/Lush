@@ -1,7 +1,7 @@
 // import { pushState } from "../../partials/loadContent.js";
 
 export default class EditAudioWindow {
-  constructor(editAudioWindowContainer, href) {
+  constructor(editAudioWindowContainer) {
     this.editAudioWindowContainer = editAudioWindowContainer;
     this.editAudioWindow = editAudioWindowContainer.querySelector(
       "#edit-audio-window"

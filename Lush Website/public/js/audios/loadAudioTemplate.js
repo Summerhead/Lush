@@ -8,7 +8,7 @@ export default function loadAudioTemplate() {
             this.responseText,
             "text/html"
           ),
-          audioLi = template.getElementsByTagName("audio-player")[0];
+          audioLi = template.getElementsByClassName("audio-li")[0];
 
         resolve(audioLi);
       }

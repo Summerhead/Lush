@@ -1,7 +1,7 @@
 // import { pushState } from "../../partials/loadContent.js";
 
 export default class EditArtistWindow {
-  constructor(editArtistWindowContainer, href) {
+  constructor(editArtistWindowContainer) {
     this.editArtistWindowContainer = editArtistWindowContainer;
     this.editArtistWindow = editArtistWindowContainer.querySelector(
       "#edit-artist-window"
@@ -136,6 +136,7 @@ export default class EditArtistWindow {
   setArtist(event) {
     event.target.closest(".artist").querySelector("input").value =
       event.target.innerText;
+
     event.target
       .closest(".artist")
       .querySelector("input")

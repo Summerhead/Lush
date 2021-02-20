@@ -3,12 +3,11 @@ import loadAudioTemplate from "./loadAudioTemplate.js";
 import loadEditAudioWindow from "./editAudioWindow/loadEditAudioWindow.js";
 import { resetHeaderStyles } from "../partials/resetHeaderStyles.js";
 import EditAudioWindow from "./editAudioWindow/EditAudioWindow.js";
-// import { pushState } from "../partials/loadContent.js";
 
 var audiosConfigurator;
 var editAudioWindow;
 
-export const loadAudios = async (href) => {
+export const loadAudios = async () => {
   const editAudioWindowContainer = document.getElementById(
     "edit-audio-window-container"
   );
@@ -21,10 +20,8 @@ export const loadAudios = async (href) => {
   ]).then((resolves) => {
     audiosConfigurator = new AudiosConfigurator(resolves[0]);
     editAudioWindowContainer ||
-      (editAudioWindow = new EditAudioWindow(resolves[1], href));
+      (editAudioWindow = new EditAudioWindow(resolves[1]));
   });
-
-  // pushState(href);
 };
 
 export { audiosConfigurator, editAudioWindow };

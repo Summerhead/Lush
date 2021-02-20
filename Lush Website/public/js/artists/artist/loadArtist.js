@@ -1,11 +1,8 @@
 import ArtistConfigurator from "./ArtistConfigurator.js";
 import loadArtistTemplate from "./loadArtistTemplate.js";
-// import { pushState } from "../../partials/loadContent.js";
 
-export const loadArtist = async (href) => {
+export const loadArtist = async () => {
   await Promise.resolve(loadArtistTemplate()).then(
     (artistLi) => new ArtistConfigurator(artistLi)
   );
-
-  // pushState(href);
 };

@@ -28,7 +28,7 @@
   position: relative;
 }
 
-#artist-name {
+#artist-pic #artist-name {
   position: absolute;
   top: 80px;
   left: 130px;

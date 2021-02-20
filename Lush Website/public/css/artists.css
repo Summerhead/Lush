@@ -13,19 +13,50 @@
   background-color: white;
 }
 
-.audio-container:last-child {
-  margin-bottom: 0;
-  border: none;
+.artist-container {
+  position: relative;
 }
 
-.artist-link {
-  list-style: none;
-  text-decoration: none;
-  color: black;
+#artist-options {
+  display: none;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+
+#artist-options button {
+  width: 18px;
+  height: 15px;
+  margin-right: 2px;
+  background: rgba(255, 255, 255, 0.9) center/10px no-repeat;
+  border: none;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.hovered #artist-options {
+  display: block;
+}
+
+#artist-options button:last-child {
+  margin: 0;
+}
+
+#artist-options #button-edit {
+  background-image: url("/public/content/icons/pencil.svg");
+}
+
+#artist-options #button-delete {
+  background-image: url("/public/content/icons/cancel.svg");
 }
 
 .image-wrapper {
+  display: block;
+  list-style: none;
+  text-decoration: none;
+  color: black;
   margin-bottom: 15px;
+  cursor: pointer;
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -35,13 +66,27 @@
   background: url("/public/content/musical-note.svg") no-repeat center / 100px;
 }
 
-.artist-name {
+#artist-link {
+  display: none;
+  width: inherit;
+  height: inherit;
+  /* background: url("/public/content/icons/play.svg") no-repeat center / 100px; */
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.hovered #artist-link {
+  display: block;
+}
+
+.artist-container #artist-name {
+  text-decoration: none;
+  color: black;
+  margin-bottom: 10px;
   font-size: 0.9em;
   font-weight: bold;
-  margin-bottom: 10px;
   white-space: pre-wrap;
 }
 
-.description {
+.artist-container #artist-description {
   font-size: 0.8em;
 }

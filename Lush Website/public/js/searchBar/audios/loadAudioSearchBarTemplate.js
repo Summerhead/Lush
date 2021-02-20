@@ -14,7 +14,11 @@ export default function loadSearchBarTemplate() {
       }
     };
 
-    xmlhttp.open("GET", "/public/html/partials/audioSearchBar.html", true);
+    xmlhttp.open(
+      "GET",
+      "/public/html/partials/searchBar/audioSearchBar.html",
+      true
+    );
     xmlhttp.send();
   });
 }

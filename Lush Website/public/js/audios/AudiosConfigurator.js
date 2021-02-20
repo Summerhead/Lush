@@ -1,24 +1,23 @@
 import AudioPlayer, { currentAudio } from "./AudioPlayer.js";
 import insertNoResults from "../partials/insertNoResults.js";
-// import { pushState } from "../partials/loadContent.js";
+import { rgb, bw } from "../artists/artist/ArtistConfigurator.js";
 
 export default class AudiosConfigurator {
-  constructor(audioContainer, reqAudioDataSpec, href) {
+  constructor(audioLi, reqAudioDataSpec) {
     this.audiosOl = document.getElementById("audios-ol");
 
     this.globalReqAudioData = {
       artistID: document.location.pathname.split("/")[2] || null,
-      search: "",
+      search: new URLSearchParams(location.search).get("search"),
       limit: 100,
+      // offset: 2900,
       offset: 0,
     };
 
     this.atTheBottom = true;
     this.audios = [];
-    this.audioContainer = audioContainer;
+    this.audioLi = audioLi;
     this.reqAudioDataSpec = reqAudioDataSpec || this.globalReqAudioData;
-
-    this.href = href;
 
     this.getAudios();
     this.applyWindowOnScroll();
@@ -47,37 +46,12 @@ export default class AudiosConfigurator {
               const isCurrentlyPlaying =
                 currentAudio && audio.audio_id === currentAudio.audioId;
 
-              const audioPlayer = isCurrentlyPlaying
+              const audioLi = isCurrentlyPlaying
                 ? currentAudio
-                : new AudioPlayer(this.audioContainer, audio);
-              audioPlayer.audioId = audio.audio_id;
-
-              const audioContainer = document.createElement("div");
-              audioContainer.classList.add("audio-container");
-              audioContainer.appendChild(audioPlayer);
-
-              const audioLi = document.createElement("li");
-              audioLi.append(audioContainer);
-              audioLi.classList.add("audio-li");
-              if (isCurrentlyPlaying) audioLi.classList.add("playing");
-              audioLi.setAttribute("data-audio-id", audio.audio_id);
-              audioLi.setAttribute("data-blob-id", audio.blob_id);
+                : new AudioPlayer(this.audioLi, audio).audioLi;
+              audioLi.audioId = audio.audio_id;
 
               this.audios.push(audioLi);
-
-              var artistAttributes = "";
-              for (const [index, artist] of audio.artists.entries()) {
-                const dataArtistAttribute = "data-artist-" + (index + 1);
-                artistAttributes += dataArtistAttribute + " ";
-                const artistJSON = { id: artist.artist_id, name: artist.name };
-                audioLi.setAttribute(
-                  dataArtistAttribute,
-                  JSON.stringify(artistJSON)
-                );
-              }
-              artistAttributes = artistAttributes.trim();
-              audioLi.setAttribute("data-artist-attributes", artistAttributes);
-              audioLi.setAttribute("data-audio-title", audio.title);
             }
 
             this.audios.forEach((audio) => this.audiosOl.appendChild(audio));
@@ -91,11 +65,47 @@ export default class AudiosConfigurator {
             }
           }
         }
+
+        this.waitRGB();
       },
       // else if (!document.getElementById("audios-ol")) {
       //   insertNoResults();
       // }
     });
+  }
+
+  waitRGB() {
+    const waitRGB = setInterval(() => {
+      const genreEls = [...document.getElementsByClassName("genre")];
+
+      if (rgb && bw) {
+        const { r, g, b } = rgb;
+        genreEls.forEach((tagEl) => {
+          tagEl.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
+          tagEl.style.border = "0px";
+          tagEl.style.color = bw;
+        });
+      }
+
+      if (rgb === "" && bw === "") {
+        genreEls.forEach((tagEl) => {
+          tagEl.style.backgroundColor = "white";
+          tagEl.style.border = "1px solid rgb(197, 197, 197)";
+          tagEl.style.color = "black";
+        });
+      }
+
+      if (location.pathname === "/music") {
+        clearInterval(waitRGB);
+
+        const genreEls = [...document.getElementsByClassName("genre")];
+        genreEls.forEach((tagEl) => {
+          tagEl.style.backgroundColor = "white";
+          tagEl.style.border = "1px solid rgb(197, 197, 197)";
+          tagEl.style.color = "black";
+        });
+      }
+    }, 10);
   }
 
   applyWindowOnScroll() {

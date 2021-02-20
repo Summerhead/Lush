@@ -1,56 +1,57 @@
 <li class="audio-li">
   <div class="audio-container">
-    <audio-player>
-      <div id="audio-main">
-        <div id="clickable-background"></div>
-        <div
-          class="audio-hud__element audio-hud__action"
-          id="audio-hud__action"
-        ></div>
+    <div id="audio-main">
+      <div id="clickable-background"></div>
 
-        <div class="audio-content">
-          <div class="audio-header">
-            <div class="title"></div>
-            <div class="artists"></div>
+      <div
+        class="audio-hud__element audio-hud__action"
+        id="audio-hud__action"
+      ></div>
+
+      <div class="audio-content">
+        <div class="audio-header">
+          <div class="title"></div>
+          <div class="artists"></div>
+        </div>
+
+        <div id="genres"></div>
+
+        <div class="audio-hud">
+          <div id="right-tab">
+            <button id="add-button" class="add-button"></button>
+            <button id="delete-button" class="delete-button"></button>
+            <button id="edit-button" class="edit-button"></button>
+            <button id="info-button" class="info-button"></button>
           </div>
 
-          <div class="audio-hud">
-            <div id="right-tab">
-              <button id="add-button" class="add-button"></button>
-              <button id="delete-button" class="delete-button"></button>
-              <button id="edit-button" class="edit-button"></button>
-              <button id="info-button" class="info-button"></button>
-            </div>
-
-            <div id="time">
-              <div class="hidden">
-                <div
-                  class="audio-hud__element audio-hud__curr-time"
-                  id="audio-hud__curr-time"
-                >
-                  <span>00:00</span>
-                </div>
-
-                <div id="time-slash">/</div>
-              </div>
-
+          <div id="time">
+            <div class="hidden">
               <div
-                class="audio-hud__element audio-hud__duration"
-                id="audio-hud__duration"
+                class="audio-hud__element audio-hud__curr-time"
+                id="audio-hud__curr-time"
               >
                 <span>00:00</span>
               </div>
+
+              <div id="time-slash">/</div>
+            </div>
+
+            <div
+              class="audio-hud__element audio-hud__duration"
+              id="audio-hud__duration"
+            >
+              <span>00:00</span>
             </div>
           </div>
         </div>
-
-        <progress
-          value="0"
-          max="100"
-          class="audio-hud__element audio-hud__progress-bar"
-          id="audio-hud__progress-bar"
-        ></progress>
       </div>
-    </audio-player>
+
+      <progress
+        value="0"
+        max="100"
+        class="audio-hud__element audio-hud__progress-bar"
+        id="audio-hud__progress-bar"
+      ></progress>
+    </div>
   </div>
 </li>

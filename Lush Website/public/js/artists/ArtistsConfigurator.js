@@ -1,34 +1,32 @@
 import insertNoResults from "../partials/insertNoResults.js";
-import showPage from "../partials/loadContent.js";
-import { editArtistWindow } from "./loadArtists.js";
+import Artist from "./Artist.js";
 
 export default class ArtistsConfigurator {
-  constructor(artistLi, href, reqArtistDataSpec) {
-    this.artistsOl = document.getElementById("artists-ol");
+  constructor(artistLi, reqArtistDataSpec) {
+    this.artistLi = artistLi;
 
     this.globalReqArtistData = {
       artistID: document.location.pathname.split("/")[2] || null,
-      search: "",
+      search: new URLSearchParams(location.search).get("search"),
       limit: 140,
-      offset: 900,
+      offset: 0,
     };
-
-    this.atTheBottom = true;
-    this.artistLi = artistLi;
     this.reqArtistDataSpec = reqArtistDataSpec || this.globalReqArtistData;
 
-    this.href = href;
+    this.artistsOl = document.getElementById("artists-ol");
+    this.atTheBottom = true;
 
     this.getArtists();
-    this.applyWindowOnScroll(this.artistLi, this.reqArtistDataSpec);
+    this.applyWindowOnScroll();
   }
 
   getArtists() {
-    this.fetchDataChunk(this.reqArtistData);
+    this.fetchDataChunk();
   }
 
   outputsize(imageWrapper) {
-    imageWrapper.style.height = imageWrapper.offsetWidth + "px";
+    imageWrapper.style.height =
+      imageWrapper.getBoundingClientRect().width + "px";
   }
 
   fetchDataChunk() {
@@ -46,8 +44,9 @@ export default class ArtistsConfigurator {
         if (data.status === 200) {
           if (returnedRows) {
             for (const artist of data.artists) {
-              const artistLi = this.constructArtist(artist),
-                imageWrapper = artistLi.querySelector(".image-wrapper");
+              const artistClass = new Artist(this.artistLi, artist),
+                artistLi = artistClass.artistLi,
+                imageWrapper = artistClass.imageWrapper;
               this.artistsOl.appendChild(artistLi);
 
               const reqImageBlob = { blobID: artist.blob_id };
@@ -60,12 +59,12 @@ export default class ArtistsConfigurator {
               );
             }
 
-            [...document.getElementsByTagName("a")].forEach((link) => {
-              link.onclick = () => {
-                showPage(link.href);
-                return false;
-              };
-            });
+            // [...document.getElementsByTagName("a")].forEach((link) => {
+            //   link.onclick = () => {
+            //     showPage(link.href);
+            //     return false;
+            //   };
+            // });
 
             // console.log(document.getElementById("main").innerHTML);
 
@@ -131,52 +130,6 @@ export default class ArtistsConfigurator {
       .catch(console.error);
   }
 
-  constructArtist(artist) {
-    const artistLiClone = this.artistLi.cloneNode(true);
-
-    artistLiClone.querySelector(".artist-name").innerText = artist.name;
-    artistLiClone.querySelector(".artist-link").href += `${
-      artist.artist_id
-    }/${artist.name.split(" ").join("+")}`;
-
-    artistLiClone.setAttribute("data-artist-id", artist.artist_id);
-    artistLiClone.setAttribute("data-artist-name", artist.name);
-
-    artistLiClone
-      .querySelector("#edit-artist")
-      .addEventListener("click", this.editAction);
-
-    artistLiClone
-      .querySelector("#delete-artist")
-      .addEventListener("click", this.deleteAction);
-
-    return artistLiClone;
-  }
-
-  editAction(event) {
-    editArtistWindow.openEditArtistWindow(event.target.closest(".artist-li"));
-  }
-
-  deleteAction(event) {
-    const xhr = new XMLHttpRequest();
-    xhr.open("DELETE", "/deleteArtist", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        const response = JSON.parse(xhr.response);
-        console.log(response);
-      }
-    };
-
-    const dataJSON = {
-      artistID: event.target
-        .closest(".artist-li")
-        .getAttribute("data-artist-id"),
-    };
-
-    xhr.send(JSON.stringify(dataJSON));
-  }
-
   applyWindowOnScroll() {
     window.onscroll = () => {
       if (
@@ -190,5 +143,27 @@ export default class ArtistsConfigurator {
         this.getArtists(this.artistLi);
       }
     };
+  }
+
+  setTag(event) {
+    console.log("Set tag");
+
+    // const xhr = new XMLHttpRequest();
+    // xhr.open("POST", "/setTag", true);
+    // xhr.setRequestHeader("Content-Type", "application/json");
+    // xhr.onreadystatechange = () => {
+    //   if (xhr.readyState == 4 && xhr.status == 200) {
+    //     const response = JSON.parse(xhr.response);
+    //     console.log(response);
+    //   }
+    // };
+
+    // const dataJSON = {
+    //   artistID: event.target
+    //     .closest(".artist-li")
+    //     .getAttribute("data-artist-id"),
+    // };
+
+    // xhr.send(JSON.stringify(dataJSON));
   }
 }

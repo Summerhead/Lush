@@ -4,9 +4,9 @@ import showPage from "./loadContent.js";
 import { headerS } from "../header/loadDropdowns.js";
 
 loadHeader();
-loadFooter();
+// loadFooter();
 
-showPage(location.pathname);
+showPage(location.href);
 
 window.onpopstate = function (event) {
   if (event.state) {

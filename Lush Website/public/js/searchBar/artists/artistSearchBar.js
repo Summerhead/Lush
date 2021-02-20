@@ -13,6 +13,7 @@ export default class ArtistSearchBar {
     this.alphaNumericKeyCodes = /^[a-z0-9]+$/i;
 
     this.addSearchAction();
+    this.insertSearchQuery();
     this.addAddAction();
     this.displaySearchBar();
   }
@@ -29,10 +30,19 @@ export default class ArtistSearchBar {
     );
   }
 
+  insertSearchQuery() {
+    this.searchBar.value = new URLSearchParams(location.search).get("search");
+  }
+
   sendSearchRequest = (event) => {
     // console.log(event.key);
     // console.log(this.alphaNumericKeyCodes);
     // if (this.alphaNumericKeyCodes.test(event.key)) {
+    const refresh =
+      location.pathname + "?" + insertParam("search", this.searchBar.value);
+    // console.log(refresh);
+    history.pushState({ pathname: refresh }, "", refresh);
+
     this.artists.textContent = "";
 
     artistsConfigurator.atTheBottom = true;
@@ -53,4 +63,28 @@ export default class ArtistSearchBar {
       .getElementById("search-bar-container")
       .replaceWith(this.searchBarContainer);
   }
+}
+
+function insertParam(key, value) {
+  key = encodeURIComponent(key);
+  value = encodeURIComponent(value);
+
+  var kvp = document.location.search.substr(1).split("&");
+  let i = 0;
+
+  for (; i < kvp.length; i++) {
+    if (kvp[i].startsWith(key + "=")) {
+      let pair = kvp[i].split("=");
+      pair[1] = value;
+      kvp[i] = pair.join("=");
+      break;
+    }
+  }
+
+  if (i >= kvp.length) {
+    kvp[kvp.length] = [key, value].join("=");
+  }
+
+  let params = kvp.join("&");
+  return params;
 }

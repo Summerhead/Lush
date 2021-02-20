@@ -16,9 +16,9 @@
 #edit-artist-window {
   position: absolute;
   width: 700px;
-  top: 40%;
+  top: 150px;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   background-color: rgb(228, 228, 228);
   border: 1px solid rgb(138, 138, 138);
   /* border-radius: 25px; */
@@ -46,7 +46,7 @@
 
 #edit-artist-window #content {
   min-height: 220px;
-  max-height: 350px;
+  max-height: 500px;
   margin: 50px 0px 70px 0px;
   padding: 0 50px;
   overflow: auto;
@@ -93,7 +93,7 @@
   border: 1px solid rgb(141, 141, 141);
 }
 
-#image-wrapper {
+#edit-artist-window #image-wrapper {
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;

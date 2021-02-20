@@ -3,15 +3,47 @@ import showPage from "../partials/loadContent.js";
 
 var currentAudio;
 
-export default class AudioPlayer extends HTMLElement {
+const tagColor = {
+  1: "87B6A7",
+  2: "F7D08A",
+  3: "E3F09B",
+  4: "F79F79",
+  5: "e63946",
+  6: "f1faee",
+  7: "1d3557",
+  8: "ffe8d6",
+  9: "219ebc",
+  10: "bdb2ff",
+  11: "ffb703",
+  12: "e5989b",
+  13: "ef476f",
+  14: "06d6a0",
+  15: "03071e",
+  16: "dda15e",
+  17: "00b4d8",
+  18: "006d77",
+  19: "ffddd2",
+  20: "faedcd",
+  21: "f72585",
+  22: "b5179e",
+  23: "560bad",
+  24: "3f37c9",
+  25: "8d99ae",
+  26: "ef233c",
+  27: "ddbea9",
+  28: "cbc0d3",
+  29: "90be6d",
+  30: "52b788",
+};
+
+export default class AudioPlayer {
   constructor(audioLi, audio) {
-    super();
-
-    this.innerHTML = audioLi && audioLi.innerHTML;
-
-    this.clickableBackground = this.querySelector("#clickable-background");
-
-    this.actionButton = this.querySelector("#audio-hud__action");
+    this.audio = audio;
+    this.audioLi = audioLi.cloneNode(true);
+    this.clickableBackground = this.audioLi.querySelector(
+      "#clickable-background"
+    );
+    this.actionButton = this.audioLi.querySelector("#audio-hud__action");
 
     this.audioPlayer = document.createElement("audio");
     this.audioPlayer.setAttribute("src", "");
@@ -19,30 +51,75 @@ export default class AudioPlayer extends HTMLElement {
     this.audioPlayer.setAttribute("class", "audio-player");
     this.audioPlayer.setAttribute("preload", "metadata");
 
-    this.progressBar = this.querySelector("#audio-hud__progress-bar");
-    this.currentTime = this.querySelector("#audio-hud__curr-time>span");
-    this.durationTime = this.querySelector("#audio-hud__duration>span");
+    this.genres = this.audioLi.querySelector("#genres");
+    this.progressBar = this.audioLi.querySelector("#audio-hud__progress-bar");
+    this.currentTime = this.audioLi.querySelector("#audio-hud__curr-time>span");
+    this.durationTime = this.audioLi.querySelector("#audio-hud__duration>span");
 
-    this.addButton = this.querySelector("#add-button");
-    this.deleteButton = this.querySelector("#delete-button");
-    this.editButton = this.querySelector("#edit-button");
-    this.infoButton = this.querySelector("#info-button");
+    this.addButton = this.audioLi.querySelector("#add-button");
+    this.deleteButton = this.audioLi.querySelector("#delete-button");
+    this.editButton = this.audioLi.querySelector("#edit-button");
+    this.infoButton = this.audioLi.querySelector("#info-button");
 
-    this.hiddenTime = this.querySelector("#time .hidden");
+    this.hiddenTime = this.audioLi.querySelector("#time .hidden");
 
     // console.log(audio);
-    this.configureAudioPlayer(audio);
+    this.configureAudioPlayer();
   }
 
-  configureAudioPlayer({ artists, title, duration }) {
+  configureAudioPlayer() {
     // this.clickableBackground.onfocus = () => alert("focused");
 
-    this.insertArtists(artists);
-    this.querySelector(".audio-header>.title").innerText = title;
-    this.durationTime.innerText = this.audioTime(duration);
-    this.progressBar.max = Math.floor(duration);
+    this.insertArtists();
+    this.audioLi.querySelector(
+      ".audio-header>.title"
+    ).innerText = this.audio.title;
+    this.durationTime.innerText = this.audioTime(this.audio.duration);
+    this.progressBar.max = Math.floor(this.audio.duration);
 
+    // if (isCurrentlyPlaying) audioLi.classList.add("playing");
+    this.audioLi.setAttribute("data-audio-id", this.audio.audio_id);
+    this.audioLi.setAttribute("data-blob-id", this.audio.blob_id);
+
+    var artistAttributes = "";
+    for (const [index, artist] of this.audio.artists.entries()) {
+      const dataArtistAttribute = "data-artist-" + (index + 1);
+      artistAttributes += dataArtistAttribute + " ";
+      const artistJSON = { id: artist.artist_id, name: artist.name };
+      this.audioLi.setAttribute(
+        dataArtistAttribute,
+        JSON.stringify(artistJSON)
+      );
+    }
+    artistAttributes = artistAttributes.trim();
+    this.audioLi.setAttribute("data-artist-attributes", artistAttributes);
+    this.audioLi.setAttribute("data-audio-title", this.audio.title);
+
+    this.displayTags();
     this.addEventListeners();
+  }
+
+  displayTags() {
+    this.audio.genres.forEach((genre) => {
+      const genreDiv = document.createElement("a");
+      genreDiv.href =
+        "/genres/" +
+        genre.genre_name.replace(/ /g, "+").replace(/\//g, "%2F").toLowerCase();
+      genreDiv.classList.add("genre");
+      genreDiv.style.backgroundColor = "white";
+      genreDiv.innerText = genre.genre_name;
+      this.genres.append(genreDiv);
+      // const tagDiv1 = document.createElement("a");
+      // tagDiv1.href = tag.tag_name;
+      // tagDiv1.classList.add("tag");
+      // tagDiv1.innerText = tag.tag_name;
+      // this.tags.append(tagDiv1);
+      // const tagDiv2 = document.createElement("a");
+      // tagDiv2.href = tag.tag_name;
+      // tagDiv2.classList.add("tag");
+      // tagDiv2.innerText = tag.tag_name;
+      // this.tags.append(tagDiv2);
+    });
   }
 
   addEventListeners() {
@@ -65,9 +142,9 @@ export default class AudioPlayer extends HTMLElement {
     this.infoButton.addEventListener("click", () => alert("Info"));
   }
 
-  insertArtists(artists) {
-    const parsedArtists = this.parseArtists(artists),
-      artistsDiv = this.querySelector(".audio-header>.artists");
+  insertArtists() {
+    const parsedArtists = this.parseArtists(this.audio.artists),
+      artistsDiv = this.audioLi.querySelector(".audio-header>.artists");
 
     // console.log(parsedArtists);
     artistsDiv.replaceWith(parsedArtists);
@@ -86,8 +163,8 @@ export default class AudioPlayer extends HTMLElement {
 
       const aElement = document.createElement("a"),
         link = `/artists/${artist.artist_id}/${artist.name
-          .split(" ")
-          .join("+")}`;
+          .replace(/ /g, "+")
+          .replace(/\//g, "%2F")}`;
       aElement.setAttribute("href", link);
       aElement.onclick = () => {
         showPage(aElement.href);
@@ -114,17 +191,17 @@ export default class AudioPlayer extends HTMLElement {
   };
 
   changeClass = () => {
-    if (currentAudio && currentAudio !== this) {
-      currentAudio.closest(".audio-li").classList.remove("playing");
+    if (currentAudio && currentAudio !== this.audioLi) {
+      currentAudio.classList.remove("playing");
 
-      currentAudio.actionButton.setAttribute(
-        "class",
-        "audio-hud__element audio-hud__action"
-      );
+      currentAudio
+        .querySelector("#audio-hud__action")
+        .setAttribute("class", "audio-hud__element audio-hud__action");
     }
 
-    currentAudio = this;
-    currentAudio.closest(".audio-li").classList.add("playing");
+    currentAudio = this.audioLi;
+    // console.log(currentAudio);
+    currentAudio.classList.add("playing");
 
     if (this.actionButton.classList.contains("audio-hud__action_play")) {
       this.actionButton.setAttribute(
@@ -157,9 +234,7 @@ export default class AudioPlayer extends HTMLElement {
       if (this.actionButton.classList.contains("audio-hud__action_play")) {
         if (this.audioPlayer.src === document.location.href) {
           await this.fetchBlob({
-            blobID: Number(
-              this.closest(".audio-li").getAttribute("data-blob-id")
-            ),
+            blobID: Number(this.audioLi.getAttribute("data-blob-id")),
           });
         }
 
@@ -246,23 +321,22 @@ export default class AudioPlayer extends HTMLElement {
   };
 
   playNext = () => {
-    this.closest(".audio-li").classList.remove("playing");
+    this.audioLi.classList.remove("playing");
     this.actionButton.setAttribute(
       "class",
       "audio-hud__element audio-hud__action"
     );
 
     var nextSibling;
-    if ((nextSibling = this.closest(".audio-li").nextSibling)) {
-      var nextAudio = nextSibling.querySelector("audio-player");
-
-      currentAudio = nextAudio;
-
-      currentAudio.closest(".audio-li").classList.add("playing");
-      currentAudio.actionButton.setAttribute(
-        "class",
-        "audio-hud__element audio-hud__action audio-hud__action_play"
-      );
+    if ((nextSibling = this.audioLi.nextSibling)) {
+      currentAudio = nextSibling;
+      currentAudio.classList.add("playing");
+      currentAudio
+        .querySelector("#audio-hud__action")
+        .setAttribute(
+          "class",
+          "audio-hud__element audio-hud__action audio-hud__action_play"
+        );
     } else {
       currentAudio = null;
     }
@@ -279,7 +353,7 @@ export default class AudioPlayer extends HTMLElement {
   progressBarAct = async (e) => {
     if (this.audioPlayer.src === document.location.href) {
       await this.fetchBlob({
-        blobID: Number(this.closest(".audio-li").getAttribute("data-blob-id")),
+        blobID: Number(this.audioLi.getAttribute("data-blob-id")),
       });
 
       this.audioPlayer.onloadeddata = () => {
@@ -289,14 +363,13 @@ export default class AudioPlayer extends HTMLElement {
       this.audioChangeTime(e);
     }
 
-    if (currentAudio && currentAudio !== this) {
-      currentAudio.actionButton.setAttribute(
-        "class",
-        "audio-hud__element audio-hud__action"
-      );
+    if (currentAudio && currentAudio !== this.audioLi) {
+      currentAudio
+        .querySelector("#audio-hud__action")
+        .setAttribute("class", "audio-hud__element audio-hud__action");
     }
 
-    currentAudio = this;
+    currentAudio = this.audioLi;
 
     if (this.audioPlayer.paused) {
       this.actionButton.setAttribute(
@@ -307,14 +380,12 @@ export default class AudioPlayer extends HTMLElement {
   };
 
   editAudioButtonOnClick = () => {
-    editAudioWindow.openEditAudioWindow(this.closest(".audio-li"));
+    editAudioWindow.openEditAudioWindow(this.audioLi);
   };
 
   setAudioPlayerSrc(url) {
     this.audioPlayer.src = url;
   }
 }
-
-window.customElements.define("audio-player", AudioPlayer);
 
 export { currentAudio };
