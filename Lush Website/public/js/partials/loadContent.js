@@ -5,6 +5,11 @@ import { loadArtist } from "../artists/artist/loadArtist.js";
 import { loadAudioSearchBar } from "../searchBar/audios/loadAudioSearchBar.js";
 import { loadArtistSearchBar } from "../searchBar/artists/loadArtistSearchBar.js";
 import { loadGenres } from "../genres/loadGenres.js";
+import { loadPlaylistSearchBar } from "../searchBar/playlists/loadPlaylistSearchBar.js";
+import { loadPlaylists } from "../playlists/loadPlaylists.js";
+import LushURL from "./LushURL.js";
+
+var lushURL = new LushURL(location.search);
 
 export default async function showPage(href, skipPushState) {
   await Promise.resolve(getPages(href))
@@ -58,10 +63,13 @@ function runScripts(scripts, pathname, skipPushState) {
   if (!skipPushState) {
     // console.log(history.state);
     // console.log(pathname);
-    history.pushState({ pathname: String(pathname) }, "", pathname);
+    history.pushState({ pathname: pathname }, "", pathname);
+
     // console.log(history.state);
     // console.log(history);
   }
+
+  lushURL = new LushURL(location.search);
 }
 
 // function executeFunctionByName(functionName, context) {
@@ -83,3 +91,5 @@ function runScripts(scripts, pathname, skipPushState) {
 //   );
 //   // console.log(history);
 // }
+
+export { lushURL };

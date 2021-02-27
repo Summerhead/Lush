@@ -1,29 +1,34 @@
 // import { pushState } from "../../partials/loadContent.js";
 
-export default class EditArtistWindow {
-  constructor(editArtistWindowContainer) {
-    this.editArtistWindowContainer = editArtistWindowContainer;
-    this.editArtistWindowBackground = editArtistWindowContainer.querySelector(
-      "#edit-artist-window-background"
+export default class EditPlaylistWindow {
+  constructor(editPlaylistWindowContainer) {
+    this.editPlaylistWindowContainer = editPlaylistWindowContainer;
+    this.editPlaylistWindowBackground = editPlaylistWindowContainer.querySelector(
+      "#edit-playlist-window-background"
     );
-    this.editArtistWindowContainer = editArtistWindowContainer;
-    this.editArtistWindow = editArtistWindowContainer.querySelector(
-      "#edit-artist-window"
+    this.editPlaylistWindow = editPlaylistWindowContainer.querySelector(
+      "#edit-playlist-window"
     );
-    this.titleInput = editArtistWindowContainer.querySelector("#title>.inputs");
-    this.closeButton = editArtistWindowContainer.querySelector("#close-button");
-    this.submitButton = editArtistWindowContainer.querySelector(
+    this.titleInput = editPlaylistWindowContainer.querySelector(
+      "#title>.inputs"
+    );
+    this.closeButton = editPlaylistWindowContainer.querySelector(
+      "#close-button"
+    );
+    this.submitButton = editPlaylistWindowContainer.querySelector(
       "#submit-button"
     );
-    this.imageWrapper = editArtistWindowContainer.querySelector(
+    this.imageWrapper = editPlaylistWindowContainer.querySelector(
       "#image-wrapper"
     );
-    this.uploadCover = editArtistWindowContainer.querySelector("#upload-cover");
-    this.fileInput = editArtistWindowContainer.querySelector("#file-input");
+    this.uploadCover = editPlaylistWindowContainer.querySelector(
+      "#upload-cover"
+    );
+    this.fileInput = editPlaylistWindowContainer.querySelector("#file-input");
 
-    this.artistLi;
-    this.artistID;
-    this.artistName;
+    this.playlistLi;
+    this.playlistID;
+    this.playlistName;
     this.image;
 
     this.configure();
@@ -33,54 +38,56 @@ export default class EditArtistWindow {
 
   configure() {
     this.closeButton.addEventListener("click", this.hide);
-    this.editArtistWindowBackground.addEventListener("click", this.hide);
+    this.editPlaylistWindowBackground.addEventListener("click", this.hide);
 
     this.submitButton.addEventListener("click", this.sendChanges);
     // this.addArtistButton.addEventListener("click", this.addArtist);
   }
 
   resetAttributes() {
-    this.artistLi = "";
-    this.artistID = "";
-    this.artistName = "";
+    this.playlistLi = "";
+    this.playlistID = "";
+    this.playlistName = "";
     this.image = "";
   }
 
   hide = () => {
-    this.editArtistWindowContainer
+    this.editPlaylistWindowContainer
       .querySelectorAll(".inputs")
       .forEach((input) => {
         input.innerHTML = "";
       });
 
-    this.editArtistWindowContainer.style.display = "none";
+    this.editPlaylistWindowContainer.style.display = "none";
   };
 
   display() {
     document
       .getElementsByTagName("body")[0]
-      .prepend(this.editArtistWindowContainer);
+      .prepend(this.editPlaylistWindowContainer);
   }
 
-  open(artistLi) {
-    this.artistLi = artistLi;
-    this.artistID = artistLi ? artistLi.getAttribute("data-artist-id") : null;
+  open(playlistLi) {
+    this.playlistLi = playlistLi;
+    this.playlistID = playlistLi
+      ? playlistLi.getAttribute("data-playlist-id")
+      : null;
 
     const inputText = document.createElement("input");
     inputText.setAttribute("type", "text");
-    this.artistName = artistLi
-      ? artistLi.getAttribute("data-artist-name")
+    this.playlistName = playlistLi
+      ? playlistLi.getAttribute("data-playlist-name")
       : null;
-    inputText.value = this.artistName;
+    inputText.value = this.playlistName;
     this.titleInput.appendChild(inputText);
 
-    if (artistLi) {
-      if (artistLi.querySelector(".image-wrapper").style.backgroundImage) {
+    if (playlistLi) {
+      if (playlistLi.querySelector(".image-wrapper").style.backgroundImage) {
         this.imageWrapper.style.height = "250px";
       } else {
         this.imageWrapper.style.height = "0px";
       }
-      this.imageWrapper.style.backgroundImage = artistLi.querySelector(
+      this.imageWrapper.style.backgroundImage = playlistLi.querySelector(
         ".image-wrapper"
       ).style.backgroundImage;
     } else {
@@ -88,15 +95,15 @@ export default class EditArtistWindow {
       this.imageWrapper.style.backgroundImage = "";
     }
 
-    this.editArtistWindowContainer.style.display = "block";
+    this.editPlaylistWindowContainer.style.display = "block";
   }
 
   sendSearchRequest = (event) => {
     event.target.parentElement.querySelector(".dropdown").textContent = "";
-    this.getArtists(event.target.value);
+    this.getPlaylists(event.target.value);
   };
 
-  getArtists(artistName) {
+  getPlaylists(artistName) {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/artistsForDropdown", true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -105,7 +112,7 @@ export default class EditArtistWindow {
         const response = JSON.parse(xhr.response);
         console.log(response);
 
-        this.editArtistWindow
+        this.editPlaylistWindow
           .querySelectorAll(".dropdown")
           .forEach((dropdown) => {
             response.artists.forEach((artist) => {
@@ -175,36 +182,31 @@ export default class EditArtistWindow {
   }
 
   sendChanges = async () => {
-    // return new Promise((resolve, reject) => {
     var xhr = new XMLHttpRequest();
     var fd = new FormData();
-    this.artistName = this.titleInput.querySelector("input").value;
+    this.playlistName = this.titleInput.querySelector("input").value;
 
     this.hide();
 
-    xhr.open("POST", "/submitArtist", true);
+    xhr.open("POST", "/submitPlaylist", true);
     xhr.overrideMimeType("multipart/form-data");
     xhr.onreadystatechange = () => {
       if (xhr.readyState == 4 && xhr.status == 200) {
         const response = JSON.parse(xhr.response);
         console.log("Response edit:", response);
 
-        // this.artistLi.querySelector(".audio-header>.title").innerText =
-        //   response.audio.title;
-
         this.resetAttributes();
       }
     };
 
     const json = {
-      artistID: this.artistID,
-      artistName: this.artistName,
+      playlistID: this.playlistID,
+      playlistName: this.playlistName,
     };
 
-    fd.append("artistMetadata", JSON.stringify(json));
+    fd.append("playlistMetadata", JSON.stringify(json));
     fd.append("image", this.image);
 
     xhr.send(fd);
-    // });
   };
 }

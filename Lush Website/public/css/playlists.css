@@ -1,30 +1,30 @@
-#main #artists {
+#main #playlists {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-#artists-ol {
+#playlists-ol {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 40px 25px;
   list-style: none;
 }
 
-.artist-li {
+.playlist-li {
   background-color: white;
 }
 
-.artist-container {
+.playlist-container {
   position: relative;
 }
 
-#artist-options {
+#playlist-options {
   display: none;
   position: absolute;
   top: 5px;
   right: 5px;
 }
 
-#artist-options button {
+#playlist-options button {
   width: 18px;
   height: 15px;
   margin-right: 2px;
@@ -34,19 +34,19 @@
   z-index: 2;
 }
 
-.hovered #artist-options {
+.hovered #playlist-options {
   display: block;
 }
 
-#artist-options button:last-child {
+#playlist-options button:last-child {
   margin: 0;
 }
 
-#artist-options #button-edit {
+#playlist-options #button-edit {
   background-image: url("/public/content/icons/pencil.svg");
 }
 
-#artist-options #button-delete {
+#playlist-options #button-delete {
   background-image: url("/public/content/icons/cancel.svg");
 }
 
@@ -62,11 +62,11 @@
   background-position: center;
 }
 
-.artist-container > .no-cover {
-  background: url("/public/content/musical-note.svg") no-repeat center / 100px;
+.playlist-container > .no-cover {
+  background: url("/public/content/vynil.svg") no-repeat center / 130px;
 }
 
-#artist-link {
+#playlist-link {
   display: none;
   width: inherit;
   height: inherit;
@@ -74,7 +74,7 @@
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-.artist-container #artist-name {
+.playlist-container #playlist-name {
   text-decoration: none;
   color: black;
   margin-bottom: 10px;
@@ -83,14 +83,14 @@
   white-space: pre-wrap;
 }
 
-.hovered #artist-link {
+.hovered #playlist-link {
   display: block;
 }
 
-.hovered #artist-name {
+.hovered #playlist-name {
   text-decoration: underline;
 }
 
-.artist-container #artist-description {
+.playlist-container #playlist-description {
   font-size: 0.8em;
 }

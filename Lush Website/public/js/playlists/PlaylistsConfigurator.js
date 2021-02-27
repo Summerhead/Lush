@@ -1,28 +1,29 @@
 import insertNoResults from "../partials/insertNoResults.js";
-import Artist from "./Artist.js";
+import Playlist from "./Playlist.js";
 
-export default class ArtistsConfigurator {
-  constructor(artistLi, reqArtistDataSpec) {
-    this.artistLi = artistLi;
+export default class PlaylistsConfigurator {
+  constructor(playlistLi, reqPlaylistDataSpec) {
+    this.playlistLi = playlistLi;
 
     const URLSParams = new URLSearchParams(location.search);
-    this.globalReqArtistData = {
-      artistID: document.location.pathname.split("/")[2] || null,
+    this.globalReqPlaylistData = {
+      playlistID: document.location.pathname.split("/")[2] || null,
       search: URLSParams.get("search"),
       genres: URLSParams.get("genres"),
       limit: 140,
       offset: 0,
     };
-    this.reqArtistDataSpec = reqArtistDataSpec || this.globalReqArtistData;
+    this.reqPlaylistDataSpec =
+      reqPlaylistDataSpec || this.globalReqPlaylistData;
 
-    this.artistsOl = document.getElementById("artists-ol");
+    this.playlistsOl = document.getElementById("playlists-ol");
     this.atTheBottom = true;
 
-    this.getArtists();
+    this.getPlaylists();
     this.applyWindowOnScroll();
   }
 
-  getArtists() {
+  getPlaylists() {
     this.fetchDataChunk();
   }
 
@@ -34,47 +35,34 @@ export default class ArtistsConfigurator {
   fetchDataChunk() {
     $.ajax({
       type: "POST",
-      url: "/artistsData",
-      data: JSON.stringify(this.reqArtistDataSpec),
+      url: "/playlistsData",
+      data: JSON.stringify(this.reqPlaylistDataSpec),
       contentType: "application/json",
       dataType: "json",
       success: (data) => {
         console.log("Data:", data);
 
-        const returnedRows = data.artists.length;
+        const returnedRows = data.playlists.length;
 
         if (data.status === 200) {
           if (returnedRows) {
-            for (const artist of data.artists) {
-              const artistClass = new Artist(this.artistLi, artist),
-                artistLi = artistClass.artistLi,
-                imageWrapper = artistClass.imageWrapper;
-              this.artistsOl.appendChild(artistLi);
+            for (const playlist of data.playlists) {
+              const playlistClass = new Playlist(this.playlistLi, playlist),
+                playlistLi = playlistClass.playlistLi,
+                imageWrapper = playlistClass.imageWrapper;
+              this.playlistsOl.appendChild(playlistLi);
 
-              const reqImageBlob = { blobID: artist.blob_id };
+              const reqImageBlob = { blobID: playlist.blob_id };
               this.fetchBlob(reqImageBlob, imageWrapper);
 
               this.outputsize(imageWrapper);
 
               new ResizeObserver(() => this.outputsize(imageWrapper)).observe(
-                artistLi
+                playlistLi
               );
             }
 
-            // [...document.getElementsByTagName("a")].forEach((link) => {
-            //   link.onclick = () => {
-            //     showPage(link.href);
-            //     return false;
-            //   };
-            // });
-
-            // console.log(document.getElementById("main").innerHTML);
-
-            // pushState(this.href);
-
-            // window.scroll(0, document.body.scrollHeight);
-
-            if (returnedRows === this.reqArtistDataSpec.limit) {
+            if (returnedRows === this.reqPlaylistDataSpec.limit) {
               this.atTheBottom = false;
             }
           }
@@ -137,35 +125,13 @@ export default class ArtistsConfigurator {
       if (
         !this.atTheBottom &&
         window.innerHeight + window.scrollY >=
-          this.artistsOl.offsetTop + this.artistsOl.offsetHeight - 100
+          this.playlistsOl.offsetTop + this.playlistsOl.offsetHeight - 100
       ) {
         this.atTheBottom = true;
 
-        this.globalReqArtistData.offset += this.globalReqArtistData.limit;
-        this.getArtists(this.artistLi);
+        this.globalReqPlaylistData.offset += this.globalReqPlaylistData.limit;
+        this.getPlaylists(this.playlistLi);
       }
     };
-  }
-
-  setTag(event) {
-    console.log("Set tag");
-
-    // const xhr = new XMLHttpRequest();
-    // xhr.open("POST", "/setTag", true);
-    // xhr.setRequestHeader("Content-Type", "application/json");
-    // xhr.onreadystatechange = () => {
-    //   if (xhr.readyState == 4 && xhr.status == 200) {
-    //     const response = JSON.parse(xhr.response);
-    //     console.log(response);
-    //   }
-    // };
-
-    // const dataJSON = {
-    //   artistID: event.target
-    //     .closest(".artist-li")
-    //     .getAttribute("data-artist-id"),
-    // };
-
-    // xhr.send(JSON.stringify(dataJSON));
   }
 }

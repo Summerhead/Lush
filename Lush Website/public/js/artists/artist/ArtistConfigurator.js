@@ -4,18 +4,17 @@ var rgb, bw;
 
 export default class ArtistConfigurator {
   constructor(artistLi, reqArtistDataSpec) {
-    this.artistPic = document.getElementById("artist-pic");
+    this.artistLi = artistLi;
 
     this.globalReqArtistData = {
       artistID: document.location.pathname.split("/")[2] || null,
-      limit: 120,
+      limit: 1,
       offset: 0,
     };
-
-    this.atTheBottomObject = { atTheBottom: false };
-
-    this.artistLi = artistLi;
     this.reqArtistDataSpec = reqArtistDataSpec || this.globalReqArtistData;
+
+    this.artistPic = document.getElementById("artist-pic");
+    this.atTheBottomObject = { atTheBottom: false };
 
     this.getArtist();
     this.applyWindowOnScroll();

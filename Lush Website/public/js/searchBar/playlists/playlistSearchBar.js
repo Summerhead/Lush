@@ -1,15 +1,15 @@
-import { artistsConfigurator } from "../../artists/loadArtists.js";
-import { editArtistWindow } from "../../artists/loadArtists.js";
+import { playlistsConfigurator } from "../../playlists/loadPlaylists.js";
+import { editPlaylistWindow } from "../../playlists/loadPlaylists.js";
 import { lushURL } from "../../partials/loadContent.js";
 
-export default class ArtistSearchBar {
+export default class PlaylistSearchBar {
   constructor(searchBarContainer) {
     this.searchBarContainer = searchBarContainer;
     this.searchBar = searchBarContainer.querySelector("#search-bar");
-    this.searchButton = searchBarContainer.querySelector("#search-artist");
-    this.addButton = searchBarContainer.querySelector("#add-artist");
+    this.searchButton = searchBarContainer.querySelector("#search-playlist");
+    this.addButton = searchBarContainer.querySelector("#add-playlist");
 
-    this.artists = document.getElementById("artists-ol");
+    this.playlists = document.getElementById("playlists-ol");
     this.alphaNumericKeyCodes = /^[a-z0-9]+$/i;
 
     this.addSearchAction();
@@ -41,18 +41,18 @@ export default class ArtistSearchBar {
 
     lushURL.insertURLParam("search", this.searchBar.value);
 
-    this.artists.textContent = "";
+    this.playlists.textContent = "";
 
-    artistsConfigurator.atTheBottom = true;
-    artistsConfigurator.reqArtistDataSpec.search = this.searchBar.value;
-    artistsConfigurator.reqArtistDataSpec.offset = 0;
-    artistsConfigurator.getArtists();
+    playlistsConfigurator.atTheBottom = true;
+    playlistsConfigurator.reqPlaylistDataSpec.search = this.searchBar.value;
+    playlistsConfigurator.reqPlaylistDataSpec.offset = 0;
+    playlistsConfigurator.getPlaylists();
     // }
   };
 
   addAddAction() {
     this.addButton.onclick = () => {
-      editArtistWindow.open();
+      editPlaylistWindow.open();
     };
   }
 

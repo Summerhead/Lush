@@ -4,27 +4,26 @@ import { rgb, bw } from "../artists/artist/ArtistConfigurator.js";
 
 export default class AudiosConfigurator {
   constructor(audioLi, reqAudioDataSpec) {
-    this.audiosOl = document.getElementById("audios-ol");
+    this.audioLi = audioLi;
 
+    const URLSParams = new URLSearchParams(location.search);
     this.globalReqAudioData = {
       artistID: document.location.pathname.split("/")[2] || null,
-      search: new URLSearchParams(location.search).get("search"),
+      search: URLSParams.get("search"),
+      genres: URLSParams.get("genres"),
       limit: 100,
-      // offset: 2900,
       offset: 0,
     };
-
-    this.atTheBottom = true;
-    this.audios = [];
-    this.audioLi = audioLi;
     this.reqAudioDataSpec = reqAudioDataSpec || this.globalReqAudioData;
+
+    this.audiosOl = document.getElementById("audios-ol");
+    this.atTheBottom = true;
 
     this.getAudios();
     this.applyWindowOnScroll();
   }
 
   getAudios() {
-    this.audios.length = 0;
     this.fetchDataChunk();
   }
 
@@ -51,14 +50,8 @@ export default class AudiosConfigurator {
                 : new AudioPlayer(this.audioLi, audio).audioLi;
               audioLi.audioId = audio.audio_id;
 
-              this.audios.push(audioLi);
+              this.audiosOl.appendChild(audioLi);
             }
-
-            this.audios.forEach((audio) => this.audiosOl.appendChild(audio));
-
-            // console.log(document.getElementById("main").innerHTML);
-
-            // pushState(this.href);
 
             if (returnedRows === this.reqAudioDataSpec.limit) {
               this.atTheBottom = false;

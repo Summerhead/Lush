@@ -16,5 +16,8 @@
     "pagepath": "/public/html/genres.html",
     "scripts": ["loadGenres"]
   },
-  "/playlists": { "pagepath": "/public/html/main.html", "scripts": [] }
+  "/playlists": {
+    "pagepath": "/public/html/playlists.html",
+    "scripts": ["loadPlaylistSearchBar", "loadPlaylists"]
+  }
 }

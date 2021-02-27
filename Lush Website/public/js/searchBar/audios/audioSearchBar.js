@@ -1,5 +1,6 @@
 import { audiosConfigurator } from "../../audios/loadAudios.js";
 import AudiosConfigurator from "../../audios/AudiosConfigurator.js";
+import { lushURL } from "../../partials/loadContent.js";
 
 export default class AudioSearchBar {
   constructor(searchBarContainer) {
@@ -10,7 +11,6 @@ export default class AudioSearchBar {
     this.fileInput = searchBarContainer.querySelector("#file-input");
 
     this.audios = document.getElementById("audios-ol");
-
     this.alphaNumericKeyCodes = /^[a-z0-9]+$/i;
 
     this.addSearchAction();
@@ -32,17 +32,15 @@ export default class AudioSearchBar {
   }
 
   insertSearchQuery() {
-    this.searchBar.value = new URLSearchParams(location.search).get("search");
+    this.searchBar.value = lushURL.get("search");
   }
 
   sendSearchRequest = (event) => {
     // console.log(event.key);
     // console.log(this.alphaNumericKeyCodes);
     // if (this.alphaNumericKeyCodes.test(event.key)) {
-    const refresh =
-      location.pathname + "?" + insertParam("search", this.searchBar.value);
-    // console.log(refresh);
-    history.pushState({ pathname: refresh }, "", refresh);
+
+    lushURL.insertURLParam("search", this.searchBar.value);
 
     this.audios.textContent = "";
 
@@ -67,7 +65,7 @@ export default class AudioSearchBar {
       .replaceWith(this.searchBarContainer);
   }
 
-  async handleFileSelect(e) {
+  handleFileSelect = async (e) => {
     const files = e.target.files;
 
     if (files.length < 1) {
@@ -77,7 +75,7 @@ export default class AudioSearchBar {
     for (const file of files) {
       await Promise.resolve(this.uploadAudio(file));
     }
-  }
+  };
 
   uploadAudio(file) {
     return new Promise((resolve, reject) => {
@@ -114,28 +112,4 @@ export default class AudioSearchBar {
       throw "Could not parse result";
     }
   }
-}
-
-function insertParam(key, value) {
-  key = encodeURIComponent(key);
-  value = encodeURIComponent(value);
-
-  var kvp = document.location.search.substr(1).split("&");
-  let i = 0;
-
-  for (; i < kvp.length; i++) {
-    if (kvp[i].startsWith(key + "=")) {
-      let pair = kvp[i].split("=");
-      pair[1] = value;
-      kvp[i] = pair.join("=");
-      break;
-    }
-  }
-
-  if (i >= kvp.length) {
-    kvp[kvp.length] = [key, value].join("=");
-  }
-
-  let params = kvp.join("&");
-  return params;
 }

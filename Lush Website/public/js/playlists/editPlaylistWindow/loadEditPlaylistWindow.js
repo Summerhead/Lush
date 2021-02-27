@@ -1,6 +1,4 @@
-import EditAudioWindow from "./EditAudioWindow.js";
-
-export default function loadEditAudioWindow() {
+export default function loadEditPlaylistWindow() {
   return new Promise((resolve, reject) => {
     const xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
@@ -9,19 +7,20 @@ export default function loadEditAudioWindow() {
             this.responseText,
             "text/html"
           ),
-          editAudioWindowContainer = template.getElementById(
-            "edit-audio-window-container"
+          editPlaylistWindowContainer = template.getElementById(
+            "edit-playlist-window-container"
           );
 
-        resolve(editAudioWindowContainer);
+        resolve(editPlaylistWindowContainer);
       }
     };
 
     xmlhttp.open(
       "GET",
-      "/public/html/partials/audios/editAudioWindow.html",
+      "/public/html/partials/playlists/editPlaylistWindow.html",
       true
     );
+
     xmlhttp.send();
   });
 }

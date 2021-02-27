@@ -1,40 +1,9 @@
 import { editAudioWindow } from "./loadAudios.js";
 import showPage from "../partials/loadContent.js";
+import LushURL from "../partials/LushURL.js";
+import { lushURL } from "../partials/loadContent.js";
 
 var currentAudio;
-
-const tagColor = {
-  1: "87B6A7",
-  2: "F7D08A",
-  3: "E3F09B",
-  4: "F79F79",
-  5: "e63946",
-  6: "f1faee",
-  7: "1d3557",
-  8: "ffe8d6",
-  9: "219ebc",
-  10: "bdb2ff",
-  11: "ffb703",
-  12: "e5989b",
-  13: "ef476f",
-  14: "06d6a0",
-  15: "03071e",
-  16: "dda15e",
-  17: "00b4d8",
-  18: "006d77",
-  19: "ffddd2",
-  20: "faedcd",
-  21: "f72585",
-  22: "b5179e",
-  23: "560bad",
-  24: "3f37c9",
-  25: "8d99ae",
-  26: "ef233c",
-  27: "ddbea9",
-  28: "cbc0d3",
-  29: "90be6d",
-  30: "52b788",
-};
 
 export default class AudioPlayer {
   constructor(audioLi, audio) {
@@ -43,13 +12,15 @@ export default class AudioPlayer {
     this.clickableBackground = this.audioLi.querySelector(
       "#clickable-background"
     );
-    this.actionButton = this.audioLi.querySelector("#audio-hud__action");
 
-    this.audioPlayer = document.createElement("audio");
-    this.audioPlayer.setAttribute("src", "");
-    this.audioPlayer.setAttribute("id", "audio-player");
-    this.audioPlayer.setAttribute("class", "audio-player");
-    this.audioPlayer.setAttribute("preload", "metadata");
+    this.audioLi.audioPlayer = document.createElement("audio");
+    this.audioLi.audioPlayer.setAttribute("src", "");
+    this.audioLi.audioPlayer.setAttribute("id", "audio-player");
+    this.audioLi.audioPlayer.setAttribute("class", "audio-player");
+    this.audioLi.audioPlayer.setAttribute("preload", "metadata");
+    this.audioLi.actionButton = this.audioLi.querySelector(
+      "#audio-hud__action"
+    );
 
     this.genres = this.audioLi.querySelector("#genres");
     this.progressBar = this.audioLi.querySelector("#audio-hud__progress-bar");
@@ -60,16 +31,14 @@ export default class AudioPlayer {
     this.deleteButton = this.audioLi.querySelector("#delete-button");
     this.editButton = this.audioLi.querySelector("#edit-button");
     this.infoButton = this.audioLi.querySelector("#info-button");
-
     this.hiddenTime = this.audioLi.querySelector("#time .hidden");
 
-    // console.log(audio);
-    this.configureAudioPlayer();
+    this.configure();
+    this.displayTags();
+    this.addEventListeners();
   }
 
-  configureAudioPlayer() {
-    // this.clickableBackground.onfocus = () => alert("focused");
-
+  configure() {
     this.insertArtists();
     this.audioLi.querySelector(
       ".audio-header>.title"
@@ -77,69 +46,69 @@ export default class AudioPlayer {
     this.durationTime.innerText = this.audioTime(this.audio.duration);
     this.progressBar.max = Math.floor(this.audio.duration);
 
-    // if (isCurrentlyPlaying) audioLi.classList.add("playing");
-    this.audioLi.setAttribute("data-audio-id", this.audio.audio_id);
-    this.audioLi.setAttribute("data-blob-id", this.audio.blob_id);
+    // this.audioLi.setAttribute("data-audio-id", this.audio.audio_id);
+    // this.audioLi.setAttribute("data-blob-id", this.audio.blob_id);
 
-    var artistAttributes = "";
+    // var artistAttributes = "";
+    // for (const [index, artist] of this.audio.artists.entries()) {
+    //   const dataArtistAttribute = "data-artist-" + (index + 1);
+    //   artistAttributes += dataArtistAttribute + " ";
+    //   const artistJSON = { id: artist.artist_id, name: artist.name };
+    //   this.audioLi.setAttribute(
+    //     dataArtistAttribute,
+    //     JSON.stringify(artistJSON)
+    //   );
+    // }
+    // artistAttributes = artistAttributes.trim();
+    // this.audioLi.setAttribute("data-artist-attributes", artistAttributes);
+    // this.audioLi.setAttribute("data-audio-title", this.audio.title);
+
+    this.audioLi.audioID = this.audio.audio_id;
+    this.audioLi.blobID = this.audio.blob_id;
+
+    const artists = [];
     for (const [index, artist] of this.audio.artists.entries()) {
-      const dataArtistAttribute = "data-artist-" + (index + 1);
-      artistAttributes += dataArtistAttribute + " ";
-      const artistJSON = { id: artist.artist_id, name: artist.name };
-      this.audioLi.setAttribute(
-        dataArtistAttribute,
-        JSON.stringify(artistJSON)
-      );
+      artists.push({ id: artist.artist_id, name: artist.name });
     }
-    artistAttributes = artistAttributes.trim();
-    this.audioLi.setAttribute("data-artist-attributes", artistAttributes);
-    this.audioLi.setAttribute("data-audio-title", this.audio.title);
-
-    this.displayTags();
-    this.addEventListeners();
+    this.audioLi.artists = artists;
+    this.audioLi.audioTitle = this.audio.title;
   }
 
   displayTags() {
     this.audio.genres.forEach((genre) => {
-      const genreDiv = document.createElement("a");
+      const genreDiv = document.createElement("div");
       genreDiv.href =
         "/genres/" +
         genre.genre_name.replace(/ /g, "+").replace(/\//g, "%2F").toLowerCase();
       genreDiv.classList.add("genre");
+      genreDiv.setAttribute("data-genre-name", genre.genre_name.toLowerCase());
       genreDiv.style.backgroundColor = "white";
       genreDiv.innerText = genre.genre_name;
+      genreDiv.addEventListener("click", this.insertTagParam);
+
       this.genres.append(genreDiv);
-      // const tagDiv1 = document.createElement("a");
-      // tagDiv1.href = tag.tag_name;
-      // tagDiv1.classList.add("tag");
-      // tagDiv1.innerText = tag.tag_name;
-      // this.tags.append(tagDiv1);
-      // const tagDiv2 = document.createElement("a");
-      // tagDiv2.href = tag.tag_name;
-      // tagDiv2.classList.add("tag");
-      // tagDiv2.innerText = tag.tag_name;
-      // this.tags.append(tagDiv2);
     });
   }
 
-  addEventListeners() {
-    const mutationObserver = new MutationObserver(
-      this.classListMutationDetector
+  insertTagParam(event) {
+    lushURL.insertURLParam(
+      "genres",
+      event.target.getAttribute("data-genre-name")
     );
-    mutationObserver.observe(this.actionButton, { attributes: true });
+  }
 
-    this.actionButton.addEventListener("click", this.changeClass);
+  addEventListeners() {
+    this.audioLi.actionButton.addEventListener("click", this.changeClass);
     this.clickableBackground.addEventListener("click", this.changeClass);
 
-    this.audioPlayer.addEventListener("timeupdate", this.audioProgress);
-    this.audioPlayer.addEventListener("ended", this.playNext);
-
-    this.progressBar.addEventListener("click", this.progressBarAct);
+    this.audioLi.audioPlayer.addEventListener("timeupdate", this.audioProgress);
+    this.audioLi.audioPlayer.addEventListener("ended", this.playNext);
 
     this.addButton.addEventListener("click", () => alert("Add"));
     this.deleteButton.addEventListener("click", () => alert("Delete"));
     this.editButton.addEventListener("click", this.editAudioButtonOnClick);
     this.infoButton.addEventListener("click", () => alert("Info"));
+    this.progressBar.addEventListener("click", this.progressBarAct);
   }
 
   insertArtists() {
@@ -156,94 +125,59 @@ export default class AudioPlayer {
 
     artists.forEach((artist, index) => {
       if (index != 0) {
-        const span = document.createElement("span");
-        span.innerHTML = index == artists.length - 1 ? " & " : ", ";
-        artistsDiv.appendChild(span);
+        const spanEl = document.createElement("span");
+        spanEl.innerHTML = index == artists.length - 1 ? " & " : ", ";
+        artistsDiv.appendChild(spanEl);
       }
 
-      const aElement = document.createElement("a"),
+      const linkEl = document.createElement("a"),
         link = `/artists/${artist.artist_id}/${artist.name
           .replace(/ /g, "+")
           .replace(/\//g, "%2F")}`;
-      aElement.setAttribute("href", link);
-      aElement.onclick = () => {
-        showPage(aElement.href);
+      linkEl.setAttribute("href", link);
+      linkEl.onclick = () => {
+        showPage(linkEl.href);
         return false;
       };
-      aElement.innerText = artist.name;
-      artistsDiv.appendChild(aElement);
+      linkEl.innerText = artist.name;
+
+      artistsDiv.appendChild(linkEl);
     });
 
     return artistsDiv;
   }
 
-  revokeObjectURL() {
-    URL.revokeObjectURL(this.audioPlayer.src);
-    this.audioPlayer.src = "";
-  }
-
-  classListMutationDetector = (mutationsList) => {
-    mutationsList.forEach((mutation) => {
-      if (mutation.attributeName === "class") {
-        this.audioAct();
-      }
-    });
-  };
-
-  changeClass = () => {
+  changeClass = async () => {
     if (currentAudio && currentAudio !== this.audioLi) {
-      currentAudio.classList.remove("playing");
+      currentAudio.classList.remove("current", "playing", "paused");
 
-      currentAudio
-        .querySelector("#audio-hud__action")
-        .setAttribute("class", "audio-hud__element audio-hud__action");
+      stopAudio(currentAudio.audioPlayer);
+      revokeObjectURL(currentAudio.audioPlayer);
+
+      currentAudio.audioPlayer.onloadeddata = null;
     }
 
     currentAudio = this.audioLi;
-    // console.log(currentAudio);
-    currentAudio.classList.add("playing");
+    currentAudio.classList.add("current");
 
-    if (this.actionButton.classList.contains("audio-hud__action_play")) {
-      this.actionButton.setAttribute(
-        "class",
-        "audio-hud__element audio-hud__action audio-hud__action_pause"
-      );
+    if (currentAudio.classList.contains("playing")) {
+      currentAudio.classList.remove("playing");
+      currentAudio.classList.add("paused");
+
+      this.audioLi.audioPlayer.pause();
     } else {
-      this.actionButton.setAttribute(
-        "class",
-        "audio-hud__element audio-hud__action audio-hud__action_play"
-      );
+      currentAudio.classList.remove("paused");
+      currentAudio.classList.add("playing");
+
+      if (this.audioLi.audioPlayer.src === document.location.href) {
+        await this.fetchBlob({
+          blobID: Number(this.audioLi.blobID),
+        });
+      }
+
+      this.audioLi.audioPlayer.play();
     }
   };
-
-  async audioAct() {
-    if (
-      !this.actionButton.classList.contains("audio-hud__action_play") &&
-      !this.actionButton.classList.contains("audio-hud__action_pause")
-    ) {
-      this.stopAudio();
-      this.revokeObjectURL();
-
-      this.progressBar.style.display = "none";
-      this.hiddenTime.style.display = "none";
-      this.audioPlayer.onloadeddata = null;
-    } else {
-      this.progressBar.style.display = "block";
-      this.hiddenTime.style.display = "flex";
-
-      if (this.actionButton.classList.contains("audio-hud__action_play")) {
-        if (this.audioPlayer.src === document.location.href) {
-          await this.fetchBlob({
-            blobID: Number(this.audioLi.getAttribute("data-blob-id")),
-          });
-        }
-
-        this.audioPlayer.play();
-      } else {
-        this.audioPlayer.pause();
-      }
-    }
-  }
 
   async fetchBlob(reqAudioBlob) {
     await fetch("/audioBlob", {
@@ -286,11 +220,6 @@ export default class AudioPlayer {
       );
   }
 
-  stopAudio() {
-    this.audioPlayer.pause();
-    this.audioPlayer.currentTime = 0;
-  }
-
   audioTime(time) {
     time = Math.floor(time);
 
@@ -312,80 +241,64 @@ export default class AudioPlayer {
 
   audioProgress = () => {
     const progress = Math.ceil(
-      this.audioPlayer.currentTime /
-        (Math.floor(this.audioPlayer.duration) / this.progressBar.max)
+      this.audioLi.audioPlayer.currentTime /
+        (Math.floor(this.audioLi.audioPlayer.duration) / this.progressBar.max)
     );
 
     this.progressBar.value = progress || 0;
-    this.currentTime.innerHTML = this.audioTime(this.audioPlayer.currentTime);
+    this.currentTime.innerHTML = this.audioTime(
+      this.audioLi.audioPlayer.currentTime
+    );
   };
 
-  playNext = () => {
-    this.audioLi.classList.remove("playing");
-    this.actionButton.setAttribute(
-      "class",
-      "audio-hud__element audio-hud__action"
-    );
-
+  playNext = async () => {
     var nextSibling;
     if ((nextSibling = this.audioLi.nextSibling)) {
-      currentAudio = nextSibling;
-      currentAudio.classList.add("playing");
-      currentAudio
-        .querySelector("#audio-hud__action")
-        .setAttribute(
-          "class",
-          "audio-hud__element audio-hud__action audio-hud__action_play"
-        );
+      nextSibling.actionButton.click();
     } else {
-      currentAudio = null;
+      currentAudio.classList.remove("current", "playing", "paused");
+
+      stopAudio(currentAudio.audioPlayer);
+      revokeObjectURL(currentAudio.audioPlayer);
+
+      currentAudio.audioPlayer.onloadeddata = null;
     }
   };
 
-  audioChangeTime = (e) => {
+  audioChangeTime = (event) => {
     const mouseX = Math.floor(
-        e.pageX - this.progressBar.getBoundingClientRect().left
+        event.pageX - this.progressBar.getBoundingClientRect().left
       ),
       progress = mouseX / this.progressBar.offsetWidth;
-    this.audioPlayer.currentTime = this.audioPlayer.duration * progress;
+    this.audioLi.audioPlayer.currentTime =
+      this.audioLi.audioPlayer.duration * progress;
   };
 
-  progressBarAct = async (e) => {
-    if (this.audioPlayer.src === document.location.href) {
-      await this.fetchBlob({
-        blobID: Number(this.audioLi.getAttribute("data-blob-id")),
-      });
+  progressBarAct = async (event) => {
+    this.audioChangeTime(event);
 
-      this.audioPlayer.onloadeddata = () => {
-        this.audioChangeTime(e);
-      };
-    } else {
-      this.audioChangeTime(e);
-    }
-
-    if (currentAudio && currentAudio !== this.audioLi) {
-      currentAudio
-        .querySelector("#audio-hud__action")
-        .setAttribute("class", "audio-hud__element audio-hud__action");
-    }
-
-    currentAudio = this.audioLi;
-
-    if (this.audioPlayer.paused) {
-      this.actionButton.setAttribute(
-        "class",
-        "audio-hud__element audio-hud__action audio-hud__action_play"
-      );
+    if (this.audioLi.classList.contains("paused")) {
+      this.audioLi.actionButton.click();
     }
   };
 
   editAudioButtonOnClick = () => {
-    editAudioWindow.openEditAudioWindow(this.audioLi);
+    editAudioWindow.open(this.audioLi);
   };
 
   setAudioPlayerSrc(url) {
-    this.audioPlayer.src = url;
+    this.audioLi.audioPlayer.src = url;
   }
+}
+
+function revokeObjectURL(audioPlayer) {
+  URL.revokeObjectURL(audioPlayer.src);
+  audioPlayer.src = "";
+}
+
+function stopAudio(audioPlayer) {
+  audioPlayer.pause();
+  audioPlayer.currentTime = 0;
 }
 
 export { currentAudio };

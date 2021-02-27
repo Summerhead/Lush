@@ -8,12 +8,10 @@ export default class GenresConfigurator {
       artistID: document.location.pathname.split("/")[2] || null,
       search: "",
       limit: 100,
-      // offset: 2900,
       offset: 0,
     };
 
     this.atTheBottom = true;
-    this.genres = [];
     this.audioContainer = audioContainer;
     this.reqAudioDataSpec = reqAudioDataSpec || this.globalReqAudioData;
 
@@ -22,7 +20,6 @@ export default class GenresConfigurator {
   }
 
   getGenres() {
-    this.genres.length = 0;
     this.fetchDataChunk();
   }
 

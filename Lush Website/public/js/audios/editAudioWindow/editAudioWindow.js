@@ -3,6 +3,9 @@
 export default class EditAudioWindow {
   constructor(editAudioWindowContainer) {
     this.editAudioWindowContainer = editAudioWindowContainer;
+    this.editAudioWindowBackground = editAudioWindowContainer.querySelector(
+      "#edit-audio-window-background"
+    );
     this.editAudioWindow = editAudioWindowContainer.querySelector(
       "#edit-audio-window"
     );
@@ -20,28 +23,23 @@ export default class EditAudioWindow {
 
     this.audioLi;
 
-    this.audioId;
+    this.audioID;
     this.title;
     this.artists = [];
 
-    this.configureEditAudioWindow();
-    this.displayEditAudioWindow();
+    this.configure();
+    this.display();
   }
 
-  configureEditAudioWindow() {
-    this.closeButton.addEventListener("click", this.hideEditAudioWindow);
-
-    window.onclick = (event) => {
-      if (event.target.matches("#edit-audio-window-background")) {
-        this.hideEditAudioWindow();
-      }
-    };
+  configure() {
+    this.closeButton.addEventListener("click", this.hide);
+    this.editAudioWindowBackground.addEventListener("click", this.hide);
 
     this.submitButton.addEventListener("click", this.sendChanges);
     this.addArtistButton.addEventListener("click", this.addArtist);
   }
 
-  hideEditAudioWindow = () => {
+  hide = () => {
     this.editAudioWindowContainer
       .querySelectorAll(".inputs")
       .forEach((input) => {
@@ -51,39 +49,31 @@ export default class EditAudioWindow {
     this.editAudioWindowContainer.style.display = "none";
   };
 
-  displayEditAudioWindow() {
+  display() {
     document
       .getElementsByTagName("body")[0]
       .prepend(this.editAudioWindowContainer);
   }
 
-  openEditAudioWindow(audioLi) {
+  open(audioLi) {
     this.audioLi = audioLi;
-    this.audioId = audioLi.getAttribute("data-audio-id");
+    this.audioID = audioLi.audioID;
 
     const inputText = document.createElement("input");
     inputText.setAttribute("type", "text");
-    this.title = audioLi.getAttribute("data-audio-title");
+    this.title = audioLi.audioTitle;
     inputText.value = this.title;
     this.titleInput.appendChild(inputText);
 
-    const artistAttributes = audioLi
-      .getAttribute("data-artist-attributes")
-      .split(" ");
-    artistAttributes.forEach((attribute) => {
-      // const inputText = document.createElement("input");
-      // inputText.setAttribute("type", "text");
-      // const artist = audioLi.getAttribute(attribute);
-      // inputText.value = artist;
-      // this.artistsInputs.appendChild(inputText);
-
+    const artistAttributes = audioLi.artists;
+    artistAttributes.forEach((artist) => {
       const artistDiv = document.createElement("div");
       artistDiv.classList.add("artist");
 
       const input = document.createElement("input");
       input.setAttribute("type", "text");
 
-      const { id, name } = JSON.parse(audioLi.getAttribute(attribute));
+      const { id, name } = artist;
       input.value = name;
       input.setAttribute("data-artist-id", id);
       input.addEventListener("focus", this.toggleDropdown);
@@ -174,7 +164,7 @@ export default class EditAudioWindow {
         this.artists.push(input.getAttribute("data-artist-id"))
       );
 
-    this.hideEditAudioWindow();
+    this.hide();
 
     const xhr = new XMLHttpRequest();
     xhr.open("PATCH", "/editAudio", true);
@@ -184,13 +174,14 @@ export default class EditAudioWindow {
         const response = JSON.parse(xhr.response);
         console.log("Response edit:", response);
 
-        this.audioLi.querySelector(".audio-header>.title").innerText =
-          response.audio.title;
+        this.audioLi.querySelector(
+          ".audio-header>.title"
+        ).innerText = this.title;
       }
     };
 
     const json = {
-      audioId: this.audioId,
+      audioId: this.audioID,
       title: this.title,
       artists: this.artists,
     };
@@ -223,11 +214,6 @@ export default class EditAudioWindow {
   };
 
   removeArtist = (event) => {
-    // console.log(event.target.closest(".inputs").nextSibling.nextSibling);
-    // event.target
-    //   .closest("#artists")
-    //   .removeChild(event.target.closest(".inputs").nextSibling.nextSibling);
-
     event.target.parentNode.remove();
   };
 }

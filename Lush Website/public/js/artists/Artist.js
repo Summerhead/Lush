@@ -42,7 +42,7 @@ export default class Artist {
     };
 
     this.buttonEdit.addEventListener("click", this.editAction);
-    this.buttonDelete.addEventListener("click", this.deleteAction);
+    // this.buttonDelete.addEventListener("click", this.deleteAction);
 
     // artistLi
     //   .querySelector("#set-tag")
@@ -50,6 +50,8 @@ export default class Artist {
 
     this.imageWrapper.addEventListener("mouseover", this.setHoveredClass);
     this.imageWrapper.addEventListener("mouseout", this.removeHoveredClass);
+    // this.artistName.addEventListener("mouseover", this.setHoveredClass);
+    // this.artistName.addEventListener("mouseout", this.removeHoveredClass);
   }
 
   setHoveredClass = () => {
@@ -66,7 +68,7 @@ export default class Artist {
   }
 
   editAction(event) {
-    editArtistWindow.openEditArtistWindow(event.target.closest(".artist-li"));
+    editArtistWindow.open(event.target.closest(".artist-li"));
   }
 
   deleteAction(event) {

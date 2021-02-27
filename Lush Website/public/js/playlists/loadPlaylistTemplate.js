@@ -1,25 +1,22 @@
-import EditAudioWindow from "./EditAudioWindow.js";
+export default function loadPlaylistTemplate() {
+  const xmlhttp = new XMLHttpRequest();
 
-export default function loadEditAudioWindow() {
   return new Promise((resolve, reject) => {
-    const xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
         const template = new DOMParser().parseFromString(
             this.responseText,
             "text/html"
           ),
-          editAudioWindowContainer = template.getElementById(
-            "edit-audio-window-container"
-          );
+          playlistLi = template.getElementsByClassName("playlist-li")[0];
 
-        resolve(editAudioWindowContainer);
+        resolve(playlistLi);
       }
     };
 
     xmlhttp.open(
       "GET",
-      "/public/html/partials/audios/editAudioWindow.html",
+      "/public/html/partials/playlists/playlistTemplate.html",
       true
     );
     xmlhttp.send();
