@@ -1,5 +1,3 @@
-// import { pushState } from "../../partials/loadContent.js";
-
 export default class EditArtistWindow {
   constructor(editArtistWindowContainer) {
     this.editArtistWindowContainer = editArtistWindowContainer;
@@ -10,16 +8,18 @@ export default class EditArtistWindow {
     this.editArtistWindow = editArtistWindowContainer.querySelector(
       "#edit-artist-window"
     );
-    this.titleInput = editArtistWindowContainer.querySelector("#title>.inputs");
-    this.closeButton = editArtistWindowContainer.querySelector("#close-button");
+    this.titleInput = editArtistWindowContainer.querySelector(".title>.inputs");
+    this.closeButton = editArtistWindowContainer.querySelector(".close-button");
     this.submitButton = editArtistWindowContainer.querySelector(
-      "#submit-button"
+      ".submit-button"
     );
     this.imageWrapper = editArtistWindowContainer.querySelector(
-      "#image-wrapper"
+      ".image-wrapper"
     );
-    this.uploadCover = editArtistWindowContainer.querySelector("#upload-cover");
-    this.fileInput = editArtistWindowContainer.querySelector("#file-input");
+    this.uploadButton = editArtistWindowContainer.querySelector(
+      ".upload-button"
+    );
+    this.fileInput = editArtistWindowContainer.querySelector(".file-input");
 
     this.artistLi;
     this.artistID;
@@ -40,13 +40,15 @@ export default class EditArtistWindow {
   }
 
   resetAttributes() {
-    this.artistLi = "";
-    this.artistID = "";
-    this.artistName = "";
-    this.image = "";
+    this.artistLi = null;
+    this.artistID = null;
+    this.artistName = null;
+    this.image = null;
   }
 
   hide = () => {
+    this.resetAttributes();
+
     this.editArtistWindowContainer
       .querySelectorAll(".inputs")
       .forEach((input) => {
@@ -64,7 +66,7 @@ export default class EditArtistWindow {
 
   open(artistLi) {
     this.artistLi = artistLi;
-    this.artistID = artistLi ? artistLi.getAttribute("data-artist-id") : null;
+    this.artistID = artistLi?.getAttribute("data-artist-id") || null;
 
     const inputText = document.createElement("input");
     inputText.setAttribute("type", "text");
@@ -148,7 +150,7 @@ export default class EditArtistWindow {
   }
 
   addUploadAction() {
-    this.uploadCover.onclick = () => {
+    this.uploadButton.onclick = () => {
       this.fileInput.click();
     };
 
@@ -180,8 +182,6 @@ export default class EditArtistWindow {
     var fd = new FormData();
     this.artistName = this.titleInput.querySelector("input").value;
 
-    this.hide();
-
     xhr.open("POST", "/submitArtist", true);
     xhr.overrideMimeType("multipart/form-data");
     xhr.onreadystatechange = () => {
@@ -191,8 +191,6 @@ export default class EditArtistWindow {
 
         // this.artistLi.querySelector(".audio-header>.title").innerText =
         //   response.audio.title;
-
-        this.resetAttributes();
       }
     };
 
@@ -205,6 +203,8 @@ export default class EditArtistWindow {
     fd.append("image", this.image);
 
     xhr.send(fd);
+
+    this.hide();
     // });
   };
 }

@@ -1,9 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const { resolveQuery, constructWhereClause } = require("../general.js");
+const {
+  resolveQuery,
+  constructWhereClauseAnd,
+  insertArtist,
+} = require("../general.js");
 
 router.post("/artistsData", async (req, res, next) => {
-  console.log("Body:", req.body);
+  // console.log("Body:", req.body);
 
   const params = {
     artistID: req.body.artistID,
@@ -89,7 +93,7 @@ async function getArtistsData({ artistID, search, limit, offset }) {
     queryWhereClauses.push(artistIDWhereClause);
     subqueryWhereClauses.push(artistIDWhereClause);
   } else {
-    const subqueryWhereClause = constructWhereClause(subqueryWhereClauses);
+    const subqueryWhereClause = constructWhereClauseAnd(subqueryWhereClauses);
 
     subquery = `
     artist.id <= 
@@ -104,7 +108,7 @@ async function getArtistsData({ artistID, search, limit, offset }) {
     queryWhereClauses.push(subquery);
   }
 
-  const queryWhereClause = constructWhereClause(queryWhereClauses);
+  const queryWhereClause = constructWhereClauseAnd(queryWhereClauses);
 
   const query = `
   SELECT artist.id AS artist_id, name, blob_id
@@ -116,6 +120,7 @@ async function getArtistsData({ artistID, search, limit, offset }) {
     LIMIT ${limit}
     )
   artist
+
   LEFT JOIN image_artist
   ON artist.id = image_artist.artist_id
   LEFT JOIN artistimage

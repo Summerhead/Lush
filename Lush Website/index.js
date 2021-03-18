@@ -3,24 +3,24 @@ const path = require("path");
 const { app } = require("./server modules/server.js");
 
 const pagesJSON = JSON.parse(fs.readFileSync("./pages.json"));
+const mainPagePath = path.join(__dirname, "/public/html/main.html");
 for (const [route, object] of Object.entries(pagesJSON)) {
-  app.post(route, function (req, res) {
+  app.post(route, function (_req, res) {
     res.send(object);
   });
-  app.get(route, function (req, res) {
-    res.sendFile(path.join(__dirname, "/public/html/main.html"));
+  app.get(route, function (_req, res) {
+    res.sendFile(mainPagePath);
   });
 }
 
 // Routes
-const musicRoutes = require("./server modules/routes/music.js");
-app.use("/", musicRoutes);
+const routesDir = "./server modules/routes";
+fs.readdir(routesDir, function (error, files) {
+  if (error) {
+    console.error("Could not list the directory.", error);
+  }
 
-const artistsRoutes = require("./server modules/routes/artists.js");
-app.use("/", artistsRoutes);
-
-const genresRoutes = require("./server modules/routes/genres.js");
-app.use("/", genresRoutes);
-
-const playlistsRoutes = require("./server modules/routes/playlists.js");
-app.use("/", playlistsRoutes);
+  files.forEach(function (file) {
+    app.use("/", require(path.join(__dirname, routesDir, file)));
+  });
+});

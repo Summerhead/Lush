@@ -17,14 +17,14 @@
   position: relative;
 }
 
-#artist-options {
+.artist-options {
   display: none;
   position: absolute;
   top: 5px;
   right: 5px;
 }
 
-#artist-options button {
+.artist-options button {
   width: 18px;
   height: 15px;
   margin-right: 2px;
@@ -34,19 +34,19 @@
   z-index: 2;
 }
 
-.hovered #artist-options {
+.hovered .artist-options {
   display: block;
 }
 
-#artist-options button:last-child {
+.artist-options button:last-child {
   margin: 0;
 }
 
-#artist-options #button-edit {
+.artist-options .button-edit {
   background-image: url("/public/content/icons/pencil.svg");
 }
 
-#artist-options #button-delete {
+.artist-options .button-delete {
   background-image: url("/public/content/icons/cancel.svg");
 }
 
@@ -63,34 +63,34 @@
 }
 
 .artist-container > .no-cover {
-  background: url("/public/content/musical-note.svg") no-repeat center / 100px;
+  background: url("/public/content/icons/musical-note.svg") no-repeat center /
+    100px;
 }
 
-#artist-link {
+.artist-link {
   display: none;
   width: inherit;
   height: inherit;
-  /* background: url("/public/content/icons/play.svg") no-repeat center / 100px; */
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-.artist-container #artist-name {
+.artist-container .artist-name {
   text-decoration: none;
   color: black;
-  margin-bottom: 10px;
+  margin-bottom: 3px;
   font-size: 0.9em;
   font-weight: bold;
   white-space: pre-wrap;
 }
 
-.hovered #artist-link {
+.hovered .artist-link {
   display: block;
 }
 
-.hovered #artist-name {
+.hovered .artist-name {
   text-decoration: underline;
 }
 
-.artist-container #artist-description {
+.artist-container .artist-description {
   font-size: 0.8em;
 }

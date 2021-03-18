@@ -3,15 +3,17 @@
     <input type="text" placeholder="Search" id="search-bar" />
     <div id="right-tab">
       <button id="search-audio" class="search-button"></button>
-      <button id="upload-audio" class="upload-button"></button>
+      <button id="upload-audio" class="add-button"></button>
+      <input
+        type="file"
+        accept=".mp3,audio/*"
+        id="file-input"
+        style="display: none"
+        multiple
+      />
+      <output id="list"></output>
+      <button id="shuffle-audios" class="shuffle-button"></button>
     </div>
-    <input
-      type="file"
-      accept=".mp3,audio/*"
-      id="file-input"
-      style="display: none"
-      multiple
-    />
-    <output id="list"></output>
   </div>
+  <div id="genres-search-bar"></div>
 </div>

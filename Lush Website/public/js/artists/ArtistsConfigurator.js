@@ -1,15 +1,14 @@
-import insertNoResults from "../partials/insertNoResults.js";
 import Artist from "./Artist.js";
+import { lushURL } from "../partials/loadContent.js";
 
 export default class ArtistsConfigurator {
   constructor(artistLi, reqArtistDataSpec) {
     this.artistLi = artistLi;
 
-    const URLSParams = new URLSearchParams(location.search);
     this.globalReqArtistData = {
       artistID: document.location.pathname.split("/")[2] || null,
-      search: URLSParams.get("search"),
-      genres: URLSParams.get("genres"),
+      search: lushURL.get("search"),
+      genres: lushURL.get("genres"),
       limit: 140,
       offset: 0,
     };
@@ -17,13 +16,10 @@ export default class ArtistsConfigurator {
 
     this.artistsOl = document.getElementById("artists-ol");
     this.atTheBottom = true;
+    this.artistsRequestResolved = false;
 
     this.getArtists();
     this.applyWindowOnScroll();
-  }
-
-  getArtists() {
-    this.fetchDataChunk();
   }
 
   outputsize(imageWrapper) {
@@ -31,63 +27,57 @@ export default class ArtistsConfigurator {
       imageWrapper.getBoundingClientRect().width + "px";
   }
 
-  fetchDataChunk() {
-    $.ajax({
-      type: "POST",
-      url: "/artistsData",
-      data: JSON.stringify(this.reqArtistDataSpec),
-      contentType: "application/json",
-      dataType: "json",
-      success: (data) => {
-        console.log("Data:", data);
+  getArtists() {
+    new Promise((resolve, reject) => {
+      this.artistsRequestResolved = false;
 
-        const returnedRows = data.artists.length;
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/artistsData", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
 
-        if (data.status === 200) {
-          if (returnedRows) {
-            for (const artist of data.artists) {
-              const artistClass = new Artist(this.artistLi, artist),
-                artistLi = artistClass.artistLi,
-                imageWrapper = artistClass.imageWrapper;
-              this.artistsOl.appendChild(artistLi);
+      xhr.send(JSON.stringify(this.reqArtistDataSpec));
 
-              const reqImageBlob = { blobID: artist.blob_id };
-              this.fetchBlob(reqImageBlob, imageWrapper);
-
-              this.outputsize(imageWrapper);
-
-              new ResizeObserver(() => this.outputsize(imageWrapper)).observe(
-                artistLi
-              );
-            }
-
-            // [...document.getElementsByTagName("a")].forEach((link) => {
-            //   link.onclick = () => {
-            //     showPage(link.href);
-            //     return false;
-            //   };
-            // });
-
-            // console.log(document.getElementById("main").innerHTML);
-
-            // pushState(this.href);
-
-            // window.scroll(0, document.body.scrollHeight);
-
-            if (returnedRows === this.reqArtistDataSpec.limit) {
-              this.atTheBottom = false;
-            }
-          }
-          // else if (!document.getElementById("artists")) {
-          //   console.log(returnedRows);
-          //   insertNoResults();
-          // }
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          resolve(xhr);
         }
-      },
-      error: (error) => {
-        console.log("Error:", error);
-      },
-    });
+      };
+    })
+      .then((xhr) => this.displayArtists(xhr))
+      .then(() => (this.artistsRequestResolved = true));
+  }
+
+  displayArtists(xhr) {
+    const data = JSON.parse(xhr.response);
+    console.log("Data:", data);
+
+    const returnedRows = data.artists.length;
+
+    if (data.status === 200) {
+      if (returnedRows) {
+        for (const artist of data.artists) {
+          const artistClass = new Artist(this.artistLi, artist),
+            artistLi = artistClass.artistLi,
+            imageWrapper = artistClass.imageWrapper;
+          this.artistsOl.appendChild(artistLi);
+
+          const reqImageBlob = { blobID: artist.blob_id };
+          this.fetchBlob(reqImageBlob, imageWrapper);
+
+          this.outputsize(imageWrapper);
+
+          new ResizeObserver(() => this.outputsize(imageWrapper)).observe(
+            artistLi
+          );
+        }
+
+        // window.scroll(0, document.body.scrollHeight);
+
+        if (returnedRows === this.reqArtistDataSpec.limit) {
+          this.atTheBottom = false;
+        }
+      }
+    }
   }
 
   fetchBlob(reqImageBlob, imageWrapper) {

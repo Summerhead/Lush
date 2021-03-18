@@ -1,23 +1,37 @@
 {
-  "/": { "pagepath": "/public/html/hero.html", "scripts": ["loadMain"] },
+  "/": {
+    "pagepath": "/public/html/hero.html",
+    "title": { "isDefaultTitle": true, "name": "Lush" },
+    "scripts": ["loadMain"]
+  },
   "/music": {
     "pagepath": "/public/html/music.html",
+    "title": { "isDefaultTitle": true, "name": "Music" },
     "scripts": ["loadAudioSearchBar", "loadAudios"]
   },
   "/artists": {
     "pagepath": "/public/html/artists.html",
+    "title": { "isDefaultTitle": true, "name": "Artists" },
     "scripts": ["loadArtistSearchBar", "loadArtists"]
   },
   "/artists/:artistId/:artistName": {
     "pagepath": "/public/html/artist.html",
+    "title": { "isDefaultTitle": false, "name": "Artist" },
     "scripts": ["loadAudioSearchBar", "loadArtist", "loadAudios"]
   },
   "/genres": {
     "pagepath": "/public/html/genres.html",
+    "title": { "isDefaultTitle": true, "name": "Genres" },
     "scripts": ["loadGenres"]
   },
   "/playlists": {
     "pagepath": "/public/html/playlists.html",
+    "title": { "isDefaultTitle": true, "name": "Playlists" },
     "scripts": ["loadPlaylistSearchBar", "loadPlaylists"]
+  },
+  "/playlists/:playlistsId/:playlistsName": {
+    "pagepath": "/public/html/main.html",
+    "title": { "isDefaultTitle": false, "name": "Playlist" },
+    "scripts": ["loadMain"]
   }
 }

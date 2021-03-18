@@ -1,0 +1,32 @@
+.visible {
+  visibility: visible;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+.hidden {
+  display: none;
+}
+
+.display-block {
+  display: block;
+}
+
+.display-flex {
+  display: flex;
+}
+
+.fixed {
+  position: fixed;
+}
+
+.border-bottom {
+  border-bottom: 1px solid rgb(170, 170, 170);
+}
+
+.compensate-header {
+  margin-top: 40px;
+  min-height: calc(100vh - 40px /* - 80px */);
+}

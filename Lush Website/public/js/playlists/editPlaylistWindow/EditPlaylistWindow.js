@@ -1,5 +1,3 @@
-// import { pushState } from "../../partials/loadContent.js";
-
 export default class EditPlaylistWindow {
   constructor(editPlaylistWindowContainer) {
     this.editPlaylistWindowContainer = editPlaylistWindowContainer;
@@ -32,7 +30,6 @@ export default class EditPlaylistWindow {
     this.image;
 
     this.configure();
-    this.addUploadAction();
     this.display();
   }
 
@@ -42,6 +39,12 @@ export default class EditPlaylistWindow {
 
     this.submitButton.addEventListener("click", this.sendChanges);
     // this.addArtistButton.addEventListener("click", this.addArtist);
+
+    this.uploadCover.onclick = () => {
+      this.fileInput.click();
+    };
+
+    this.fileInput.onchange = this.handleFileSelect;
   }
 
   resetAttributes() {
@@ -152,14 +155,6 @@ export default class EditPlaylistWindow {
       );
 
     event.target.parentElement.classList.add("hidden");
-  }
-
-  addUploadAction() {
-    this.uploadCover.onclick = () => {
-      this.fileInput.click();
-    };
-
-    this.fileInput.onchange = this.handleFileSelect;
   }
 
   handleFileSelect = async (e) => {

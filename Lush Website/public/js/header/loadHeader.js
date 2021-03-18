@@ -1,5 +1,6 @@
-import { headerS } from "./loadDropdowns.js";
 import showPage from "../partials/loadContent.js";
+
+var header;
 
 export default async function loadHeader() {
   await Promise.resolve(getHeader()).then((headerContent) => {
@@ -57,8 +58,12 @@ function applyFixedHeaderAction(header) {
 }
 
 function displayHeaderRelated(headerContent) {
+  header = headerContent;
+
   const body = document.getElementsByTagName("body")[0];
-  // body.prepend(headerContent.querySelector("#header-clearfix"));
+  const headerClear = document.createElement("div");
+  headerClear.classList.add("header-clear");
+  // body.prepend(headerClear);
   body.replaceChild(headerContent, document.getElementById("header"));
 
   [...document.getElementsByTagName("a")].forEach((link) => {
@@ -67,6 +72,6 @@ function displayHeaderRelated(headerContent) {
       return false;
     };
   });
-
-  // headerS();
 }
+
+export { header };

@@ -1,4 +1,4 @@
-// import { pushState } from "../../partials/loadContent.js";
+import { audios } from "../AudiosConfigurator.js";
 
 export default class EditAudioWindow {
   constructor(editAudioWindowContainer) {
@@ -9,20 +9,19 @@ export default class EditAudioWindow {
     this.editAudioWindow = editAudioWindowContainer.querySelector(
       "#edit-audio-window"
     );
-    this.titleInput = editAudioWindowContainer.querySelector("#title>.inputs");
+    this.titleInput = editAudioWindowContainer.querySelector(".title>.inputs");
     this.artistsInputs = editAudioWindowContainer.querySelector(
-      "#artists>.inputs"
+      ".artists>.inputs"
     );
-    this.closeButton = editAudioWindowContainer.querySelector("#close-button");
+    this.closeButton = editAudioWindowContainer.querySelector(".close-button");
     this.submitButton = editAudioWindowContainer.querySelector(
-      "#submit-button"
+      ".submit-button"
     );
     this.addArtistButton = editAudioWindowContainer.querySelector(
-      "#add-artist"
+      ".add-artist"
     );
 
-    this.audioLi;
-
+    this.audioClass;
     this.audioID;
     this.title;
     this.artists = [];
@@ -34,19 +33,17 @@ export default class EditAudioWindow {
   configure() {
     this.closeButton.addEventListener("click", this.hide);
     this.editAudioWindowBackground.addEventListener("click", this.hide);
-
     this.submitButton.addEventListener("click", this.sendChanges);
     this.addArtistButton.addEventListener("click", this.addArtist);
   }
 
   hide = () => {
+    this.editAudioWindowContainer.style.display = "none";
     this.editAudioWindowContainer
       .querySelectorAll(".inputs")
       .forEach((input) => {
         input.innerHTML = "";
       });
-
-    this.editAudioWindowContainer.style.display = "none";
   };
 
   display() {
@@ -56,16 +53,14 @@ export default class EditAudioWindow {
   }
 
   open(audioLi) {
-    this.audioLi = audioLi;
-    this.audioID = audioLi.audioID;
+    this.audioClass = audios.get(audioLi);
 
     const inputText = document.createElement("input");
     inputText.setAttribute("type", "text");
-    this.title = audioLi.audioTitle;
-    inputText.value = this.title;
+    inputText.value = this.audioClass.audio.title;
     this.titleInput.appendChild(inputText);
 
-    const artistAttributes = audioLi.artists;
+    const artistAttributes = this.audioClass.audio.artists;
     artistAttributes.forEach((artist) => {
       const artistDiv = document.createElement("div");
       artistDiv.classList.add("artist");
@@ -73,9 +68,9 @@ export default class EditAudioWindow {
       const input = document.createElement("input");
       input.setAttribute("type", "text");
 
-      const { id, name } = artist;
+      const { artist_id, name } = artist;
       input.value = name;
-      input.setAttribute("data-artist-id", id);
+      input.setAttribute("data-artist-id", artist_id);
       input.addEventListener("focus", this.toggleDropdown);
       input.addEventListener("keyup", this.sendSearchRequest);
 
@@ -92,7 +87,6 @@ export default class EditAudioWindow {
       artistDiv.appendChild(dropdown);
 
       this.artistsInputs.appendChild(artistDiv);
-      this.artists.push(name);
     });
 
     this.getArtists();
@@ -156,13 +150,12 @@ export default class EditAudioWindow {
   }
 
   sendChanges = () => {
-    this.title = this.titleInput.querySelector("input").value;
+    this.newTitle = this.titleInput.querySelector("input").value;
     this.artists = [];
-    this.artistsInputs
-      .querySelectorAll("input")
-      .forEach((input) =>
-        this.artists.push(input.getAttribute("data-artist-id"))
-      );
+    this.artistsInputs.querySelectorAll("input").forEach((input) => {
+      console.log(input.getAttribute("data-artist-id"));
+      this.artists.push(input.getAttribute("data-artist-id"));
+    });
 
     this.hide();
 
@@ -172,17 +165,15 @@ export default class EditAudioWindow {
     xhr.onreadystatechange = () => {
       if (xhr.readyState == 4 && xhr.status == 200) {
         const response = JSON.parse(xhr.response);
-        console.log("Response edit:", response);
+        console.log(response);
 
-        this.audioLi.querySelector(
-          ".audio-header>.title"
-        ).innerText = this.title;
+        this.audioClass.setAttributes(this.newTitle);
       }
     };
 
     const json = {
-      audioId: this.audioID,
-      title: this.title,
+      audioId: this.audioClass.audio.audio_id,
+      title: this.newTitle,
       artists: this.artists,
     };
 

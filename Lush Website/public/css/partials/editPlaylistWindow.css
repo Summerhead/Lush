@@ -21,9 +21,6 @@
   transform: translateX(-50%);
   background-color: rgb(228, 228, 228);
   border: 1px solid rgb(138, 138, 138);
-  /* border-radius: 25px; */
-  /* box-shadow: 5px 8px 10px 5px rgba(0, 0, 0, 0.315),
-    -5px 8px 10px 5px rgba(0, 0, 0, 0.315); */
 }
 
 #edit-playlist-window #close-button {
@@ -106,7 +103,5 @@
 }
 
 #cover #upload-cover {
-  background: white
-    url("/public/content/icons/plus-positive-add-mathematical-symbol.svg")
-    center/10px no-repeat;
+  background: white url("/public/content/icons/plus.svg") center/10px no-repeat;
 }

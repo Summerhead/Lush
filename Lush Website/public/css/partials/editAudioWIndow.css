@@ -21,12 +21,9 @@
   transform: translateX(-50%);
   background-color: rgb(228, 228, 228);
   border: 1px solid rgb(138, 138, 138);
-  /* border-radius: 25px; */
-  /* box-shadow: 5px 8px 10px 5px rgba(0, 0, 0, 0.315),
-    -5px 8px 10px 5px rgba(0, 0, 0, 0.315); */
 }
 
-#edit-audio-window #close-button {
+#edit-audio-window .close-button {
   position: absolute;
   right: 16px;
   top: 16px;
@@ -37,14 +34,18 @@
   cursor: pointer;
 }
 
-#edit-audio-window #close-button img {
+#edit-audio-window .close-button img {
   position: relative;
   top: 2.5px;
   width: 15px;
   height: 15px;
 }
 
-#edit-audio-window #content {
+#edit-audio-window .title input {
+  width: 100%;
+}
+
+#edit-audio-window .content {
   min-height: 220px;
   max-height: 500px;
   margin: 50px 0px 70px 0px;
@@ -52,15 +53,15 @@
   overflow: auto;
 }
 
-#edit-audio-window #content > div {
+#edit-audio-window .content > div {
   margin-bottom: 30px;
 }
 
-#edit-audio-window #content > div:last-child {
+#edit-audio-window .content > div:last-child {
   margin-bottom: 20px;
 }
 
-#edit-audio-window #content .section-name {
+#edit-audio-window .section-name {
   margin-bottom: 10px;
   padding-bottom: 5px;
   border-bottom: 1px solid black;
@@ -68,21 +69,44 @@
   cursor: default;
 }
 
-#edit-audio-window #content input,
-#edit-audio-window #content select {
-  width: 100%;
+#edit-audio-window .content input {
   height: 25px;
-  margin: 8px 0;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 0.9em;
   border: 1px solid rgb(141, 141, 141);
 }
 
-#edit-audio-window #content input:last-child {
+#edit-audio-window .content input:last-child {
   margin-bottom: 0;
 }
 
-#edit-audio-window #submit-button {
+#edit-audio-window .content .inputs > div {
+  display: grid;
+  grid-template-columns: auto 40px;
+  padding: 8px 0;
+}
+
+#edit-audio-window .content .artist > button {
+  width: 40px;
+  border: 1px solid rgb(141, 141, 141);
+}
+
+#edit-audio-window .artists input {
+  margin-right: 5px;
+}
+
+.sumbit-button-container {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+#edit-audio-window .add-artist {
+  width: 40px;
+  height: 25px;
+  border: 1px solid rgb(141, 141, 141);
+}
+
+#edit-audio-window .submit-button {
   position: absolute;
   bottom: 20px;
   left: 50%;
@@ -93,12 +117,12 @@
   border: 1px solid rgb(141, 141, 141);
 }
 
-#edit-audio-window #content .dropdown {
+#edit-audio-window .content .dropdown {
   max-height: 100px;
   overflow-y: scroll;
 }
 
-#edit-audio-window #content .dropdown > p {
+#edit-audio-window .content .dropdown > p {
   line-height: 1.3em;
   white-space: pre-wrap;
   cursor: pointer;

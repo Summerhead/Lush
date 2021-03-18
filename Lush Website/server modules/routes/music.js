@@ -2,9 +2,11 @@ const express = require("express");
 const router = express.Router();
 const {
   resolveQuery,
-  constructWhereClause,
+  constructWhereClauseAnd,
+  constructWhereClauseOr,
   groupBy,
   trimExtension,
+  insertArtist,
 } = require("../general.js");
 
 router.post("/artistsForDropdown", async function (req, res, next) {
@@ -25,20 +27,15 @@ router.post("/artistsForDropdown", async function (req, res, next) {
 router.post("/audioData", async function (req, res, next) {
   console.log("Body:", req.body);
 
-  const params = {
-      artistID: req.body.artistID,
-      search: req.body.search,
-      limit: req.body.limit,
-      offset: req.body.offset,
-    },
-    audioData = await fetchAudioData(params);
+  const dataRequest = req.body.dataRequest;
+  const audioData = await fetchAudioData(dataRequest);
 
   res.send(audioData);
 });
 
 router.post("/audioBlob", async function (req, res, next) {
-  const blobID = req.body.blobID,
-    audioData = await fetchAudioBlob(blobID);
+  const blobID = req.body.blobID;
+  const audioData = await fetchAudioBlob(blobID);
 
   res.write(audioData.blob);
   res.end();
@@ -69,7 +66,7 @@ router.post("/uploadAudio", async function (req, res, next) {
         title = name.substr(separatorIndex + separator.length);
       }
 
-      const blobID = (await insertAudioBLob(audio.data)).data.insertId;
+      const blobID = (await insertAudioBlob(audio.data)).data.insertId;
       const audioID = (await insertAudioData(blobID, title, duration)).data
         .insertId;
       await insertAudioLanguage(audioID, 1);
@@ -103,8 +100,8 @@ router.post("/uploadAudio", async function (req, res, next) {
 
     res.status(500).send({
       status: error,
-      message: "Failed to upload.",
       name: audio.name,
+      message: "Failed to upload.",
     });
   }
 });
@@ -120,8 +117,9 @@ router.patch("/editAudio", async function (req, res) {
   await deleteAudioArtistRelations(audioId);
 
   artists.forEach(async (artistID, index) => {
-    artistID &&
-      (await insertAudioArtistRelations(audioId, artistID, index + 1));
+    if (artistID !== undefined) {
+      await insertAudioArtistRelations(audioId, artistID, index + 1);
+    }
   });
 
   const audioData = await fetchAudioDataById(audioId);
@@ -199,7 +197,7 @@ async function getArtists(artistName) {
     // console.log(artistName);
 
     whereArtist = `
-    WHERE artist.name COLLATE utf8mb4_0900_ai_ci LIKE '%${artistName}%'
+    WHERE artist.name COLLATE utf8mb4_0900_ai_ci LIKE "%${artistName}%"
     AND deleted = 0
     `;
   }
@@ -214,8 +212,8 @@ async function getArtists(artistName) {
   return await resolveQuery(query);
 }
 
-async function fetchAudioData(params) {
-  const result = await getAudioMetadata(params);
+async function fetchAudioData(dataRequest) {
+  const result = await getAudioMetadata(dataRequest);
 
   const status = result.error || 200;
   var audios = result.data?.map((audio) => ({ ...audio })) || [];
@@ -245,14 +243,20 @@ async function fetchAudioBlob(blobID) {
   return audioData;
 }
 
-async function getAudioMetadata({ artistID, search, limit, offset }) {
-  var artistIDWhereClause = "",
-    searchQuery = "",
-    queryWhereClauses = [],
+async function getAudioMetadata({
+  artistID,
+  search,
+  genres,
+  shuffle,
+  limit,
+  offset,
+}) {
+  const queryWhereClauses = [],
     subqueryWhereClauses = [];
+  var orderBy = "";
 
   if (artistID) {
-    artistIDWhereClause = `
+    const artistIDWhereClause = `
     artist.id = ${artistID}
     `;
 
@@ -261,41 +265,75 @@ async function getAudioMetadata({ artistID, search, limit, offset }) {
   }
 
   if (search) {
-    searchQuery = `
-    (
-      audio.title COLLATE utf8mb4_0900_ai_ci LIKE '%${search}%'
-      OR artist.name COLLATE utf8mb4_0900_ai_ci LIKE '%${search}%'
-    )
-    `;
+    const searchQuery = `
+      CONCAT(artist.name, " ", audio.title) COLLATE utf8mb4_0900_ai_ci LIKE "%${search}%"
+      `;
+    //   `
+    // (
+    //   audio.title COLLATE utf8mb4_0900_ai_ci LIKE "%${search}%"
+    //   OR artist.name COLLATE utf8mb4_0900_ai_ci LIKE "%${search}%"
+    // )
+    // `;
 
     queryWhereClauses.push(searchQuery);
     subqueryWhereClauses.push(searchQuery);
   }
 
-  const queryWhereClause = constructWhereClause(queryWhereClauses);
+  if (genres) {
+    const queryWhereClausesOr = [];
+    const subqueryWhereClausesOr = [];
 
-  const subquery = `
-  audio.id <= 
-    (
-      SELECT audio.id 
-      FROM audio 
-      LEFT JOIN audio_artist 
-      ON audio.id = audio_artist.audio_id
-      LEFT JOIN artist 
-      ON audio_artist.artist_id = artist.id
-      ${queryWhereClause}
-      GROUP BY audio.id
-      ORDER BY audio.id DESC
-      LIMIT 1 OFFSET ${offset}
-    )
-  `;
+    genres.forEach((genre) => {
+      const genreQuery = `
+      genre.name = "${genre}"
+      `;
+      subqueryWhereClausesOr.push(genreQuery);
+      queryWhereClausesOr.push(genreQuery);
+    });
 
-  subqueryWhereClauses.push(subquery);
+    const genresSubquery = constructWhereClauseOr(subqueryWhereClausesOr);
+    const genresQuery = constructWhereClauseOr(queryWhereClausesOr);
 
-  const subqueryWhereClause = constructWhereClause(subqueryWhereClauses);
+    subqueryWhereClauses.push(genresSubquery);
+    queryWhereClauses.push(genresQuery);
+  }
+
+  const queryWhereClause = constructWhereClauseAnd(queryWhereClauses);
+
+  if (shuffle) {
+    orderBy = "RAND()";
+  } else {
+    orderBy = "audio.id DESC";
+    const subquery = `
+    audio.id <= 
+      (
+        SELECT audio.id 
+        FROM audio 
+        LEFT JOIN audio_artist 
+        ON audio.id = audio_artist.audio_id
+        LEFT JOIN artist 
+        ON audio_artist.artist_id = artist.id
+        
+        LEFT JOIN audio_genre 
+        ON audio.id = audio_genre.audio_id
+        LEFT JOIN genre 
+        ON audio_genre.genre_id = genre.id
+
+        ${queryWhereClause}
+        GROUP BY audio.id
+        ORDER BY audio.id DESC
+        LIMIT 1 OFFSET ${offset}
+      )
+    `;
+
+    subqueryWhereClauses.push(subquery);
+  }
+
+  const subqueryWhereClause = constructWhereClauseAnd(subqueryWhereClauses);
 
   const query = `
-  SELECT audio.id AS audio_id, blob_id, title, artist.id AS artist_id, artist.name, artist_position, duration, 
+  SELECT audio.id AS audio_id, blob_id, title, artist.id AS artist_id, artist.name, 
+  CONCAT(title, " ",artist.name) AS fullAudioTitle, artist_position, duration, 
   genre.id AS genre_id, genre.name AS genre_name
   FROM (
     SELECT audio.id, blob_id, title, duration 
@@ -304,9 +342,15 @@ async function getAudioMetadata({ artistID, search, limit, offset }) {
     ON audio.id = audio_artist.audio_id
     LEFT JOIN artist 
     ON audio_artist.artist_id = artist.id
+    
+    LEFT JOIN audio_genre 
+    ON audio.id = audio_genre.audio_id
+    LEFT JOIN genre 
+    ON audio_genre.genre_id = genre.id
+
     ${subqueryWhereClause}
     GROUP BY audio.id
-    ORDER BY audio.id DESC
+    ORDER BY ${orderBy}
     LIMIT ${limit}
     )
   audio
@@ -359,7 +403,8 @@ async function getArtistByName(artist) {
   const query = `
   SELECT id 
   FROM artist 
-  WHERE name = "${artist}"
+  WHERE deleted = 0
+  AND name COLLATE utf8mb4_0900_ai_ci LIKE "%${artist}%"
   ;`;
 
   return await resolveQuery(query);
@@ -374,7 +419,7 @@ async function insertAudioData(blobID, title, duration) {
   return await resolveQuery(query);
 }
 
-async function insertAudioBLob(audio) {
+async function insertAudioBlob(audio) {
   const query = `
   INSERT INTO audio_blob SET ?
   `,

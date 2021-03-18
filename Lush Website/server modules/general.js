@@ -35,6 +35,7 @@ const groupBy = function (xs, key) {
     rv.get(x[key]).audio_id = x.audio_id;
     rv.get(x[key]).blob_id = x.blob_id;
     rv.get(x[key]).title = x.title;
+    rv.get(x[key]).fullAudioTitle = x.fullAudioTitle;
     rv.get(x[key]).duration = x.duration;
     rv.get(x[key]).artists[x.artist_id] = {
       artist_id: x.artist_id,
@@ -60,8 +61,12 @@ async function insertArtist(artistName) {
   return await resolveQuery(query);
 }
 
-function constructWhereClause(whereClauses) {
+function constructWhereClauseAnd(whereClauses) {
   return whereClauses.length ? "WHERE " + [...whereClauses].join(" AND ") : "";
+}
+
+function constructWhereClauseOr(whereClauses) {
+  return whereClauses.length ? "(" + [...whereClauses].join(" OR ") + ")" : "";
 }
 
 function trimExtension(filename) {
@@ -72,6 +77,7 @@ module.exports = {
   resolveQuery,
   groupBy,
   insertArtist,
-  constructWhereClause,
+  constructWhereClauseAnd,
+  constructWhereClauseOr,
   trimExtension,
 };

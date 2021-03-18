@@ -8,14 +8,28 @@ import { loadGenres } from "../genres/loadGenres.js";
 import { loadPlaylistSearchBar } from "../searchBar/playlists/loadPlaylistSearchBar.js";
 import { loadPlaylists } from "../playlists/loadPlaylists.js";
 import LushURL from "./LushURL.js";
+import { currentAudio } from "../audios/Audio.js";
 
-var lushURL = new LushURL(location.search);
+var lushURL;
 
 export default async function showPage(href, skipPushState) {
   await Promise.resolve(getPages(href))
-    .then(({ pagepath, scripts }) => loadPage(pagepath, scripts))
-    .then(({ main, scripts }) => displayMain(main, scripts))
-    .then((scripts) => scripts && runScripts(scripts, href, skipPushState));
+    // The order is important
+    .then(({ pagepath, title, scripts }) => loadPage(pagepath, title, scripts))
+    .then(({ main, title, scripts }) => {
+      displayMain(main, scripts);
+      return [title, scripts];
+    })
+    .then(([title, scripts]) => {
+      setTitle(title);
+      return scripts;
+    })
+    .then((scripts) => {
+      if (scripts) runScripts(scripts, href, skipPushState);
+    })
+    .then(() => {
+      lushURL = new LushURL(location.search);
+    });
 }
 
 function getPages(href) {
@@ -33,7 +47,7 @@ function getPages(href) {
   });
 }
 
-function loadPage(pagepath, scripts) {
+function loadPage(pagepath, title, scripts) {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open("GET", pagepath);
@@ -44,7 +58,11 @@ function loadPage(pagepath, scripts) {
           "text/html"
         );
 
-        resolve({ main: page.getElementById("main"), scripts: scripts });
+        resolve({
+          main: page.getElementById("main"),
+          title: title,
+          scripts: scripts,
+        });
       }
     };
     xhr.send();
@@ -52,24 +70,30 @@ function loadPage(pagepath, scripts) {
 }
 
 function displayMain(main, scripts) {
+  if (currentAudio) {
+    main.classList.add("compensate-header");
+  }
   document.getElementById("main").replaceWith(main);
 
   return scripts;
 }
 
-function runScripts(scripts, pathname, skipPushState) {
+function runScripts(scripts, href, skipPushState) {
   scripts.forEach((script) => eval(script)());
 
   if (!skipPushState) {
-    // console.log(history.state);
-    // console.log(pathname);
-    history.pushState({ pathname: pathname }, "", pathname);
-
-    // console.log(history.state);
-    // console.log(history);
+    history.pushState({ href: href }, "", href);
   }
+}
 
-  lushURL = new LushURL(location.search);
+function setTitle({ isDefaultTitle, name }) {
+  if (
+    isDefaultTitle &&
+    (!currentAudio ||
+      (currentAudio && !currentAudio.classList.contains("current")))
+  ) {
+    document.title = name;
+  }
 }
 
 // function executeFunctionByName(functionName, context) {

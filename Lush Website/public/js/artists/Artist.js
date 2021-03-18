@@ -6,11 +6,11 @@ export default class Artist {
     this.artistLi = artistLi.cloneNode(true);
     this.artist = artist;
 
-    this.artistLink = this.artistLi.querySelector("#artist-link");
+    this.artistLink = this.artistLi.querySelector(".artist-link");
     this.imageWrapper = this.artistLi.querySelector(".image-wrapper");
-    this.artistName = this.artistLi.querySelector("#artist-name");
-    this.buttonEdit = this.artistLi.querySelector("#button-edit");
-    this.buttonDelete = this.artistLi.querySelector("#button-delete");
+    this.artistName = this.artistLi.querySelector(".artist-name");
+    this.buttonEdit = this.artistLi.querySelector(".button-edit");
+    this.buttonDelete = this.artistLi.querySelector(".button-delete");
 
     this.setValues();
     this.setActions();
@@ -42,7 +42,7 @@ export default class Artist {
     };
 
     this.buttonEdit.addEventListener("click", this.editAction);
-    // this.buttonDelete.addEventListener("click", this.deleteAction);
+    this.buttonDelete.addEventListener("click", this.deleteAction);
 
     // artistLi
     //   .querySelector("#set-tag")

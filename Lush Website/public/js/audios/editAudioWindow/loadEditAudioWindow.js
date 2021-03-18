@@ -1,5 +1,3 @@
-import EditAudioWindow from "./EditAudioWindow.js";
-
 export default function loadEditAudioWindow() {
   return new Promise((resolve, reject) => {
     const xmlhttp = new XMLHttpRequest();

@@ -1,4 +1,4 @@
-import insertNoResults from "../../partials/insertNoResults.js";
+import { currentAudio } from "../../audios/Audio.js";
 
 var rgb, bw;
 
@@ -16,22 +16,34 @@ export default class ArtistConfigurator {
     this.artistPic = document.getElementById("artist-pic");
     this.atTheBottomObject = { atTheBottom: false };
 
+    this.configure();
     this.getArtist();
-    this.applyWindowOnScroll();
+  }
+
+  configure() {
+    window.onscroll = () => {
+      if (
+        !this.atTheBottomObject.atTheBottom &&
+        window.innerHeight + window.scrollY >=
+          this.artistPic.offsetTop + this.artistPic.offsetHeight - 100
+      ) {
+        this.atTheBottomObject.atTheBottom = true;
+
+        this.globalReqArtistData.offset += this.globalReqArtistData.limit;
+        this.getArtist();
+      }
+    };
   }
 
   getArtist() {
-    this.fetchDataChunk();
-  }
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/artistsData", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify(this.reqArtistDataSpec));
 
-  fetchDataChunk() {
-    $.ajax({
-      type: "POST",
-      url: "/artistsData",
-      data: JSON.stringify(this.reqArtistDataSpec),
-      contentType: "application/json",
-      dataType: "json",
-      success: (data) => {
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        const data = JSON.parse(xhr.response);
         console.log("Data:", data);
 
         const returnedRows = data.artists.length;
@@ -39,30 +51,24 @@ export default class ArtistConfigurator {
         if (data.status === 200) {
           if (returnedRows) {
             for (const artist of data.artists) {
-              const artistLi = this.constructArtist(artist),
-                imageWrapper = artistLi.querySelector("#image-wrapper");
+              if (
+                !currentAudio ||
+                !currentAudio?.classList.contains("current")
+              ) {
+                document.title = artist.name;
+              }
+
+              const artistLi = this.constructArtist(artist);
+              const imageWrapper = artistLi.querySelector("#image-wrapper");
               this.artistPic.appendChild(artistLi);
 
               const reqImageBlob = { blobID: artist.blob_id };
               this.fetchBlob(reqImageBlob, imageWrapper);
             }
-
-            // this.atTheBottomObject.atTheBottom = false;
-
-            // pushState(this.href);
-
-            // window.scroll(0, document.body.scrollHeight);
           }
-          // else if (!document.getElementById("artists")) {
-          //   console.log(returnedRows);
-          //   insertNoResults();
-          // }
         }
-      },
-      error: function (error) {
-        console.log("Error:", error);
-      },
-    });
+      }
+    };
   }
 
   fetchBlob(reqImageBlob, imageWrapper) {
@@ -121,12 +127,23 @@ export default class ArtistConfigurator {
 
           document.getElementById(
             "artist-background"
-          ).style.background = `linear-gradient(0.5turn, rgba(${r}, ${g}, ${b}, 1), rgba(${r}, ${g}, ${b}, 0))`;
+          ).style.background = `linear-gradient(rgba(${r}, ${g}, ${b}, 1), rgba(${r}, ${g}, ${b}, 0) 100%)
+          /*,
+          linear-gradient(0.25turn, rgba(${r}, ${g}, ${b}, 1), rgba(${r}, ${g}, ${b}, 0) 50%)*/
+          `;
+
+          document.getElementById(
+            "info"
+          ).style.background = `rgb(${r}, ${g}, ${b})`;
+
+          // document.getElementById("header").style.background =
+          //   "rgba(0, 0, 0, 0)";
 
           document.getElementById(
             "header"
           ).style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-          document.getElementById("header").style.borderBottom = "0px";
+
+          // document.getElementById("main").style.position = "absolute";
 
           const brightness = Math.round(
             (parseInt(r) * 299 + parseInt(g) * 587 + parseInt(b) * 114) / 1000
@@ -160,25 +177,10 @@ export default class ArtistConfigurator {
 
     return artistLiClone;
   }
-
-  applyWindowOnScroll() {
-    window.onscroll = () => {
-      if (
-        !this.atTheBottomObject.atTheBottom &&
-        window.innerHeight + window.scrollY >=
-          this.artistPic.offsetTop + this.artistPic.offsetHeight - 100
-      ) {
-        this.atTheBottomObject.atTheBottom = true;
-
-        this.globalReqArtistData.offset += this.globalReqArtistData.limit;
-        this.getArtist();
-      }
-    };
-  }
 }
 
 function getAverageRGB(imgEl) {
-  var blockSize = 5, // only visit every 5 pixels
+  var blockSize = 1, // only visit every 5 pixels
     defaultRGB = { r: 0, g: 0, b: 0 }, // for non-supporting envs
     canvas = document.createElement("canvas"),
     context = canvas.getContext && canvas.getContext("2d"),

@@ -1,5 +1,3 @@
-import insertNoResults from "../partials/insertNoResults.js";
-
 export default class GenresConfigurator {
   constructor(audioContainer, reqAudioDataSpec) {
     this.genresOl = document.getElementById("genres-ol");
@@ -24,11 +22,13 @@ export default class GenresConfigurator {
   }
 
   fetchDataChunk() {
-    $.ajax({
-      type: "GET",
-      url: "/genresData",
-      dataType: "json",
-      success: (data) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("GET", "/genresData", true);
+    xhr.send();
+
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        const data = JSON.parse(xhr.response);
         console.log("Data:", data);
 
         const returnedRows = data.genres.length;
@@ -49,11 +49,8 @@ export default class GenresConfigurator {
             }
           }
         }
-      },
-      // else if (!document.getElementById("audios-ol")) {
-      //   insertNoResults();
-      // }
-    });
+      }
+    };
   }
 
   applyWindowOnScroll() {

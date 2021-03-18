@@ -1,4 +1,3 @@
-import insertNoResults from "../partials/insertNoResults.js";
 import Playlist from "./Playlist.js";
 
 export default class PlaylistsConfigurator {
@@ -33,13 +32,14 @@ export default class PlaylistsConfigurator {
   }
 
   fetchDataChunk() {
-    $.ajax({
-      type: "POST",
-      url: "/playlistsData",
-      data: JSON.stringify(this.reqPlaylistDataSpec),
-      contentType: "application/json",
-      dataType: "json",
-      success: (data) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/playlistsData", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.send(JSON.stringify(this.reqPlaylistDataSpec));
+
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        const data = JSON.parse(xhr.response);
         console.log("Data:", data);
 
         const returnedRows = data.playlists.length;
@@ -66,16 +66,9 @@ export default class PlaylistsConfigurator {
               this.atTheBottom = false;
             }
           }
-          // else if (!document.getElementById("artists")) {
-          //   console.log(returnedRows);
-          //   insertNoResults();
-          // }
         }
-      },
-      error: (error) => {
-        console.log("Error:", error);
-      },
-    });
+      }
+    };
   }
 
   fetchBlob(reqImageBlob, imageWrapper) {

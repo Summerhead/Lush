@@ -63,14 +63,13 @@
 }
 
 .playlist-container > .no-cover {
-  background: url("/public/content/vynil.svg") no-repeat center / 130px;
+  background: url("/public/content/icons/vynil.svg") no-repeat center / 130px;
 }
 
 #playlist-link {
   display: none;
   width: inherit;
   height: inherit;
-  /* background: url("/public/content/icons/play.svg") no-repeat center / 100px; */
   background-color: rgba(0, 0, 0, 0.1);
 }
 

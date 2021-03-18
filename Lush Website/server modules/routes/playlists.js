@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { resolveQuery, constructWhereClause } = require("../general.js");
+const { resolveQuery, constructWhereClauseAnd } = require("../general.js");
 
 router.post("/playlistsData", async function (req, res, next) {
   console.log("Body:", req.body);
@@ -53,7 +53,7 @@ async function getPlaylists({ playlistID, search, limit, offset }) {
     queryWhereClauses.push(playlistIDWhereClause);
     subqueryWhereClauses.push(playlistIDWhereClause);
   } else {
-    const subqueryWhereClause = constructWhereClause(subqueryWhereClauses);
+    const subqueryWhereClause = constructWhereClauseAnd(subqueryWhereClauses);
 
     subquery = `
       playlist.id <= 
@@ -68,7 +68,7 @@ async function getPlaylists({ playlistID, search, limit, offset }) {
     queryWhereClauses.push(subquery);
   }
 
-  const queryWhereClause = constructWhereClause(queryWhereClauses);
+  const queryWhereClause = constructWhereClauseAnd(queryWhereClauses);
 
   const query = `
     SELECT playlist.id AS playlist_id, name, blob_id

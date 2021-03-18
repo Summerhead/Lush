@@ -1,27 +1,27 @@
 <div id="edit-artist-window-container">
   <div id="edit-artist-window-background"></div>
   <div id="edit-artist-window">
-    <button id="close-button">
+    <button class="close-button">
       <img src="/public/content/icons/cancel.svg" />
     </button>
-    <div id="content">
-      <div id="title">
+    <div class="content">
+      <div class="title">
         <div class="section-name"><p>Title</p></div>
         <div class="inputs"></div>
       </div>
-      <div id="cover">
+      <div class="cover">
         <div class="section-name"><p>Cover</p></div>
-        <button id="upload-cover" class="upload-button"></button>
+        <button class="upload-button"></button>
         <input
           type="file"
           accept="image/*"
-          id="file-input"
+          class="file-input"
           style="display: none"
         />
-        <output id="list"></output>
-        <div id="image-wrapper"></div>
+        <output class="list"></output>
+        <div class="image-wrapper"></div>
       </div>
     </div>
-    <button id="submit-button">OK</button>
+    <button class="submit-button">OK</button>
   </div>
 </div>

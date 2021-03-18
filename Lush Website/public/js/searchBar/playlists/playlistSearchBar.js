@@ -15,7 +15,7 @@ export default class PlaylistSearchBar {
     this.addSearchAction();
     this.insertSearchQuery();
     this.addAddAction();
-    this.displaySearchBar();
+    this.display();
   }
 
   addSearchAction() {
@@ -39,7 +39,7 @@ export default class PlaylistSearchBar {
     // console.log(this.alphaNumericKeyCodes);
     // if (this.alphaNumericKeyCodes.test(event.key)) {
 
-    lushURL.insertURLParam("search", this.searchBar.value);
+    lushURL.insert("search", this.searchBar.value);
 
     this.playlists.textContent = "";
 
@@ -56,7 +56,7 @@ export default class PlaylistSearchBar {
     };
   }
 
-  displaySearchBar() {
+  display() {
     document
       .getElementById("search-bar-container")
       .replaceWith(this.searchBarContainer);

@@ -1,5 +1,3 @@
-import EditArtistWindow from "./EditArtistWindow.js";
-
 export default function loadEditArtistWindow() {
   return new Promise((resolve, reject) => {
     const xmlhttp = new XMLHttpRequest();

@@ -1,24 +1,22 @@
 #header {
-  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  column-gap: 50px;
   width: 100%;
   height: 40px;
   z-index: 2;
   background-color: rgb(255, 255, 255);
-  /* border-bottom: 1px solid rgb(197, 197, 197); */
-  justify-content: space-between;
+  padding: 0px 35px;
 }
 
-/* #header-clearfix {
-  width: 100%;
-  height: 40px;
-  grid-row: 1 / 2;
-} */
+#logo-container {
+  position: relative;
+  display: inline-block;
+  margin-top: auto;
+  margin-bottom: auto;
+}
 
 #logo {
-  position: absolute;
-  top: 50%;
-  left: 35px;
-  transform: translate(0, -50%);
   text-decoration: none;
   color: rgb(0, 0, 0);
   font-style: italic;
@@ -27,8 +25,86 @@
   z-index: 1;
 }
 
-#nav-bar {
-  position: absolute;
+#current-audio {
+  cursor: pointer;
+}
+
+#current-audio:hover {
+  background-color: rgb(235, 235, 235);
+}
+
+#header .audio-main {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  height: 100%;
+  padding: 0px;
+}
+
+#header .left-side {
+  width: initial;
+  height: initial;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+#header .left-side-container {
+  display: flex;
+}
+
+#header .left-side-container > button {
+  height: 36px;
+  width: 36px;
+}
+
+#header .prev-button {
+  background: url("/public/content/icons/next.svg") center/10px no-repeat;
+  transform: scaleX(-1);
+}
+
+#header .play-button {
+  position: initial;
+  display: block;
+  background: url("/public/content/icons/right-chevron.svg") center/15px
+    no-repeat;
+}
+
+#header .next-button {
+  background: url("/public/content/icons/next.svg") center/10px no-repeat;
+}
+
+#header .audio-header-container {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+#header .audio-header {
+  display: flex;
+  flex-direction: initial;
+  font-size: 0.8em;
+}
+
+#header .artists,
+#header .artists a {
+  color: rgb(0, 0, 0);
+}
+
+#header .artists::after {
+  content: " —";
+}
+
+#header .progress-bar {
+  display: block;
+  margin: 0px;
+}
+
+#pages-container {
+  position: relative;
+  display: inline-block;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+#pages {
   bottom: 10px;
   right: 0;
   list-style: none;
@@ -37,15 +113,20 @@
   font-size: 0.9em;
 }
 
-#nav-bar > li {
+#pages > li {
   margin-right: 5px;
 }
 
-#nav-bar > li:last-child {
-  margin-right: 20px;
+#pages > li:hover {
+  /* font-weight: bold; */
+  text-decoration: underline;
 }
 
-#nav-bar > li > a {
+#pages > li:last-child {
+  margin-right: 0px;
+}
+
+#pages > li > a {
   display: block;
   height: 100%;
   padding: 0 15px;
@@ -54,7 +135,7 @@
   cursor: pointer;
 }
 
-#nav-bar > li > a > div {
+#pages > li > a > div {
   position: relative;
   top: 50%;
   transform: translateY(-50%);
