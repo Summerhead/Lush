@@ -12,23 +12,24 @@ export default class Artist {
     this.buttonEdit = this.artistLi.querySelector(".button-edit");
     this.buttonDelete = this.artistLi.querySelector(".button-delete");
 
-    this.setValues();
-    this.setActions();
+    this.configure();
   }
 
-  setValues() {
-    this.artistName.innerText = this.artist.name;
+  configure() {
+    this.artistName.innerText = this.artist.artist_name;
     this.artistLink.href += `${
       this.artist.artist_id
-    }/${this.artist.name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
+    }/${this.artist.artist_name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
     this.artistName.href += `${
       this.artist.artist_id
-    }/${this.artist.name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
+    }/${this.artist.artist_name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
     // artistLi.querySelector("#artist-description").innerText =
     //   artist.artist_id;
 
     this.artistLi.setAttribute("data-artist-id", this.artist.artist_id);
-    this.artistLi.setAttribute("data-artist-name", this.artist.name);
+    this.artistLi.setAttribute("data-artist-name", this.artist.artist_name);
+
+    this.setActions();
   }
 
   setActions() {
@@ -67,9 +68,12 @@ export default class Artist {
     return false;
   }
 
-  editAction(event) {
-    editArtistWindow.open(event.target.closest(".artist-li"));
-  }
+  editAction = () => {
+    editArtistWindow.open(
+      this.artist,
+      this.artistLi.querySelector(".image-wrapper")
+    );
+  };
 
   deleteAction(event) {
     const xhr = new XMLHttpRequest();

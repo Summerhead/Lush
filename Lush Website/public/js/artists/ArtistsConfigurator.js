@@ -2,17 +2,17 @@ import Artist from "./Artist.js";
 import { lushURL } from "../partials/loadContent.js";
 
 export default class ArtistsConfigurator {
-  constructor(artistLi, reqArtistDataSpec) {
+  constructor(artistLi, dataRequest) {
     this.artistLi = artistLi;
 
-    this.globalReqArtistData = {
+    this.defaultDataRequest = {
       artistID: document.location.pathname.split("/")[2] || null,
-      search: lushURL.get("search"),
+      search: this.processSearchQuery(lushURL.get("search")),
       genres: lushURL.get("genres"),
       limit: 140,
       offset: 0,
     };
-    this.reqArtistDataSpec = reqArtistDataSpec || this.globalReqArtistData;
+    this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
 
     this.artistsOl = document.getElementById("artists-ol");
     this.atTheBottom = true;
@@ -20,6 +20,10 @@ export default class ArtistsConfigurator {
 
     this.getArtists();
     this.applyWindowOnScroll();
+  }
+
+  processSearchQuery(searchQuery) {
+    return searchQuery?.replace('"', '\\"');
   }
 
   outputsize(imageWrapper) {
@@ -35,7 +39,7 @@ export default class ArtistsConfigurator {
       xhr.open("POST", "/artistsData", true);
       xhr.setRequestHeader("Content-Type", "application/json");
 
-      xhr.send(JSON.stringify(this.reqArtistDataSpec));
+      xhr.send(JSON.stringify(this.dataRequest));
 
       xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
@@ -56,12 +60,12 @@ export default class ArtistsConfigurator {
     if (data.status === 200) {
       if (returnedRows) {
         for (const artist of data.artists) {
-          const artistClass = new Artist(this.artistLi, artist),
-            artistLi = artistClass.artistLi,
-            imageWrapper = artistClass.imageWrapper;
+          const artistClass = new Artist(this.artistLi, artist);
+          const artistLi = artistClass.artistLi;
+          const imageWrapper = artistClass.imageWrapper;
           this.artistsOl.appendChild(artistLi);
 
-          const reqImageBlob = { blobID: artist.blob_id };
+          const reqImageBlob = { blobID: artist.artistimage_blob_id };
           this.fetchBlob(reqImageBlob, imageWrapper);
 
           this.outputsize(imageWrapper);
@@ -73,7 +77,7 @@ export default class ArtistsConfigurator {
 
         // window.scroll(0, document.body.scrollHeight);
 
-        if (returnedRows === this.reqArtistDataSpec.limit) {
+        if (returnedRows === this.dataRequest.dataRequest.limit) {
           this.atTheBottom = false;
         }
       }
@@ -131,8 +135,8 @@ export default class ArtistsConfigurator {
       ) {
         this.atTheBottom = true;
 
-        this.globalReqArtistData.offset += this.globalReqArtistData.limit;
-        this.getArtists(this.artistLi);
+        this.defaultDataRequest.offset += this.defaultDataRequest.limit;
+        this.getArtists();
       }
     };
   }

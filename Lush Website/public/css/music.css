@@ -184,9 +184,17 @@
   z-index: 1;
   text-decoration: none;
   color: black;
-  background-color: rgb(177 205 255);
+  background-color: rgb(255, 255, 255);
   border: 1px solid rgb(189, 189, 189);
   border-radius: 2.5px;
+}
+
+#audios-ol .genres.colored .genre {
+  border: 0px;
+}
+
+#audios-ol .genres.white-theme .genre {
+  color: rgb(255, 255, 255);
 }
 
 #audios-ol .genres .genre:last-child {
@@ -194,7 +202,7 @@
 }
 
 #audios-ol .genres .genre:hover {
-  background-color: rgb(177 205 255);
+  background-color: rgb(189, 189, 189);
 }
 
 .audio-hud {
@@ -230,27 +238,6 @@
 
 .time-slash {
   margin: 0 3px;
-}
-
-.progress-bar {
-  display: none;
-  grid-column: 1 / 3;
-  width: 100%;
-  height: 5px;
-  margin: 8px 0 3px;
-  border-radius: 2.5px;
-  color: lightblue;
-  background-color: rgba(116, 116, 116, 0.322);
-  z-index: 2;
-}
-
-.progress-bar::-webkit-progress-value {
-  border-radius: 2.5px;
-  background-color: rgb(102, 102, 102);
-}
-
-.progress-bar::-webkit-progress-bar {
-  background-color: rgba(216, 216, 216, 0);
 }
 
 .audio-li .right-tab {

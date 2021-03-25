@@ -4,7 +4,7 @@
   column-gap: 50px;
   width: 100%;
   height: 40px;
-  z-index: 2;
+  z-index: 3;
   background-color: rgb(255, 255, 255);
   padding: 0px 35px;
 }
@@ -29,8 +29,12 @@
   cursor: pointer;
 }
 
-#current-audio:hover {
-  background-color: rgb(235, 235, 235);
+#header.no-color #current-audio:hover {
+  background-color: rgb(238, 238, 238);
+}
+
+#current-audio.playing .play-button {
+  background-image: url("/public/content/icons/pause.svg");
 }
 
 #header .audio-main {
@@ -94,7 +98,23 @@
 
 #header .progress-bar {
   display: block;
+  grid-column: 1 / 3;
+  width: 100%;
+  height: 5px;
   margin: 0px;
+  border-radius: 2.5px;
+  color: lightblue;
+  background-color: rgba(116, 116, 116, 0.322);
+  z-index: 2;
+}
+
+.progress-bar::-webkit-progress-value {
+  border-radius: 2.5px;
+  background-color: rgb(102, 102, 102);
+}
+
+.progress-bar::-webkit-progress-bar {
+  background-color: rgba(216, 216, 216, 0);
 }
 
 #pages-container {
@@ -139,4 +159,24 @@
   position: relative;
   top: 50%;
   transform: translateY(-50%);
+}
+
+#header.white-theme #logo,
+#header.white-theme a > div,
+#header.white-theme .artists,
+#header.white-theme .artists > a,
+#header.white-theme .title {
+  color: rgb(255, 255, 255);
+}
+
+#header.white-theme button {
+  filter: invert(1);
+}
+
+#header.white-theme .progress-bar::-webkit-progress-value {
+  background-color: rgb(207, 207, 207);
+}
+
+#header.white-theme .progress-bar::-webkit-progress-bar {
+  background-color: rgb(128, 128, 128);
 }

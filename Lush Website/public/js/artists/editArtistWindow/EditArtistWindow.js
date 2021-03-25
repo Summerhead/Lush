@@ -9,6 +9,11 @@ export default class EditArtistWindow {
       "#edit-artist-window"
     );
     this.titleInput = editArtistWindowContainer.querySelector(".title>.inputs");
+    this.genresInputs = editArtistWindowContainer.querySelector(
+      ".genres>.inputs"
+    );
+    this.genreDropdowns = [];
+    this.addGenreButton = editArtistWindowContainer.querySelector(".add-genre");
     this.closeButton = editArtistWindowContainer.querySelector(".close-button");
     this.submitButton = editArtistWindowContainer.querySelector(
       ".submit-button"
@@ -21,7 +26,7 @@ export default class EditArtistWindow {
     );
     this.fileInput = editArtistWindowContainer.querySelector(".file-input");
 
-    this.artistLi;
+    this.artist;
     this.artistID;
     this.artistName;
     this.image;
@@ -36,11 +41,11 @@ export default class EditArtistWindow {
     this.editArtistWindowBackground.addEventListener("click", this.hide);
 
     this.submitButton.addEventListener("click", this.sendChanges);
-    // this.addArtistButton.addEventListener("click", this.addArtist);
+    this.addGenreButton.addEventListener("click", this.addGenre);
   }
 
   resetAttributes() {
-    this.artistLi = null;
+    this.artist = null;
     this.artistID = null;
     this.artistName = null;
     this.image = null;
@@ -64,66 +69,92 @@ export default class EditArtistWindow {
       .prepend(this.editArtistWindowContainer);
   }
 
-  open(artistLi) {
-    this.artistLi = artistLi;
-    this.artistID = artistLi?.getAttribute("data-artist-id") || null;
+  open(artist, imageWrapper) {
+    this.artist = artist;
 
     const inputText = document.createElement("input");
     inputText.setAttribute("type", "text");
-    this.artistName = artistLi
-      ? artistLi.getAttribute("data-artist-name")
-      : null;
-    inputText.value = this.artistName;
+    inputText.value = this.artist?.artist_name || null;
     this.titleInput.appendChild(inputText);
 
-    if (artistLi) {
-      if (artistLi.querySelector(".image-wrapper").style.backgroundImage) {
+    if (this.artist) {
+      if (imageWrapper.style.backgroundImage) {
         this.imageWrapper.style.height = "250px";
       } else {
         this.imageWrapper.style.height = "0px";
       }
-      this.imageWrapper.style.backgroundImage = artistLi.querySelector(
-        ".image-wrapper"
-      ).style.backgroundImage;
+      this.imageWrapper.style.backgroundImage =
+        imageWrapper.style.backgroundImage;
     } else {
       this.imageWrapper.style.height = "0px";
       this.imageWrapper.style.backgroundImage = "";
     }
 
+    const genreAttributes = this.artist?.genres;
+    genreAttributes.forEach((genre) => {
+      const genreDiv = document.createElement("div");
+      genreDiv.classList.add("genre");
+
+      const input = document.createElement("input");
+      input.setAttribute("type", "text");
+
+      const { genre_id, genre_name } = genre;
+      input.value = genre_name;
+      input.setAttribute("data-genre-id", genre_id);
+      input.addEventListener("focus", this.toggleDropdown);
+      input.addEventListener("keyup", this.sendGenreSearchRequest);
+
+      const removeGenreButton = document.createElement("button");
+      removeGenreButton.innerHTML = "-";
+      removeGenreButton.addEventListener("click", this.removeParentNode);
+
+      const dropdown = document.createElement("div");
+      dropdown.classList.add("dropdown");
+      dropdown.classList.add("hidden");
+
+      genreDiv.appendChild(input);
+      genreDiv.appendChild(removeGenreButton);
+      genreDiv.appendChild(dropdown);
+
+      this.genresInputs.appendChild(genreDiv);
+    });
+
+    this.getGenres();
+
     this.editArtistWindowContainer.style.display = "block";
   }
 
-  sendSearchRequest = (event) => {
+  sendGenreSearchRequest = (event) => {
     event.target.parentElement.querySelector(".dropdown").textContent = "";
-    this.getArtists(event.target.value);
+    this.getGenres(event.target.value);
   };
 
-  getArtists(artistName) {
+  getGenres(genreName) {
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/artistsForDropdown", true);
+    xhr.open("POST", "/genresData", true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = () => {
       if (xhr.readyState == 4 && xhr.status == 200) {
         const response = JSON.parse(xhr.response);
         console.log(response);
 
-        this.editArtistWindow
-          .querySelectorAll(".dropdown")
-          .forEach((dropdown) => {
-            response.artists.forEach((artist) => {
-              const artistP = document.createElement("p");
-              artistP.setAttribute("data-artist-id", artist.id);
-              artistP.innerText = artist.name;
-              artistP.addEventListener("click", this.setArtist);
-              dropdown.appendChild(artistP);
-            });
+        this.genreDropdowns = this.editArtistWindowContainer.querySelectorAll(
+          ".genre>.dropdown"
+        );
+        this.genreDropdowns.forEach((dropdown) => {
+          response.genres.forEach((genre) => {
+            const genreP = document.createElement("p");
+            genreP.setAttribute("data-genre-id", genre.genre_id);
+            genreP.innerText = genre.genre_name;
+            genreP.addEventListener("click", this.setGenre);
+            dropdown.appendChild(genreP);
           });
+        });
       }
     };
 
-    const dataJSON = { artistName: artistName };
-
-    xhr.send(JSON.stringify(dataJSON));
+    const dataRequest = { genreName: genreName };
+    xhr.send(JSON.stringify(dataRequest));
   }
 
   toggleDropdown(event) {
@@ -144,6 +175,20 @@ export default class EditArtistWindow {
       .setAttribute(
         "data-artist-id",
         event.target.getAttribute("data-artist-id")
+      );
+
+    event.target.parentElement.classList.add("hidden");
+  }
+
+  setGenre(event) {
+    event.target.closest(".genre").querySelector("input").value =
+      event.target.innerText;
+    event.target
+      .closest(".genre")
+      .querySelector("input")
+      .setAttribute(
+        "data-genre-id",
+        event.target.getAttribute("data-genre-id")
       );
 
     event.target.parentElement.classList.add("hidden");
@@ -177,34 +222,63 @@ export default class EditArtistWindow {
   }
 
   sendChanges = async () => {
-    // return new Promise((resolve, reject) => {
-    var xhr = new XMLHttpRequest();
-    var fd = new FormData();
-    this.artistName = this.titleInput.querySelector("input").value;
+    this.genres = [];
+    this.artist.artist_name = this.titleInput.querySelector("input").value;
+    this.genresInputs.querySelectorAll("input").forEach((input) => {
+      this.genres.push(input.getAttribute("data-genre-id"));
+    });
+
+    const xhr = new XMLHttpRequest();
+    const fd = new FormData();
+    const artistMetadata = {
+      artistID: this.artist.artist_id,
+      artistName: this.artist.artist_name,
+      genres: this.genres,
+    };
 
     xhr.open("POST", "/submitArtist", true);
     xhr.overrideMimeType("multipart/form-data");
     xhr.onreadystatechange = () => {
       if (xhr.readyState == 4 && xhr.status == 200) {
         const response = JSON.parse(xhr.response);
-        console.log("Response edit:", response);
-
-        // this.artistLi.querySelector(".audio-header>.title").innerText =
-        //   response.audio.title;
+        console.log("Response:", response);
       }
     };
 
-    const json = {
-      artistID: this.artistID,
-      artistName: this.artistName,
-    };
-
-    fd.append("artistMetadata", JSON.stringify(json));
+    fd.append("artistMetadata", JSON.stringify(artistMetadata));
     fd.append("image", this.image);
 
     xhr.send(fd);
 
     this.hide();
-    // });
+  };
+
+  addGenre = () => {
+    const genreDiv = document.createElement("div");
+    genreDiv.classList.add("genre");
+
+    const input = document.createElement("input");
+    input.setAttribute("type", "text");
+    input.addEventListener("focus", this.toggleDropdown);
+    input.addEventListener("keyup", this.sendGenreSearchRequest);
+
+    const dropdown = document.createElement("div");
+    dropdown.classList.add("dropdown");
+    dropdown.classList.add("hidden");
+
+    const removeGenreButton = document.createElement("button");
+    removeGenreButton.innerHTML = "-";
+    removeGenreButton.addEventListener("click", this.removeParentNode);
+
+    genreDiv.appendChild(input);
+    genreDiv.appendChild(removeGenreButton);
+    genreDiv.appendChild(dropdown);
+
+    this.genresInputs.appendChild(genreDiv);
+    this.getGenres();
+  };
+
+  removeParentNode = (event) => {
+    event.target.parentNode.remove();
   };
 }

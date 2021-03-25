@@ -1,19 +1,19 @@
 import Playlist from "./Playlist.js";
 
 export default class PlaylistsConfigurator {
-  constructor(playlistLi, reqPlaylistDataSpec) {
+  constructor(playlistLi, dataRequest) {
     this.playlistLi = playlistLi;
 
     const URLSParams = new URLSearchParams(location.search);
-    this.globalReqPlaylistData = {
+    this.defaultDataRequest = {
       playlistID: document.location.pathname.split("/")[2] || null,
       search: URLSParams.get("search"),
       genres: URLSParams.get("genres"),
       limit: 140,
       offset: 0,
     };
-    this.reqPlaylistDataSpec =
-      reqPlaylistDataSpec || this.globalReqPlaylistData;
+    this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
+    console.log(this.dataRequest);
 
     this.playlistsOl = document.getElementById("playlists-ol");
     this.atTheBottom = true;
@@ -35,7 +35,7 @@ export default class PlaylistsConfigurator {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/playlistsData", true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send(JSON.stringify(this.reqPlaylistDataSpec));
+    xhr.send(JSON.stringify(this.dataRequest));
 
     xhr.onreadystatechange = () => {
       if (xhr.readyState == 4 && xhr.status == 200) {
@@ -62,7 +62,7 @@ export default class PlaylistsConfigurator {
               );
             }
 
-            if (returnedRows === this.reqPlaylistDataSpec.limit) {
+            if (returnedRows === this.dataRequest.dataRequest.limit) {
               this.atTheBottom = false;
             }
           }
@@ -122,7 +122,7 @@ export default class PlaylistsConfigurator {
       ) {
         this.atTheBottom = true;
 
-        this.globalReqPlaylistData.offset += this.globalReqPlaylistData.limit;
+        this.defaultDataRequest.offset += this.defaultDataRequest.limit;
         this.getPlaylists(this.playlistLi);
       }
     };

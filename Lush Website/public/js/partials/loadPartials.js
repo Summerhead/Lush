@@ -1,4 +1,4 @@
-import loadHeader from "../header/loadHeader.js";
+import { loadHeader } from "../header/loadHeader.js";
 // import loadFooter from "./loadFooter.js";
 import showPage from "./loadContent.js";
 

@@ -24,8 +24,8 @@ export default class AudioSearchBar {
       (keyCode > 145 && keyCode < 255);
     const isClearingBlankInput = (keyCode) =>
       !this.prevInput && (keyCode === 8 || keyCode === 46);
-    this.keyUpCondition = (keyCode) =>
-      keyCodesRangeRule(keyCode) && !isClearingBlankInput(keyCode);
+    this.keyUpCondition = (keyCode) => keyCodesRangeRule(keyCode);
+    // && !isClearingBlankInput(keyCode);
 
     this.prevInput;
     this.checkInput;
@@ -98,10 +98,10 @@ export default class AudioSearchBar {
       this.audiosOl.textContent = "";
 
       audiosConfigurator.atTheBottom = true;
-      audiosConfigurator.dataRequest.genres = audiosConfigurator.processGenresQuery(
+      audiosConfigurator.dataRequest.dataRequest.genres = audiosConfigurator.processGenresQuery(
         lushURL.get("genres")
       );
-      audiosConfigurator.dataRequest.offset = 0;
+      audiosConfigurator.dataRequest.dataRequest.offset = 0;
       Promise.resolve(audiosConfigurator.getAudios()).then(() => {
         clearInterval(this.checkInput);
         this.checkInput = null;
@@ -126,13 +126,13 @@ export default class AudioSearchBar {
 
   sendShuffleRequest() {
     audiosConfigurator.atTheBottom = true;
-    audiosConfigurator.dataRequest.offset = 0;
+    audiosConfigurator.dataRequest.dataRequest.offset = 0;
 
     if (this.shuffleButton.classList.contains("checked")) {
-      audiosConfigurator.dataRequest.shuffle = true;
+      audiosConfigurator.dataRequest.dataRequest.shuffle = true;
       lushURL.insert("shuffle", 1);
     } else {
-      audiosConfigurator.dataRequest.shuffle = false;
+      audiosConfigurator.dataRequest.dataRequest.shuffle = false;
       lushURL.delete("shuffle");
     }
 
@@ -156,8 +156,8 @@ export default class AudioSearchBar {
       this.audiosOl.textContent = "";
 
       audiosConfigurator.atTheBottom = true;
-      audiosConfigurator.dataRequest.search = this.searchBar.value;
-      audiosConfigurator.dataRequest.offset = 0;
+      audiosConfigurator.dataRequest.dataRequest.search = this.searchBar.value;
+      audiosConfigurator.dataRequest.dataRequest.offset = 0;
       Promise.resolve(audiosConfigurator.getAudios()).then(() => {
         clearInterval(this.checkInput);
         this.checkInput = null;

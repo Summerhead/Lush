@@ -4,7 +4,7 @@
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.281);
-  z-index: 3;
+  z-index: 4;
 }
 
 #edit-artist-window-background {
@@ -51,6 +51,12 @@
 
 #edit-artist-window .content > div {
   margin-bottom: 30px;
+}
+
+#edit-artist-window .content button {
+  width: 40px;
+  height: 25px;
+  border: 1px solid rgb(141, 141, 141);
 }
 
 #edit-artist-window .content > div:last-child {

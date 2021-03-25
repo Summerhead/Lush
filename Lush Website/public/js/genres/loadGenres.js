@@ -1,5 +1,5 @@
 import GenresConfigurator from "./GenresConfigurator.js";
-import { resetHeaderStyles } from "../partials/resetHeaderStyles.js";
+import { header } from "../header/loadHeader.js";
 
 var genresConfigurator;
 
@@ -8,7 +8,7 @@ export const loadGenres = async () => {
     "edit-audio-window-container"
   );
 
-  resetHeaderStyles();
+  header.setDefaultStyle();
 
   genresConfigurator = new GenresConfigurator();
 };

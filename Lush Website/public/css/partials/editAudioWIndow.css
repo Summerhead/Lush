@@ -4,7 +4,7 @@
   width: 100vw;
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.281);
-  z-index: 3;
+  z-index: 4;
 }
 
 #edit-audio-window-background {
@@ -71,39 +71,27 @@
 
 #edit-audio-window .content input {
   height: 25px;
+  margin-right: 5px;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 0.9em;
   border: 1px solid rgb(141, 141, 141);
 }
 
-#edit-audio-window .content input:last-child {
-  margin-bottom: 0;
-}
-
 #edit-audio-window .content .inputs > div {
   display: grid;
   grid-template-columns: auto 40px;
-  padding: 8px 0;
+  padding-bottom: 8px;
 }
 
-#edit-audio-window .content .artist > button {
-  width: 40px;
-  border: 1px solid rgb(141, 141, 141);
-}
-
-#edit-audio-window .artists input {
-  margin-right: 5px;
-}
-
-.sumbit-button-container {
-  display: flex;
-  flex-direction: row-reverse;
-}
-
-#edit-audio-window .add-artist {
+#edit-audio-window .content button {
   width: 40px;
   height: 25px;
   border: 1px solid rgb(141, 141, 141);
+}
+
+.add-button-container {
+  display: flex;
+  flex-direction: row-reverse;
 }
 
 #edit-audio-window .submit-button {

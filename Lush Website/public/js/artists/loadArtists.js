@@ -1,7 +1,7 @@
 import ArtistsConfigurator from "./ArtistsConfigurator.js";
 import loadArtistTemplate from "./loadArtistTemplate.js";
 import loadEditArtistWindow from "./editArtistWindow/loadEditArtistWindow.js";
-import { resetHeaderStyles } from "../partials/resetHeaderStyles.js";
+import { header } from "../header/loadHeader.js";
 import EditArtistWindow from "./editArtistWindow/EditArtistWindow.js";
 
 var artistsConfigurator;
@@ -12,7 +12,7 @@ export const loadArtists = async () => {
     "edit-artist-window-container"
   );
 
-  resetHeaderStyles();
+  header.setDefaultStyle();
 
   await Promise.all([
     loadArtistTemplate(),

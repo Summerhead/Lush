@@ -14,7 +14,8 @@ export default class ArtistSearchBar {
 
     const keyCodesRangeRule = (keyCode) =>
       keyCode < 16 ||
-      (keyCode > 20 && keyCode < 33) ||
+      (keyCode > 20 && keyCode < 27) ||
+      (keyCode > 27 && keyCode < 33) ||
       (keyCode > 45 && keyCode < 91) ||
       (keyCode > 145 && keyCode < 255);
     const clearingBlankInput = (keyCode) =>
@@ -69,8 +70,8 @@ export default class ArtistSearchBar {
       this.artists.textContent = "";
 
       artistsConfigurator.atTheBottom = true;
-      artistsConfigurator.reqArtistDataSpec.search = this.searchBar.value;
-      artistsConfigurator.reqArtistDataSpec.offset = 0;
+      artistsConfigurator.dataRequest.dataRequest.search = this.searchBar.value;
+      artistsConfigurator.dataRequest.dataRequest.offset = 0;
       Promise.resolve(artistsConfigurator.getArtists()).then(() => {
         clearInterval(this.checkInput);
         this.checkInput = null;
@@ -78,7 +79,8 @@ export default class ArtistSearchBar {
     } else if (!this.checkInput) {
       this.checkInput = setInterval(() => {
         if (
-          artistsConfigurator.reqArtistDataSpec.search !== this.searchBar.value
+          artistsConfigurator.dataRequest.dataRequest.search !==
+          this.searchBar.value
         ) {
           this.configureRequest();
         }

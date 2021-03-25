@@ -1,7 +1,7 @@
 import AudiosConfigurator from "./AudiosConfigurator.js";
 import loadAudioTemplate from "./loadAudioTemplate.js";
 import loadEditAudioWindow from "./editAudioWindow/loadEditAudioWindow.js";
-import { resetHeaderStyles } from "../partials/resetHeaderStyles.js";
+import { header } from "../header/loadHeader.js";
 import EditAudioWindow from "./editAudioWindow/EditAudioWindow.js";
 
 var audiosConfigurator;
@@ -12,7 +12,7 @@ export const loadAudios = async () => {
     "edit-audio-window-container"
   );
 
-  resetHeaderStyles();
+  header.setDefaultStyle();
 
   await Promise.all([
     loadAudioTemplate(),

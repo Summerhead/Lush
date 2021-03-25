@@ -4,19 +4,14 @@ const {
   resolveQuery,
   constructWhereClauseAnd,
   insertArtist,
+  artistsGroupBy,
 } = require("../general.js");
 
-router.post("/artistsData", async (req, res, next) => {
-  // console.log("Body:", req.body);
+router.post("/artistsForDropdown", async function (req, res, next) {
+  console.log("Body:", req.body);
 
-  const params = {
-    artistID: req.body.artistID,
-    search: req.body.search?.replace('"', '\\"'), // Need to fix character escaping
-    limit: req.body.limit,
-    offset: req.body.offset,
-  };
-
-  const result = await getArtistsData(params),
+  const artistName = req.body.artistName,
+    result = await getArtists(artistName),
     artists = result.data?.map((artist) => ({ ...artist })) || [],
     status = result.error || 200,
     resJSON = {
@@ -27,9 +22,32 @@ router.post("/artistsData", async (req, res, next) => {
   res.send(resJSON);
 });
 
+router.post("/artistsData", async (req, res, next) => {
+  // console.log("Body:", req.body);
+
+  const dataRequest = req.body.dataRequest;
+  const result = await getArtistsData(dataRequest);
+
+  const status = result.error || 200;
+  var artists = result.data?.map((artist) => ({ ...artist })) || [];
+  artists = artistsGroupBy(artists, "artist_id");
+  artists = Array.from(artists.values());
+  artists.forEach((artist) => {
+    artist.genres = Object.values(artist.genres);
+    artist.genres.sort((a, b) => a.genre_position - b.genre_position);
+  });
+
+  const artistData = {
+    status: status,
+    artists: artists,
+  };
+
+  res.send(artistData);
+});
+
 router.post("/imageBlob", async (req, res, next) => {
-  const blobID = req.body.blobID,
-    audioData = await fetchImageBlob(blobID);
+  const blobID = req.body.blobID;
+  const audioData = await fetchImageBlob(blobID);
 
   res.write(audioData.blob);
   res.end();
@@ -44,6 +62,34 @@ async function insertArtistImageBlob(image) {
     };
 
   return await resolveQuery(query, values);
+}
+
+async function getArtists(artistName) {
+  var whereArtist = "";
+
+  if (artistName) {
+    artistName = artistName
+      .replace("\\", "\\\\\\\\")
+      .replace("'", "\\'")
+      .replace('"', '\\"')
+      .replace("%", "\\%");
+    // Need to fix character escaping
+    // console.log(artistName);
+
+    whereArtist = `
+    WHERE artist.name COLLATE utf8mb4_0900_ai_ci LIKE "%${artistName}%"
+    AND deleted = 0
+    `;
+  }
+
+  const query = `
+  SELECT id, name
+  FROM artist
+  ${whereArtist}
+  ORDER BY id DESC
+  ;`;
+
+  return await resolveQuery(query);
 }
 
 async function insertArtistImageData(blobID) {
@@ -111,7 +157,8 @@ async function getArtistsData({ artistID, search, limit, offset }) {
   const queryWhereClause = constructWhereClauseAnd(queryWhereClauses);
 
   const query = `
-  SELECT artist.id AS artist_id, name, blob_id
+  SELECT artist.id AS artist_id, artist.name AS artist_name, artistimage.blob_id AS artistimage_blob_id, 
+  genre.id AS genre_id, genre.name AS genre_name
   FROM (
     SELECT artist.id, name
     FROM artist
@@ -125,6 +172,16 @@ async function getArtistsData({ artistID, search, limit, offset }) {
   ON artist.id = image_artist.artist_id
   LEFT JOIN artistimage
   ON artistimage.id = image_artist.image_id
+  
+  LEFT JOIN audio_artist 
+  ON artist.id = audio_artist.artist_id
+  LEFT JOIN audio 
+  ON audio_artist.audio_id = audio.id
+  
+  LEFT JOIN audio_genre 
+  ON audio.id = audio_genre.audio_id
+  LEFT JOIN genre 
+  ON audio_genre.genre_id = genre.id
   ;`;
 
   // console.log(query);
@@ -133,11 +190,11 @@ async function getArtistsData({ artistID, search, limit, offset }) {
 }
 
 async function fetchImageBlob(blobID) {
-  const result = await getArtistImageBlob(blobID),
-    audioData = {
-      status: result.error || 200,
-      blob: result.data[0]?.image || new Uint8Array(0),
-    };
+  const result = await getArtistImageBlob(blobID);
+  const audioData = {
+    status: result.error || 200,
+    blob: result.data[0]?.image || new Uint8Array(0),
+  };
 
   return audioData;
 }
@@ -153,14 +210,12 @@ async function getArtistImageBlob(blobID) {
 }
 
 router.post("/submitArtist", async function (req, res) {
-  console.log("Body:", req.body);
-  console.log("Body:", req.files);
-
   const artistMetadata = JSON.parse(req.body.artistMetadata);
   var artistID = artistMetadata.artistID;
   const artistName = artistMetadata.artistName.replace('"', '\\"');
   // Need to improve character escaping
   const image = req.files?.image;
+  const genres = artistMetadata.genres;
 
   if (artistID) {
     await editArtist(artistID, artistName);
@@ -174,6 +229,11 @@ router.post("/submitArtist", async function (req, res) {
     await insertImageArtist(imageID, artistID);
   }
 
+  await deleteAudioGenreRelations(artistID);
+  genres.forEach(async (genreID, index) => {
+    await setGenre(artistID, genreID, index + 1);
+  });
+
   res.send({
     status: 200,
     message: "File uploaded.",
@@ -182,12 +242,28 @@ router.post("/submitArtist", async function (req, res) {
   });
 });
 
+async function deleteAudioGenreRelations(artistID) {
+  const query = `
+  CALL DELETE_AUDIO_GENRE_RELATIONS(${artistID})
+  ;`;
+
+  return await resolveQuery(query);
+}
+
 async function editArtist(artistID, artistName) {
   const query = `
   UPDATE artist
   SET name = "${artistName}"
   WHERE id = ${artistID}
   ;`;
+
+  return await resolveQuery(query);
+}
+
+async function setGenre(artistID, genreID, genrePosition) {
+  const query = `
+  CALL INSERT_AUDIO_TAG_RELATIONS(${artistID}, ${genreID}, ${genrePosition});
+  `;
 
   return await resolveQuery(query);
 }

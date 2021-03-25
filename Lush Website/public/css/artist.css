@@ -45,3 +45,7 @@
   z-index: 2;
   cursor: default;
 }
+
+#artist-pic.white-theme #artist-name {
+  color: rgb(255, 255, 255);
+}

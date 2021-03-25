@@ -8,21 +8,37 @@ export default class AudiosConfigurator {
   constructor(audioLi, dataRequest) {
     this.audioLi = audioLi;
     this.defaultDataRequest = {
-      artistID: document.location.pathname.split("/")[2],
+      artistID: this.processArtistID(),
+      playlistID: this.processPlaylistID(),
       search: lushURL.get("search"),
       genres: this.processGenresQuery(lushURL.get("genres")),
       shuffle: this.processShuffleQuery(lushURL.get("shuffle")),
       limit: 100,
       offset: 0,
     };
-    this.dataRequest = dataRequest || this.defaultDataRequest;
+    this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
 
     this.audiosOl = document.getElementById("audios-ol");
     this.atTheBottom = true;
     this.audiosRequestResolved = false;
+    this.rgb;
 
     this.getAudios();
     this.applyWindowOnScroll();
+  }
+
+  processArtistID() {
+    if (lushURL.currentPage === "artist") {
+      return location.pathname.split("/")[2];
+    }
+    return null;
+  }
+
+  processPlaylistID() {
+    if (lushURL.currentPage === "playlist") {
+      return location.pathname.split("/")[2];
+    }
+    return null;
   }
 
   processGenresQuery(genres) {
@@ -46,7 +62,7 @@ export default class AudiosConfigurator {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/audioData", true);
       xhr.setRequestHeader("Content-Type", "application/json");
-      xhr.send(JSON.stringify({ dataRequest: this.dataRequest }));
+      xhr.send(JSON.stringify(this.dataRequest));
 
       xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
@@ -95,7 +111,7 @@ export default class AudiosConfigurator {
           this.audiosOl.appendChild(audioLi);
         }
 
-        if (returnedRows === this.dataRequest.limit) {
+        if (returnedRows === this.dataRequest.dataRequest.limit) {
           this.atTheBottom = false;
         }
       }
@@ -105,7 +121,7 @@ export default class AudiosConfigurator {
   }
 
   transformCurrentAudio() {
-    if (Number.isInteger(Number(document.location.pathname.split("/")[2]))) {
+    if (lushURL.currentPage === "artist") {
       const currentAudioClass = audios.get(currentAudio);
       currentAudioClass.imageWrapper.removeAttribute("style");
       currentAudioClass.imageWrapper.classList.add("no-cover");
@@ -119,12 +135,14 @@ export default class AudiosConfigurator {
     xhr.open("POST", "/artistsData", true);
     xhr.setRequestHeader("Content-Type", "application/json");
 
-    const reqArtistDataSpec = {
-      artistID: reqImageBlob.artistID || null,
-      limit: 1,
-      offset: 0,
+    const dataRequest = {
+      dataRequest: {
+        artistID: reqImageBlob.artistID || null,
+        limit: 1,
+        offset: 0,
+      },
     };
-    xhr.send(JSON.stringify(reqArtistDataSpec));
+    xhr.send(JSON.stringify(dataRequest));
 
     xhr.onreadystatechange = () => {
       if (xhr.readyState == 4 && xhr.status == 200) {
@@ -136,7 +154,7 @@ export default class AudiosConfigurator {
         if (data.status === 200) {
           if (returnedRows) {
             for (const artist of data.artists) {
-              const reqImageBlob = { blobID: artist.blob_id };
+              const reqImageBlob = { blobID: artist.artistimage_blob_id };
               this.fetchBlob(reqImageBlob, imageWrapper);
             }
           }
@@ -189,36 +207,54 @@ export default class AudiosConfigurator {
 
   waitRGB() {
     const waitRGB = setInterval(() => {
+      const genresEls = [...document.querySelectorAll(".audio-li .genres")];
       const genreEls = [...document.querySelectorAll(".audio-li .genre")];
 
       if (rgb && bw) {
+        this.rgb = rgb;
         const { r, g, b } = rgb;
+        genresEls.forEach((tagEl) => {
+          tagEl.classList.remove("no-color");
+          tagEl.classList.add("colored", bw);
+        });
         genreEls.forEach((tagEl) => {
           tagEl.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
-          tagEl.style.border = "0px";
-          tagEl.style.color = bw;
+          tagEl.r = r;
+          tagEl.b = b;
+          tagEl.g = g;
+          tagEl.addEventListener("mouseover", this.setStyle);
+          tagEl.addEventListener("mouseout", this.removeStyle);
         });
       }
 
       if (rgb === "" && bw === "") {
         genreEls.forEach((tagEl) => {
-          tagEl.style.backgroundColor = "white";
-          tagEl.style.border = "1px solid rgb(197, 197, 197)";
-          tagEl.style.color = "black";
+          tagEl.removeAttribute("style");
         });
       }
 
       if (location.pathname === "/music") {
         clearInterval(waitRGB);
 
-        const genreEls = [...document.querySelectorAll(".audio-li .genre")];
+        genresEls.forEach((tagEl) => {
+          tagEl.classList.remove("colored", "white-theme", "black-theme");
+        });
         genreEls.forEach((tagEl) => {
-          tagEl.style.backgroundColor = "white";
-          tagEl.style.border = "1px solid rgb(197, 197, 197)";
-          tagEl.style.color = "black";
+          tagEl.removeAttribute("style");
+          tagEl.removeEventListener("mouseover", this.setStyle);
+          tagEl.removeEventListener("mouseout", this.removeStyle);
         });
       }
     }, 10);
+  }
+
+  setStyle(event) {
+    const { r, g, b } = event.target;
+    event.target.style.backgroundImage = `linear-gradient(rgb(${r}, ${g}, ${b}), rgb(${r}, ${g}, ${b}))`;
+  }
+
+  removeStyle(event) {
+    event.target.style.backgroundImage = "";
   }
 
   applyWindowOnScroll() {

@@ -1,6 +1,9 @@
 export default class LushURL extends URLSearchParams {
   constructor(search) {
     super(search);
+
+    this.currentPage;
+    this.setCurrentPage();
   }
 
   insert(key, value) {
@@ -60,4 +63,17 @@ export default class LushURL extends URLSearchParams {
     const href = location.pathname + search;
     history.pushState({ href: href }, "", href);
   }
+
+  setCurrentPage() {
+    const pathnameArray = location.pathname.split("/");
+    var [_, firstFolder, secondFolder] = pathnameArray;
+    if (Number.isInteger(Number(secondFolder))) {
+      firstFolder = firstFolder.slice(0, -1);
+    }
+    this.currentPage = firstFolder;
+  }
+
+  // getCurrentPage() {
+  //   return this.currentPage;
+  // }
 }

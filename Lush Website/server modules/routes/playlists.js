@@ -5,21 +5,15 @@ const { resolveQuery, constructWhereClauseAnd } = require("../general.js");
 router.post("/playlistsData", async function (req, res, next) {
   console.log("Body:", req.body);
 
-  const params = {
-    playlistID: req.body.playlistID,
-    search: req.body.search?.replace('"', '\\"'), // Need to fix character escaping
-    limit: req.body.limit,
-    offset: req.body.offset,
-  };
+  const dataRequest = req.body.dataRequest;
 
-  const result = await getPlaylists(params),
+  const result = await getPlaylists(dataRequest),
     playlists = result.data?.map((playlist) => ({ ...playlist })) || [],
     status = result.error || 200,
     playlistsData = {
       status: status,
       playlists: playlists,
     };
-  console.log(playlists);
 
   res.send(playlistsData);
 });

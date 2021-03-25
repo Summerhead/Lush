@@ -2,10 +2,11 @@ const express = require("express");
 const router = express.Router();
 const { resolveQuery } = require("../general.js");
 
-router.get("/genresData", async function (req, res, next) {
+router.post("/genresData", async function (req, res, next) {
   console.log("Body:", req.body);
 
-  const result = await getGenres(),
+  const genreName = req.body.genreName;
+  const result = await getGenres(genreName),
     status = result.error || 200,
     genresData = {
       status: status,
@@ -15,16 +16,41 @@ router.get("/genresData", async function (req, res, next) {
   res.send(genresData);
 });
 
-async function getGenres() {
+async function getGenres(genreName) {
+  // const query = `
+  // SELECT genre.id, genre.name, count(audio.id) AS audios_count
+  // FROM genre
+
+  // LEFT JOIN audio_genre
+  // ON genre.id = audio_genre.genre_id
+  // LEFT JOIN audio
+  // ON audio.id = audio_genre.audio_id
+
+  // GROUP BY genre.id
+  // ORDER BY genre.name
+  // ;`;
+
+  var whereGenre = "";
+
+  if (genreName) {
+    genreName = genreName
+      .replace("\\", "\\\\\\\\")
+      .replace("'", "\\'")
+      .replace('"', '\\"')
+      .replace("%", "\\%");
+    // Need to fix character escaping
+    // console.log(artistName);
+
+    whereGenre = `
+    WHERE genre.name COLLATE utf8mb4_0900_ai_ci LIKE "%${genreName}%"
+    `;
+  }
+
   const query = `
-  SELECT genre.id, genre.name, count(audio.id) AS audios_count
+  SELECT genre.id AS genre_id, genre.name AS genre_name
   FROM genre
-  LEFT JOIN audio_genre 
-  ON genre.id = audio_genre.genre_id
-  LEFT JOIN audio
-  ON audio.id = audio_genre.audio_id
-  GROUP BY genre.id
-  ORDER BY genre.name
+  ${whereGenre}
+  ORDER BY genre.id
   ;`;
 
   return await resolveQuery(query);

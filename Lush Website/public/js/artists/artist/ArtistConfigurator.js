@@ -1,17 +1,18 @@
 import { currentAudio } from "../../audios/Audio.js";
+import { header } from "../../header/loadHeader.js";
 
 var rgb, bw;
 
 export default class ArtistConfigurator {
-  constructor(artistLi, reqArtistDataSpec) {
+  constructor(artistLi, dataRequest) {
     this.artistLi = artistLi;
 
-    this.globalReqArtistData = {
+    this.defaultDataRequest = {
       artistID: document.location.pathname.split("/")[2] || null,
       limit: 1,
       offset: 0,
     };
-    this.reqArtistDataSpec = reqArtistDataSpec || this.globalReqArtistData;
+    this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
 
     this.artistPic = document.getElementById("artist-pic");
     this.atTheBottomObject = { atTheBottom: false };
@@ -29,7 +30,7 @@ export default class ArtistConfigurator {
       ) {
         this.atTheBottomObject.atTheBottom = true;
 
-        this.globalReqArtistData.offset += this.globalReqArtistData.limit;
+        this.defaultDataRequest.offset += this.defaultDataRequest.limit;
         this.getArtist();
       }
     };
@@ -39,7 +40,7 @@ export default class ArtistConfigurator {
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/artistsData", true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send(JSON.stringify(this.reqArtistDataSpec));
+    xhr.send(JSON.stringify(this.dataRequest));
 
     xhr.onreadystatechange = () => {
       if (xhr.readyState == 4 && xhr.status == 200) {
@@ -51,18 +52,15 @@ export default class ArtistConfigurator {
         if (data.status === 200) {
           if (returnedRows) {
             for (const artist of data.artists) {
-              if (
-                !currentAudio ||
-                !currentAudio?.classList.contains("current")
-              ) {
-                document.title = artist.name;
+              if (!currentAudio?.classList.contains("current")) {
+                document.title = artist.artist_name;
               }
 
               const artistLi = this.constructArtist(artist);
               const imageWrapper = artistLi.querySelector("#image-wrapper");
               this.artistPic.appendChild(artistLi);
 
-              const reqImageBlob = { blobID: artist.blob_id };
+              const reqImageBlob = { blobID: artist.artistimage_blob_id };
               this.fetchBlob(reqImageBlob, imageWrapper);
             }
           }
@@ -121,7 +119,7 @@ export default class ArtistConfigurator {
           bw = "";
         }
 
-        img.onload = function () {
+        img.onload = () => {
           rgb = getAverageRGB(img);
           const { r, g, b } = rgb;
 
@@ -139,40 +137,44 @@ export default class ArtistConfigurator {
           // document.getElementById("header").style.background =
           //   "rgba(0, 0, 0, 0)";
 
-          document.getElementById(
-            "header"
-          ).style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+          header.header.classList.remove("border-bottom");
+          header.header.classList.remove("no-color");
+          header.header.classList.add("colored");
+          header.header.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+          header.setCurrentAudioMouseListeners(r, g, b);
 
           // document.getElementById("main").style.position = "absolute";
 
-          const brightness = Math.round(
-            (parseInt(r) * 299 + parseInt(g) * 587 + parseInt(b) * 114) / 1000
-          );
-          bw = brightness > 125 ? "black" : "white";
-          const op = bw === "black" ? "white" : "black";
+          document
+            .getElementById("artist-pic")
+            .classList.add(this.calcBrightness(r, g, b));
+
           const p = 0.7;
-          document.getElementById("artist-name").style.color = bw;
           document.getElementById(
             "artist-name"
           ).style.textShadow = `-${p}px -${p}px 0 rgb(${r}, ${g}, ${b}), ${p}px -${p}px 0 rgb(${r}, ${g}, ${b}), -${p}px ${p}px 0 rgb(${r}, ${g}, ${b}), ${p}px ${p}px 0 rgb(${r}, ${g}, ${b})`;
           // ).style.textShadow = `-0.5px -0.5px 0 ${op}, 0.5px -0.5px 0 ${op}, -0.5px 0.5px 0 ${op}, 0.5px 0.5px 0 ${op}`;
 
-          document
-            .querySelectorAll("#header a")
-            .forEach((a) => (a.style.color = bw));
-
-          // document
-          //   .querySelectorAll("#nav-bar a")
-          //   .forEach((a) => (a.style.color = "black"));
+          bw = this.calcBrightness(r, g, b);
+          header.header.classList.add(bw);
         };
       })
       .catch(console.error);
   }
 
+  calcBrightness(r, g, b) {
+    const brightness = Math.round(
+      (parseInt(r) * 299 + parseInt(g) * 587 + parseInt(b) * 114) / 1000
+    );
+    const bw = brightness > 125 ? "black-theme" : "white-theme";
+
+    return bw;
+  }
+
   constructArtist(artist) {
     const artistLiClone = this.artistLi.cloneNode(true);
 
-    artistLiClone.querySelector("#artist-name").innerText = artist.name;
+    artistLiClone.querySelector("#artist-name").innerText = artist.artist_name;
     // artistLiClone.querySelector(".artist-link").href += artist.artist_id;
 
     return artistLiClone;

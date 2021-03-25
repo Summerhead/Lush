@@ -1,7 +1,7 @@
 import PlaylistsConfigurator from "./PlaylistsConfigurator.js";
 import loadPlaylistTemplate from "./loadPlaylistTemplate.js";
 import loadEditArtistWindow from "./editPlaylistWindow/loadEditPlaylistWindow.js";
-import { resetHeaderStyles } from "../partials/resetHeaderStyles.js";
+import { header } from "../header/loadHeader.js";
 import EditPlaylistWindow from "./editPlaylistWindow/EditPlaylistWindow.js";
 
 var playlistsConfigurator;
@@ -12,7 +12,7 @@ export const loadPlaylists = async () => {
     "edit-playlist-window-container"
   );
 
-  resetHeaderStyles();
+  header.setDefaultStyle();
 
   await Promise.all([
     loadPlaylistTemplate(),

@@ -29,7 +29,7 @@ function executeQuery(query, values) {
   });
 }
 
-const groupBy = function (xs, key) {
+const audiosGroupBy = function (xs, key) {
   return xs.reduce(function (rv, x) {
     rv.get(x[key]) || rv.set(x[key], { artists: {}, genres: {} });
     rv.get(x[key]).audio_id = x.audio_id;
@@ -46,6 +46,24 @@ const groupBy = function (xs, key) {
       rv.get(x[key]).genres[x.genre_id] = {
         genre_id: x.genre_id,
         genre_name: x.genre_name,
+        position: x.genre_position,
+      };
+    }
+    return rv;
+  }, new Map());
+};
+
+const artistsGroupBy = function (xs, key) {
+  return xs.reduce(function (rv, x) {
+    rv.get(x[key]) || rv.set(x[key], { genres: {} });
+    rv.get(x[key]).artist_id = x.artist_id;
+    rv.get(x[key]).artist_name = x.artist_name;
+    rv.get(x[key]).artistimage_blob_id = x.artistimage_blob_id;
+    if (x.genre_id) {
+      rv.get(x[key]).genres[x.genre_id] = {
+        genre_id: x.genre_id,
+        genre_name: x.genre_name,
+        genre_position: x.genre_position,
       };
     }
     return rv;
@@ -75,7 +93,8 @@ function trimExtension(filename) {
 
 module.exports = {
   resolveQuery,
-  groupBy,
+  audiosGroupBy,
+  artistsGroupBy,
   insertArtist,
   constructWhereClauseAnd,
   constructWhereClauseOr,

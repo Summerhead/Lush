@@ -4,25 +4,10 @@ const {
   resolveQuery,
   constructWhereClauseAnd,
   constructWhereClauseOr,
-  groupBy,
+  audiosGroupBy,
   trimExtension,
   insertArtist,
 } = require("../general.js");
-
-router.post("/artistsForDropdown", async function (req, res, next) {
-  console.log("Body", req.body);
-
-  const artistName = req.body.artistName,
-    result = await getArtists(artistName),
-    artists = result.data?.map((artist) => ({ ...artist })) || [],
-    status = result.error || 200,
-    resJSON = {
-      status: status,
-      artists: artists,
-    };
-
-  res.send(resJSON);
-});
 
 router.post("/audioData", async function (req, res, next) {
   console.log("Body:", req.body);
@@ -109,16 +94,22 @@ router.post("/uploadAudio", async function (req, res, next) {
 router.patch("/editAudio", async function (req, res) {
   console.log("Body:", req.body);
 
-  const audioId = req.body.audioId,
-    title = req.body.title,
-    artists = req.body.artists;
+  const dataRequest = req.body.dataRequest;
+  const { audioId, title, artists, genres } = dataRequest;
 
-  await editAudio(audioId, title);
+  await editAudioTitle(audioId, title);
+
   await deleteAudioArtistRelations(audioId);
-
   artists.forEach(async (artistID, index) => {
     if (artistID !== undefined) {
       await insertAudioArtistRelations(audioId, artistID, index + 1);
+    }
+  });
+
+  await deleteAudioGenreRelations(audioId);
+  genres.forEach(async (genreID, index) => {
+    if (genreID !== undefined) {
+      await insertAudioGenreRelations(audioId, genreID, index + 1);
     }
   });
 
@@ -127,7 +118,7 @@ router.patch("/editAudio", async function (req, res) {
   res.send(audioData);
 });
 
-async function editAudio(audioID, title) {
+async function editAudioTitle(audioID, title) {
   const query = `
   UPDATE audio
   SET title = "${title}"
@@ -141,7 +132,7 @@ async function fetchAudioDataById(audioID) {
   const result = await getAudioMetadataById(audioID);
 
   var audios = result.data?.map((audio) => ({ ...audio })) || [];
-  audios = groupBy(audios, "audio_id");
+  audios = audiosGroupBy(audios, "audio_id");
   audios = Object.values(audios)[0];
 
   const audiosData = {
@@ -184,29 +175,19 @@ async function insertAudioArtistRelations(audioID, artistID, artistPosition) {
   return await resolveQuery(query);
 }
 
-async function getArtists(artistName) {
-  var whereArtist = "";
-
-  if (artistName) {
-    artistName = artistName
-      .replace("\\", "\\\\\\\\")
-      .replace("'", "\\'")
-      .replace('"', '\\"')
-      .replace("%", "\\%");
-    // Need to fix character escaping
-    // console.log(artistName);
-
-    whereArtist = `
-    WHERE artist.name COLLATE utf8mb4_0900_ai_ci LIKE "%${artistName}%"
-    AND deleted = 0
-    `;
-  }
-
+async function deleteAudioGenreRelations(audioID) {
   const query = `
-  SELECT id, name
-  FROM artist
-  ${whereArtist}
-  ORDER BY id DESC
+  DELETE FROM audio_genre
+  WHERE audio_id = ${audioID}
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function insertAudioGenreRelations(audioID, genreID, genrePosition) {
+  const query = `
+  INSERT INTO audio_genre(audio_id, genre_id, genre_position) 
+  VALUES(${audioID}, ${genreID}, ${genrePosition})
   ;`;
 
   return await resolveQuery(query);
@@ -217,12 +198,14 @@ async function fetchAudioData(dataRequest) {
 
   const status = result.error || 200;
   var audios = result.data?.map((audio) => ({ ...audio })) || [];
-  audios = groupBy(audios, "audio_id");
+  audios = audiosGroupBy(audios, "audio_id");
   audios = Array.from(audios.values());
   audios.forEach((audio) => {
     audio.artists = Object.values(audio.artists);
     audio.artists.sort((a, b) => a.position - b.position);
+
     audio.genres = Object.values(audio.genres);
+    audio.genres.sort((a, b) => a.position - b.position);
   });
 
   const audiosData = {
@@ -245,14 +228,15 @@ async function fetchAudioBlob(blobID) {
 
 async function getAudioMetadata({
   artistID,
+  playlistID,
   search,
   genres,
   shuffle,
   limit,
   offset,
 }) {
-  const queryWhereClauses = [],
-    subqueryWhereClauses = [];
+  const queryWhereClauses = [];
+  const subqueryWhereClauses = [];
   var orderBy = "";
 
   if (artistID) {
@@ -262,6 +246,15 @@ async function getAudioMetadata({
 
     queryWhereClauses.push(artistIDWhereClause);
     subqueryWhereClauses.push(artistIDWhereClause);
+  }
+
+  if (playlistID) {
+    const playlistIDWhereClause = `
+    playlist.id = ${playlistID}
+    `;
+
+    queryWhereClauses.push(playlistIDWhereClause);
+    subqueryWhereClauses.push(playlistIDWhereClause);
   }
 
   if (search) {
@@ -309,10 +302,16 @@ async function getAudioMetadata({
       (
         SELECT audio.id 
         FROM audio 
+
         LEFT JOIN audio_artist 
         ON audio.id = audio_artist.audio_id
         LEFT JOIN artist 
         ON audio_artist.artist_id = artist.id
+        
+        LEFT JOIN audio_playlist 
+        ON audio.id = audio_playlist.audio_id
+        LEFT JOIN playlist 
+        ON audio_playlist.playlist_id = playlist.id
         
         LEFT JOIN audio_genre 
         ON audio.id = audio_genre.audio_id
@@ -333,15 +332,21 @@ async function getAudioMetadata({
 
   const query = `
   SELECT audio.id AS audio_id, blob_id, title, artist.id AS artist_id, artist.name, 
-  CONCAT(title, " ",artist.name) AS fullAudioTitle, artist_position, duration, 
-  genre.id AS genre_id, genre.name AS genre_name
+  CONCAT(title, " ", artist.name) AS fullAudioTitle, artist_position, duration, 
+  genre.id AS genre_id, genre.name AS genre_name, audio_genre.genre_position AS genre_position
   FROM (
     SELECT audio.id, blob_id, title, duration 
     FROM audio
+    
     LEFT JOIN audio_artist 
     ON audio.id = audio_artist.audio_id
     LEFT JOIN artist 
     ON audio_artist.artist_id = artist.id
+    
+    LEFT JOIN audio_playlist 
+    ON audio.id = audio_playlist.audio_id
+    LEFT JOIN playlist 
+    ON audio_playlist.playlist_id = playlist.id
     
     LEFT JOIN audio_genre 
     ON audio.id = audio_genre.audio_id
@@ -359,6 +364,11 @@ async function getAudioMetadata({
   ON audio.id = audio_artist.audio_id
   LEFT JOIN artist 
   ON audio_artist.artist_id = artist.id
+
+  LEFT JOIN audio_playlist 
+  ON audio.id = audio_playlist.audio_id
+  LEFT JOIN playlist 
+  ON audio_playlist.playlist_id = playlist.id
   
   LEFT JOIN audio_genre 
   ON audio.id = audio_genre.audio_id

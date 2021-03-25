@@ -1,3 +1,3 @@
-import { resetHeaderStyles } from "./partials/resetHeaderStyles.js";
+import { header } from "./header/loadHeader.js";
 
-export const loadMain = () => resetHeaderStyles();
+export const loadMain = () => header.setDefaultStyle();

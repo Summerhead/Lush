@@ -30,8 +30,8 @@
     "scripts": ["loadPlaylistSearchBar", "loadPlaylists"]
   },
   "/playlists/:playlistsId/:playlistsName": {
-    "pagepath": "/public/html/main.html",
+    "pagepath": "/public/html/playlist.html",
     "title": { "isDefaultTitle": false, "name": "Playlist" },
-    "scripts": ["loadMain"]
+    "scripts": ["loadAudioSearchBar", "loadAudios"]
   }
 }

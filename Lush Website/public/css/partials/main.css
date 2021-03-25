@@ -17,15 +17,16 @@
 }
 
 body {
-  height: 100vh;
+  /* height: 100vh;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr; */
   font-family: "Quicksand", "Montserrat", sans-serif;
 }
 
 main {
   padding-bottom: 100px;
   z-index: 1;
+  min-height: calc(100vh - 40px);
 }
 
 button,

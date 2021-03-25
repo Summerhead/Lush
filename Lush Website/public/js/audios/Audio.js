@@ -1,44 +1,19 @@
 import { editAudioWindow } from "./loadAudios.js";
 import showPage from "../partials/loadContent.js";
 import { lushURL } from "../partials/loadContent.js";
-import { audiosConfigurator } from "../audios/loadAudios.js";
 import { audioSearchBar } from "../searchBar/audios/loadAudioSearchBar.js";
 import { audios } from "./AudiosConfigurator.js";
 import { header } from "../header/loadHeader.js";
 
 var currentAudio;
-var progressBar;
-const watchHeader = setInterval(() => {
-  progressBar = header?.querySelector(".progress-bar");
-  if (progressBar !== undefined) {
-    progressBar.addEventListener("click", progressBarAct);
-    // console.log(progressBar);
-    clearInterval(watchHeader);
-  }
-}, 10);
-
-const audioChangeTime = (event) => {
-  const mouseX = Math.floor(
-    event.pageX - progressBar.getBoundingClientRect().left
-  );
-  const progress = mouseX / progressBar.offsetWidth;
-  audios.get(currentAudio).audioPlayer.currentTime =
-    audios.get(currentAudio).audioPlayer.duration * progress;
-};
-
-const progressBarAct = async (event) => {
-  audioChangeTime(event);
-
-  if (audios.get(currentAudio).audioLi.classList.contains("paused")) {
-    audios.get(currentAudio).playButton.click();
-  }
-};
 
 export default class Audio {
   constructor(audioLi, audio) {
     this.audio = audio;
+    this.audio.audioFullTitle = this.#constructAudioFullTitle();
     this.audioLi = audioLi.cloneNode(true);
-    this.title = this.audioLi.querySelector(".audio-header>.title");
+    this.titleEl = this.audioLi.querySelector(".audio-header>.title");
+    this.artistsEl = this.audioLi.querySelector(".audio-header>.artists");
     this.clickableBackground = this.audioLi.querySelector(
       ".clickable-background"
     );
@@ -50,7 +25,6 @@ export default class Audio {
     this.audioPlayer.setAttribute("class", "audio-player");
     this.audioPlayer.setAttribute("preload", "metadata");
     this.playButton = this.audioLi.querySelector(".play-button");
-    this.audioFullTitle = this.#constructAudioFullTitle();
 
     this.genres = this.audioLi.querySelector(".genres");
     // this.progressBar = this.audioLi.querySelector(".progress-bar");
@@ -71,9 +45,9 @@ export default class Audio {
     this.displayTags();
     this.addEventListeners();
 
-    this.title.innerText = this.audio.title;
+    this.titleEl.innerText = this.audio.title;
     this.durationTime.innerText = this.audioTime(this.audio.duration);
-    progressBar.max = Math.floor(this.audio.duration);
+    header.progressBar.max = Math.floor(this.audio.duration);
   }
 
   displayTags() {
@@ -110,6 +84,8 @@ export default class Audio {
     this.clickableBackground.addEventListener("click", this.play);
 
     this.audioPlayer.addEventListener("timeupdate", this.audioProgress);
+    this.audioPlayer.addEventListener("playing", this.setPlayingStyle);
+    this.audioPlayer.addEventListener("pause", this.setPauseStyle);
     this.audioPlayer.addEventListener("ended", this.playNext);
 
     this.addButton.addEventListener("click", () => alert("Add"));
@@ -120,10 +96,7 @@ export default class Audio {
 
   insertArtists() {
     const parsedArtists = this.parseArtists(this.audio.artists);
-    const artistsDiv = this.audioLi.querySelector(".audio-header>.artists");
-
-    // console.log(parsedArtists);
-    artistsDiv.replaceWith(parsedArtists);
+    this.artistsEl.replaceWith(parsedArtists);
   }
 
   parseArtists(artists) {
@@ -178,72 +151,59 @@ export default class Audio {
   }
 
   setAttributes(title) {
-    this.title.innerText = title;
-  }
-
-  hideTimePrev() {
-    const prevAudio = audios.get(currentAudio);
-    prevAudio.hiddenTime.classList.add("hidden");
-    prevAudio.hiddenTime.classList.remove("display-flex");
-  }
-
-  showTime() {
-    this.hiddenTime.classList.add("display-flex");
-    this.hiddenTime.classList.remove("hidden");
+    this.titleEl.innerText = title;
   }
 
   play = async () => {
-    document.title = this.audioFullTitle;
+    document.title = this.audio.audioFullTitle;
+    header.setAudioPlayer(this.audioPlayer);
 
     if (currentAudio && currentAudio !== this.audioLi) {
-      currentAudio.classList.remove("current", "playing", "paused");
-      this.hideTimePrev();
-
-      const audioPlayer = audios.get(currentAudio)?.audioPlayer;
-      stopAudio(audioPlayer);
-      revokeObjectURL(audioPlayer);
-
-      audioPlayer.onloadeddata = null;
+      this.setStopStyle();
     }
 
     currentAudio = this.audioLi;
     currentAudio.classList.add("current");
 
     if (currentAudio.classList.contains("playing")) {
-      currentAudio.classList.remove("playing");
-      currentAudio.classList.add("paused");
-
       this.audioPlayer.pause();
     } else {
-      currentAudio.classList.remove("paused");
-      currentAudio.classList.add("playing");
-      this.showTime();
-
-      if (this.audioPlayer.src === document.location.href) {
+      if (this.audioPlayer.src === location.href) {
         await this.fetchBlob({
           blobID: Number(this.audio.blob_id),
         });
       }
 
-      this.displayCurrentAudio();
       this.audioPlayer.play();
     }
   };
 
-  displayCurrentAudio() {
-    const currentAudioEl = document.getElementById("current-audio");
+  setPlayingStyle = () => {
+    currentAudio.classList.remove("paused");
+    currentAudio.classList.add("playing");
 
-    const artistsDiv = currentAudioEl.querySelector(".audio-header>.artists");
+    this.configureCurrentAudio();
+  };
+
+  setPauseStyle = () => {
+    currentAudio.classList.remove("playing");
+    currentAudio.classList.add("paused");
+  };
+
+  setStopStyle = () => {
+    currentAudio.classList.remove("current", "playing", "paused");
+
+    const audioPlayer = audios.get(currentAudio)?.audioPlayer;
+    stopAudio(audioPlayer);
+    revokeObjectURL(audioPlayer);
+
+    audioPlayer.onloadeddata = null;
+  };
+
+  configureCurrentAudio() {
     const parsedArtists = this.parseArtists(this.audio.artists);
-    artistsDiv.replaceWith(parsedArtists);
-
-    const titleDiv = currentAudioEl.querySelector(".audio-header>.title");
-    titleDiv.innerText = this.audio.title;
-
-    header.classList.add("border-bottom");
-    header.classList.add("fixed");
-    document.getElementById("main").classList.add("compensate-header");
-    currentAudioEl.style.visibility = "visible";
+    header.audioLi = this.audioLi;
+    header.displayCurrentAudio(parsedArtists, this.audio.title);
   }
 
   async fetchBlob(reqAudioBlob) {
@@ -309,25 +269,28 @@ export default class Audio {
   audioProgress = () => {
     const progress = Math.ceil(
       this.audioPlayer.currentTime /
-        (Math.floor(this.audioPlayer.duration) / progressBar.max)
+        (Math.floor(this.audioPlayer.duration) / header.progressBar.max)
     );
 
-    progressBar.value = progress || 0;
+    header.progressBar.value = progress || 0;
     this.currentTime.innerHTML = this.audioTime(this.audioPlayer.currentTime);
   };
 
   playNext = async () => {
-    var nextSibling;
-    if ((nextSibling = this.audioLi.nextSibling)) {
+    this.setStopStyle();
+
+    const nextSibling = this.audioLi.nextSibling;
+    if (nextSibling) {
       audios.get(nextSibling).playButton.click();
     } else {
-      currentAudio.classList.remove("current", "playing", "paused");
+      currentAudio.classList.remove("current", "playing");
+      currentAudio.classList.add("paused");
 
-      const audioPlayer = audios.get(currentAudio)?.audioPlayer;
-      stopAudio(audioPlayer);
-      revokeObjectURL(audioPlayer);
-
-      audioPlayer.onloadeddata = null;
+      // currentAudio.classList.remove("current", "playing", "paused");
+      // const audioPlayer = audios.get(currentAudio)?.audioPlayer;
+      // stopAudio(audioPlayer);
+      // revokeObjectURL(audioPlayer);
+      // audioPlayer.onloadeddata = null;
     }
   };
 
