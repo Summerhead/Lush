@@ -42,6 +42,11 @@
   margin: 0;
 }
 
+.artist-options > button:hover {
+  background-color: rgb(189, 189, 189);
+  /* border: 1px solid rgb(189, 189, 189); */
+}
+
 .artist-options .button-edit {
   background-image: url("/public/content/icons/pencil.svg");
 }

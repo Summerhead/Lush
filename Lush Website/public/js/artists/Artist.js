@@ -17,17 +17,24 @@ export default class Artist {
 
   configure() {
     this.artistName.innerText = this.artist.artist_name;
+
     this.artistLink.href += `${
       this.artist.artist_id
     }/${this.artist.artist_name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
-    this.artistName.href += `${
-      this.artist.artist_id
-    }/${this.artist.artist_name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
+
+    if (this.artist.image_id) {
+      this.imageWrapper.style.backgroundImage = `url("https://drive.google.com/uc?export=view&id=${this.artist.image_id}")`;
+      this.imageWrapper.classList.remove("no-cover");
+    }
+
+    // this.artistName.href += `${
+    //   this.artist.artist_id
+    // }/${this.artist.artist_name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
     // artistLi.querySelector("#artist-description").innerText =
     //   artist.artist_id;
 
-    this.artistLi.setAttribute("data-artist-id", this.artist.artist_id);
-    this.artistLi.setAttribute("data-artist-name", this.artist.artist_name);
+    // this.artistLi.setAttribute("data-artist-id", this.artist.artist_id);
+    // this.artistLi.setAttribute("data-artist-name", this.artist.artist_name);
 
     this.setActions();
   }
@@ -37,10 +44,11 @@ export default class Artist {
       showPage(event.target.href);
       return false;
     };
-    this.artistName.onclick = (event) => {
-      showPage(event.target.href);
-      return false;
-    };
+
+    // this.artistName.onclick = (event) => {
+    //   showPage(event.target.href);
+    //   return false;
+    // };
 
     this.buttonEdit.addEventListener("click", this.editAction);
     this.buttonDelete.addEventListener("click", this.deleteAction);
@@ -87,7 +95,7 @@ export default class Artist {
     };
 
     const dataJSON = {
-      artistID: event.target
+      artistId: event.target
         .closest(".artist-li")
         .getAttribute("data-artist-id"),
     };

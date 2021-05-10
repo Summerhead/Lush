@@ -2,24 +2,24 @@ const express = require("express");
 const router = express.Router();
 const { resolveQuery, constructWhereClauseAnd } = require("../general.js");
 
-router.post("/playlistsData", async function (req, res, next) {
+router.post("/playlistsData", async function (req, res) {
   console.log("Body:", req.body);
 
   const dataRequest = req.body.dataRequest;
 
-  const result = await getPlaylists(dataRequest),
-    playlists = result.data?.map((playlist) => ({ ...playlist })) || [],
-    status = result.error || 200,
-    playlistsData = {
-      status: status,
-      playlists: playlists,
-    };
+  const result = await getPlaylists(dataRequest);
+  const playlists = result.data?.map((playlist) => ({ ...playlist })) || [];
+  const status = result.error || 200;
+  const playlistsData = {
+    status: status,
+    playlists: playlists,
+  };
 
   res.send(playlistsData);
 });
 
-async function getPlaylists({ playlistID, search, limit, offset }) {
-  var playlistIDWhereClause = "",
+async function getPlaylists({ playlistId, search, limit, offset }) {
+  var playlistIdWhereClause = "",
     queryWhereClauses = [],
     subquery = "",
     subqueryWhereClauses = [],
@@ -39,13 +39,13 @@ async function getPlaylists({ playlistID, search, limit, offset }) {
     subqueryWhereClauses.push(searchQuery);
   }
 
-  if (playlistID) {
-    playlistIDWhereClause = `
-      playlist.id = ${playlistID}
+  if (playlistId) {
+    playlistIdWhereClause = `
+      playlist.id = ${playlistId}
       `;
 
-    queryWhereClauses.push(playlistIDWhereClause);
-    subqueryWhereClauses.push(playlistIDWhereClause);
+    queryWhereClauses.push(playlistIdWhereClause);
+    subqueryWhereClauses.push(playlistIdWhereClause);
   } else {
     const subqueryWhereClause = constructWhereClauseAnd(subqueryWhereClauses);
 
@@ -85,42 +85,42 @@ async function getPlaylists({ playlistID, search, limit, offset }) {
   return await resolveQuery(query);
 }
 
-router.post("/submitPlaylist", async function (req, res, next) {
+router.post("/submitPlaylist", async function (req, res) {
   console.log("Body:", req.body);
   console.log("Body:", req.files);
 
   const playlistMetadata = JSON.parse(req.body.playlistMetadata);
-  var playlistID = playlistMetadata.playlistID;
+  var playlistId = playlistMetadata.playlistId;
   const playlistName = playlistMetadata.playlistName.replace('"', '\\"');
   // Need to improve character escaping
   const image = req.files?.image;
 
-  if (playlistID) {
-    await editPlaylist(playlistID, playlistName);
+  if (playlistId) {
+    await editPlaylist(playlistId, playlistName);
   } else {
-    playlistID = (await insertPlaylist(playlistName)).data.insertId;
+    playlistId = (await insertPlaylist(playlistName)).data.insertId;
   }
 
   if (image) {
     console.log("Has image.");
-    // const blobID = (await insertImageBlob(image.data)).data.insertId;
-    // const imageID = await (await insertImageData(blobID)).data.insertId;
-    // await insertImagePlaylist(imageID, playlistID);
+    // const blobId = (await insertImageBlob(image.data)).data.insertId;
+    // const imageId = await (await insertImageData(blobId)).data.insertId;
+    // await insertImagePlaylist(imageId, playlistId);
   }
 
   res.send({
     status: 200,
     message: "File uploaded.",
-    playistID: playlistID,
+    playistId: playlistId,
     playistName: playlistName,
   });
 });
 
-async function editPlaylist(playlistID, playlistName) {
+async function editPlaylist(playlistId, playlistName) {
   const query = `
   UPDATE playlist
   SET name = "${playlistName}"
-  WHERE id = ${playlistID}
+  WHERE id = ${playlistId}
   ;`;
 
   return await resolveQuery(query);
@@ -135,11 +135,11 @@ async function insertPlaylist(playlistName) {
   return await resolveQuery(query);
 }
 
-router.delete("/deletePlaylist", async function (req, res, next) {
+router.delete("/deletePlaylist", async function (req, res) {
   console.log("Body:", req.body);
 
-  const playlistID = req.body.playlistID,
-    result = await deletePlaylist(playlistID),
+  const playlistId = req.body.playlistId,
+    result = await deletePlaylist(playlistId),
     playlistsData = {
       status: result.error || 200,
       playlists: result.data,
@@ -148,11 +148,11 @@ router.delete("/deletePlaylist", async function (req, res, next) {
   res.send(playlistsData);
 });
 
-async function deletePlaylist(playlistID) {
+async function deletePlaylist(playlistId) {
   const query = `
   UPDATE playlist
   SET deleted = 1
-  WHERE id = ${playlistID}
+  WHERE id = ${playlistId}
   ;`;
 
   return await resolveQuery(query);

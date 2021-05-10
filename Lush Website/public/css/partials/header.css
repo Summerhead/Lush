@@ -133,13 +133,12 @@
   font-size: 0.9em;
 }
 
-#pages > li {
-  margin-right: 5px;
+#pages a:hover {
+  text-decoration: underline;
 }
 
-#pages > li:hover {
-  /* font-weight: bold; */
-  text-decoration: underline;
+#pages > li {
+  margin-right: 5px;
 }
 
 #pages > li:last-child {
@@ -167,6 +166,10 @@
 #header.white-theme .artists > a,
 #header.white-theme .title {
   color: rgb(255, 255, 255);
+}
+
+#header.white-theme #pages a {
+  text-decoration-color: white;
 }
 
 #header.white-theme button {

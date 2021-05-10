@@ -51,7 +51,7 @@ export default class ArtistSearchBar {
   }
 
   insertSearchQuery() {
-    this.searchBar.value = lushURL.get("search");
+    this.searchBar.value = lushURL.getQuery();
   }
 
   sendSearchRequest = (event) => {
@@ -59,7 +59,7 @@ export default class ArtistSearchBar {
     // console.log(keyCode);
 
     if (this.keyUpCondition(keyCode)) {
-      lushURL.insert("search", this.searchBar.value);
+      lushURL.setQuery(this.searchBar.value);
 
       this.configureRequest();
     }

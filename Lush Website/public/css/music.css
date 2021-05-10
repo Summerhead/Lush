@@ -23,17 +23,14 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.116);
 }
 
+.audio-container:hover,
+.current > .audio-container,
 .playing > .audio-container {
-  background-color: rgba(224, 224, 224, 0.562);
+  background-color: rgb(238, 238, 238);
 }
 
 .audio-container {
   padding: 0 5px;
-}
-
-.audio-container:hover,
-.current .audio-container {
-  background-color: rgba(224, 224, 224, 0.562);
 }
 
 .audio-container:hover .right-tab {
@@ -205,16 +202,25 @@
   background-color: rgb(189, 189, 189);
 }
 
-.audio-hud {
+#audios-ol .audio-hud {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin: 0;
+}
+
+#audios-ol .audio-hud > .first-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+#audios-ol .audio-hud > .second-row {
+  display: flex;
+  align-self: flex-end;
+  justify-content: flex-end;
 }
 
 #audios-ol .time {
   display: flex;
-  align-self: flex-end;
   bottom: 0px;
   font-size: 0.65em;
   cursor: default;
@@ -240,6 +246,10 @@
   margin: 0 3px;
 }
 
+.audio-li.current .time > .hidden {
+  display: flex;
+}
+
 .audio-li .right-tab {
   display: flex;
   justify-content: flex-end;
@@ -263,18 +273,18 @@
   margin: 0;
 }
 
-.audio-li .right-tab .add-button {
+/* .audio-li .right-tab .add-button {
   background-image: url("/public/content/icons/plus.svg");
-}
+} */
 
-.audio-li .right-tab .delete-button {
+/* .audio-li .right-tab .delete-button {
   background-image: url("/public/content/icons/cancel.svg");
-}
+} */
 
 .audio-li .right-tab .edit-button {
   background-image: url("/public/content/icons/pencil.svg");
 }
 
-.audio-li .right-tab .info-button {
+/* .audio-li .right-tab .info-button {
   background-image: url("/public/content/icons/info.svg");
-}
+} */

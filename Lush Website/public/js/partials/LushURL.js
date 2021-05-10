@@ -6,7 +6,43 @@ export default class LushURL extends URLSearchParams {
     this.setCurrentPage();
   }
 
-  insert(key, value) {
+  setQuery(value) {
+    this.#insert("q", value);
+  }
+
+  getQuery() {
+    return this.get("q");
+  }
+
+  setGenre(value) {
+    this.#append("genres", value);
+  }
+
+  removeGenre(value) {
+    this.#remove("genres", value);
+  }
+
+  getGenres() {
+    return this.get("genres");
+  }
+
+  hasGenres() {
+    return this.has("genres");
+  }
+
+  setShuffle() {
+    this.#insert("shuffle", 1);
+  }
+
+  deleteShuffle() {
+    this.#delete("shuffle");
+  }
+
+  getShuffle() {
+    return this.get("shuffle");
+  }
+
+  #insert(key, value) {
     if (value === "") {
       super.delete(key);
     } else {
@@ -15,7 +51,7 @@ export default class LushURL extends URLSearchParams {
     this.#pushState();
   }
 
-  append(key, value) {
+  #append(key, value) {
     if (this.has(key)) {
       const values = this.get(key);
       if (!values.split("_").includes(value)) {
@@ -24,16 +60,17 @@ export default class LushURL extends URLSearchParams {
         value = values;
       }
     }
+
     this.set(key, value);
     this.#pushState();
   }
 
-  delete(key) {
+  #delete(key) {
     super.delete(key);
     this.#pushState();
   }
 
-  remove(key, value) {
+  #remove(key, value) {
     if (this.has(key)) {
       const values = this.get(key);
       const valuesArray = values.split("_");

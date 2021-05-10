@@ -1,14 +1,14 @@
 export default function loadArtistTemplate() {
-  const xmlhttp = new XMLHttpRequest();
-
   return new Promise((resolve, reject) => {
+    const xmlhttp = new XMLHttpRequest();
+
     xmlhttp.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
         const template = new DOMParser().parseFromString(
-            this.responseText,
-            "text/html"
-          ),
-          artistLi = template.getElementsByClassName("artist-li")[0];
+          this.responseText,
+          "text/html"
+        );
+        const artistLi = template.getElementsByClassName("artist-li")[0];
 
         resolve(artistLi);
       }
@@ -19,6 +19,7 @@ export default function loadArtistTemplate() {
       "/public/html/partials/artists/artistTemplate.html",
       true
     );
+
     xmlhttp.send();
   });
 }

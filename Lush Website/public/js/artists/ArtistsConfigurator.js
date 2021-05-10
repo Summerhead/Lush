@@ -6,9 +6,9 @@ export default class ArtistsConfigurator {
     this.artistLi = artistLi;
 
     this.defaultDataRequest = {
-      artistID: document.location.pathname.split("/")[2] || null,
-      search: this.processSearchQuery(lushURL.get("search")),
-      genres: lushURL.get("genres"),
+      artistId: null,
+      search: this.processSearchQuery(lushURL.getQuery()),
+      genres: lushURL.getGenres(),
       limit: 140,
       offset: 0,
     };
@@ -63,10 +63,11 @@ export default class ArtistsConfigurator {
           const artistClass = new Artist(this.artistLi, artist);
           const artistLi = artistClass.artistLi;
           const imageWrapper = artistClass.imageWrapper;
+
           this.artistsOl.appendChild(artistLi);
 
-          const reqImageBlob = { blobID: artist.artistimage_blob_id };
-          this.fetchBlob(reqImageBlob, imageWrapper);
+          // const reqImageBlob = { blobId: artist.artistimage_blob_id };
+          // this.fetchBlob(reqImageBlob, imageWrapper);
 
           this.outputsize(imageWrapper);
 
@@ -155,7 +156,7 @@ export default class ArtistsConfigurator {
     // };
 
     // const dataJSON = {
-    //   artistID: event.target
+    //   artistId: event.target
     //     .closest(".artist-li")
     //     .getAttribute("data-artist-id"),
     // };

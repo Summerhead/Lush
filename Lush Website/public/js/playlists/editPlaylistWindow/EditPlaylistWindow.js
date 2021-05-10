@@ -25,7 +25,7 @@ export default class EditPlaylistWindow {
     this.fileInput = editPlaylistWindowContainer.querySelector("#file-input");
 
     this.playlistLi;
-    this.playlistID;
+    this.playlistId;
     this.playlistName;
     this.image;
 
@@ -49,7 +49,7 @@ export default class EditPlaylistWindow {
 
   resetAttributes() {
     this.playlistLi = "";
-    this.playlistID = "";
+    this.playlistId = "";
     this.playlistName = "";
     this.image = "";
   }
@@ -72,7 +72,7 @@ export default class EditPlaylistWindow {
 
   open(playlistLi) {
     this.playlistLi = playlistLi;
-    this.playlistID = playlistLi
+    this.playlistId = playlistLi
       ? playlistLi.getAttribute("data-playlist-id")
       : null;
 
@@ -195,7 +195,7 @@ export default class EditPlaylistWindow {
     };
 
     const json = {
-      playlistID: this.playlistID,
+      playlistId: this.playlistId,
       playlistName: this.playlistName,
     };
 

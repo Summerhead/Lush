@@ -1,4 +1,4 @@
-import { editAudioWindow } from "./loadAudios.js";
+import { audiosConfigurator, editAudioWindow } from "./loadAudios.js";
 import showPage from "../partials/loadContent.js";
 import { lushURL } from "../partials/loadContent.js";
 import { audioSearchBar } from "../searchBar/audios/loadAudioSearchBar.js";
@@ -68,11 +68,11 @@ export default class Audio {
   insertTagParam(event) {
     const genreName = event.target.getAttribute("data-genre-name");
     if (
-      (lushURL.has("genres") &&
-        !lushURL.get("genres").split("_").includes(genreName)) ||
-      !lushURL.has("genres")
+      (lushURL.hasGenres() &&
+        !lushURL.getGenres().split("_").includes(genreName)) ||
+      !lushURL.hasGenres()
     ) {
-      lushURL.append("genres", genreName);
+      lushURL.setGenre(genreName);
 
       audioSearchBar.insertGenreQuery(genreName);
       audioSearchBar.configureGenresRequest();
@@ -86,12 +86,12 @@ export default class Audio {
     this.audioPlayer.addEventListener("timeupdate", this.audioProgress);
     this.audioPlayer.addEventListener("playing", this.setPlayingStyle);
     this.audioPlayer.addEventListener("pause", this.setPauseStyle);
-    this.audioPlayer.addEventListener("ended", this.playNext);
+    this.audioPlayer.addEventListener("ended", audiosConfigurator.playNext);
 
-    this.addButton.addEventListener("click", () => alert("Add"));
-    this.deleteButton.addEventListener("click", () => alert("Delete"));
+    // this.addButton.addEventListener("click", () => alert("Add"));
+    // this.deleteButton.addEventListener("click", () => alert("Delete"));
     this.editButton.addEventListener("click", this.editAudioButtonOnClick);
-    this.infoButton.addEventListener("click", () => alert("Info"));
+    // this.infoButton.addEventListener("click", () => alert("Info"));
   }
 
   insertArtists() {
@@ -170,10 +170,11 @@ export default class Audio {
     } else {
       if (this.audioPlayer.src === location.href) {
         await this.fetchBlob({
-          blobID: Number(this.audio.blob_id),
+          blobId: this.audio.blob_id,
         });
       }
 
+      this.audioPlayer.volume = 0.6;
       this.audioPlayer.play();
     }
   };
@@ -274,24 +275,6 @@ export default class Audio {
 
     header.progressBar.value = progress || 0;
     this.currentTime.innerHTML = this.audioTime(this.audioPlayer.currentTime);
-  };
-
-  playNext = async () => {
-    this.setStopStyle();
-
-    const nextSibling = this.audioLi.nextSibling;
-    if (nextSibling) {
-      audios.get(nextSibling).playButton.click();
-    } else {
-      currentAudio.classList.remove("current", "playing");
-      currentAudio.classList.add("paused");
-
-      // currentAudio.classList.remove("current", "playing", "paused");
-      // const audioPlayer = audios.get(currentAudio)?.audioPlayer;
-      // stopAudio(audioPlayer);
-      // revokeObjectURL(audioPlayer);
-      // audioPlayer.onloadeddata = null;
-    }
   };
 
   editAudioButtonOnClick = () => {

@@ -1,40 +1,45 @@
 import Audio, { currentAudio } from "./Audio.js";
-import { rgb, bw } from "../artists/artist/ArtistConfigurator.js";
+import { rgb, bw } from "../artist/ArtistConfigurator.js";
 import { lushURL } from "../partials/loadContent.js";
+import { header } from "../header/loadHeader.js";
 
 const audios = new WeakMap();
 
 export default class AudiosConfigurator {
   constructor(audioLi, dataRequest) {
     this.audioLi = audioLi;
+
     this.defaultDataRequest = {
-      artistID: this.processArtistID(),
-      playlistID: this.processPlaylistID(),
-      search: lushURL.get("search"),
-      genres: this.processGenresQuery(lushURL.get("genres")),
-      shuffle: this.processShuffleQuery(lushURL.get("shuffle")),
+      artistId: this.processArtistId(),
+      playlistId: this.processPlaylistId(),
+      search: lushURL.getQuery(),
+      genres: this.processGenresQuery(lushURL.getGenres()),
+      shuffle: this.processShuffleQuery(lushURL.getShuffle()),
       limit: 100,
       offset: 0,
     };
     this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
 
     this.audiosOl = document.getElementById("audios-ol");
+    this.audios = [];
     this.atTheBottom = true;
     this.audiosRequestResolved = false;
     this.rgb;
+
+    header.setPlayPrevNextListeners(this);
 
     this.getAudios();
     this.applyWindowOnScroll();
   }
 
-  processArtistID() {
+  processArtistId() {
     if (lushURL.currentPage === "artist") {
       return location.pathname.split("/")[2];
     }
     return null;
   }
 
-  processPlaylistID() {
+  processPlaylistId() {
     if (lushURL.currentPage === "playlist") {
       return location.pathname.split("/")[2];
     }
@@ -68,20 +73,22 @@ export default class AudiosConfigurator {
         if (xhr.readyState == 4 && xhr.status == 200) {
           resolve();
 
-          this.displayAudios(xhr);
+          this.displayAudios(xhr.response);
         }
       };
     }).then(() => (this.audiosRequestResolved = true));
   }
 
-  displayAudios(xhr) {
-    const data = JSON.parse(xhr.response);
+  displayAudios(xhrResponse) {
+    const data = JSON.parse(xhrResponse);
     console.log("Data:", data);
 
     const returnedRows = data.audios.length;
 
     if (data.status === 200) {
       if (returnedRows) {
+        this.audios = [];
+
         for (const audio of data.audios) {
           const isCurrentlyPlaying =
             audio.audio_id === audios.get(currentAudio)?.audio.audio_id;
@@ -98,15 +105,25 @@ export default class AudiosConfigurator {
           audios.set(audioLi, audioClass);
           const imageWrapper = audioClass.imageWrapper;
 
-          // console.log(audio.artists[0]);
-          if (
-            !Number.isInteger(Number(document.location.pathname.split("/")[2]))
-          ) {
-            const reqArtistBlobID = {
-              artistID: audio.artists[0].artist_id,
-            };
-            this.fetchImageBlob(reqArtistBlobID, imageWrapper);
+          let image_id = null;
+          for (const artist of audio.artists) {
+            if (artist.image_id) {
+              image_id = artist.image_id;
+              break;
+            }
           }
+
+          if (lushURL.currentPage !== "artist" && image_id) {
+            imageWrapper.classList.remove("no-cover");
+            imageWrapper.style.backgroundImage = `url("https://drive.google.com/uc?export=view&id=${image_id}")`;
+          }
+
+          // audioLi.draggable = true;
+          // audioLi.addEventListener("drag", setDragging);
+          // audioLi.addEventListener("dragover", setDraggedOver);
+          // audioLi.addEventListener("drop", this.compare);
+
+          this.audios.push(audioLi);
 
           this.audiosOl.appendChild(audioLi);
         }
@@ -130,80 +147,29 @@ export default class AudiosConfigurator {
     return currentAudio;
   }
 
-  fetchImageBlob(reqImageBlob, imageWrapper) {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/artistsData", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
+  playNext = async () => {
+    const nextSibling = currentAudio.nextSibling;
+    const currentAudioClass = audios.get(currentAudio);
+    if (nextSibling) {
+      currentAudioClass.setStopStyle();
+      const nextAudioClass = audios.get(nextSibling);
+      nextAudioClass.playButton.click();
+    } else {
+      currentAudioClass.setPauseStyle();
+    }
+  };
 
-    const dataRequest = {
-      dataRequest: {
-        artistID: reqImageBlob.artistID || null,
-        limit: 1,
-        offset: 0,
-      },
-    };
-    xhr.send(JSON.stringify(dataRequest));
-
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        const data = JSON.parse(xhr.response);
-        // console.log("Data:", data);
-
-        const returnedRows = data.artists.length;
-
-        if (data.status === 200) {
-          if (returnedRows) {
-            for (const artist of data.artists) {
-              const reqImageBlob = { blobID: artist.artistimage_blob_id };
-              this.fetchBlob(reqImageBlob, imageWrapper);
-            }
-          }
-        }
-      }
-    };
-  }
-
-  fetchBlob(reqImageBlob, imageWrapper) {
-    fetch("/imageBlob", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reqImageBlob),
-    })
-      .then((response) => response.body)
-      .then((rs) => {
-        const reader = rs.getReader();
-
-        return new ReadableStream({
-          async start(controller) {
-            while (true) {
-              const { done, value } = await reader.read();
-
-              if (done) {
-                break;
-              }
-
-              controller.enqueue(value);
-            }
-
-            controller.close();
-            reader.releaseLock();
-          },
-        });
-      })
-      .then((rs) => new Response(rs))
-      .then((response) => response.blob())
-      .then((blob) => (blob.size ? URL.createObjectURL(blob) : null))
-      .then((url) => {
-        if (url) {
-          imageWrapper.classList.remove("no-cover");
-          imageWrapper.style.backgroundImage = `url("${url}")`;
-        }
-        // URL.revokeObjectURL(url);
-      })
-      .catch(console.error);
-  }
+  playPrev = async () => {
+    const prevSibling = currentAudio.previousSibling;
+    const currentAudioClass = audios.get(currentAudio);
+    if (prevSibling) {
+      currentAudioClass.setStopStyle();
+      const prevAudioClass = audios.get(prevSibling);
+      prevAudioClass.playButton.click();
+    } else {
+      currentAudioClass.setPauseStyle();
+    }
+  };
 
   waitRGB() {
     const waitRGB = setInterval(() => {
@@ -220,8 +186,8 @@ export default class AudiosConfigurator {
         genreEls.forEach((tagEl) => {
           tagEl.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
           tagEl.r = r;
-          tagEl.b = b;
           tagEl.g = g;
+          tagEl.b = b;
           tagEl.addEventListener("mouseover", this.setStyle);
           tagEl.addEventListener("mouseout", this.removeStyle);
         });
@@ -233,7 +199,10 @@ export default class AudiosConfigurator {
         });
       }
 
-      if (location.pathname === "/music") {
+      if (
+        lushURL.currentPage === "music" ||
+        lushURL.currentPage === "playlist"
+      ) {
         clearInterval(waitRGB);
 
         genresEls.forEach((tagEl) => {
@@ -271,6 +240,33 @@ export default class AudiosConfigurator {
       }
     };
   }
+
+  renderItems = () => {
+    this.audiosOl.innerText = "";
+    this.audios.forEach((audioLi) => {
+      this.audiosOl.appendChild(audioLi);
+    });
+  };
+
+  compare = () => {
+    const index1 = this.audios.indexOf(dragging);
+    const index2 = this.audios.indexOf(draggedOver);
+    this.audios.splice(index1, 1);
+    this.audios.splice(index2, 0, dragging);
+
+    this.renderItems();
+  };
 }
+
+var dragging, draggedOver;
+
+const setDraggedOver = (e) => {
+  e.preventDefault();
+  draggedOver = e.target.closest(".audio-li");
+};
+
+const setDragging = (e) => {
+  dragging = e.target;
+};
 
 export { audios };

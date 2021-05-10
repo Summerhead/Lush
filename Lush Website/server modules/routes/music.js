@@ -9,7 +9,7 @@ const {
   insertArtist,
 } = require("../general.js");
 
-router.post("/audioData", async function (req, res, next) {
+router.post("/audioData", async function (req, res) {
   console.log("Body:", req.body);
 
   const dataRequest = req.body.dataRequest;
@@ -18,9 +18,9 @@ router.post("/audioData", async function (req, res, next) {
   res.send(audioData);
 });
 
-router.post("/audioBlob", async function (req, res, next) {
-  const blobID = req.body.blobID;
-  const audioData = await fetchAudioBlob(blobID);
+router.post("/audioBlob", async function (req, res) {
+  const blobId = req.body.blobId;
+  const audioData = await fetchAudioBlob(blobId);
 
   res.write(audioData.blob);
   res.end();
@@ -51,31 +51,31 @@ router.post("/uploadAudio", async function (req, res, next) {
         title = name.substr(separatorIndex + separator.length);
       }
 
-      const blobID = (await insertAudioBlob(audio.data)).data.insertId;
-      const audioID = (await insertAudioData(blobID, title, duration)).data
+      const blobId = (await insertAudioBlob(audio.data)).data.insertId;
+      const audioId = (await insertAudioData(blobId, title, duration)).data
         .insertId;
-      await insertAudioLanguage(audioID, 1);
+      await insertAudioLanguage(audioId, 1);
 
       if (artists) {
         const audioArtistSeparator = /, | & | [fF]?eat[.]*? /;
         const artistsArr = artists.split(audioArtistSeparator);
 
         for (const [index, artist] of artistsArr.entries()) {
-          var artistID;
+          var artistId;
           const getArtistByNameResult = (await getArtistByName(artist)).data[0];
           if (getArtistByNameResult) {
-            artistID = getArtistByNameResult.id;
+            artistId = getArtistByNameResult.id;
           } else {
-            artistID = (await insertArtist(artist)).data.insertId;
+            artistId = (await insertArtist(artist)).data.insertId;
           }
 
-          await insertAudioArtist(audioID, artistID, index + 1);
+          await insertAudioArtist(audioId, artistId, index + 1);
         }
       }
 
       res.status(200).send({
         status: 200,
-        id: audioID,
+        id: audioId,
         name: name,
         message: "File uploaded.",
       });
@@ -100,16 +100,16 @@ router.patch("/editAudio", async function (req, res) {
   await editAudioTitle(audioId, title);
 
   await deleteAudioArtistRelations(audioId);
-  artists.forEach(async (artistID, index) => {
-    if (artistID !== undefined) {
-      await insertAudioArtistRelations(audioId, artistID, index + 1);
+  artists.forEach(async (artistId, index) => {
+    if (artistId !== undefined) {
+      await insertAudioArtistRelations(audioId, artistId, index + 1);
     }
   });
 
   await deleteAudioGenreRelations(audioId);
-  genres.forEach(async (genreID, index) => {
-    if (genreID !== undefined) {
-      await insertAudioGenreRelations(audioId, genreID, index + 1);
+  genres.forEach(async (genreId, index) => {
+    if (genreId !== undefined) {
+      await insertAudioGenreRelations(audioId, genreId, index + 1);
     }
   });
 
@@ -118,18 +118,18 @@ router.patch("/editAudio", async function (req, res) {
   res.send(audioData);
 });
 
-async function editAudioTitle(audioID, title) {
+async function editAudioTitle(audioId, title) {
   const query = `
   UPDATE audio
   SET title = "${title}"
-  WHERE id = ${audioID}
+  WHERE id = ${audioId}
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function fetchAudioDataById(audioID) {
-  const result = await getAudioMetadataById(audioID);
+async function fetchAudioDataById(audioId) {
+  const result = await getAudioMetadataById(audioId);
 
   var audios = result.data?.map((audio) => ({ ...audio })) || [];
   audios = audiosGroupBy(audios, "audio_id");
@@ -143,7 +143,7 @@ async function fetchAudioDataById(audioID) {
   return audiosData;
 }
 
-async function getAudioMetadataById(audioID) {
+async function getAudioMetadataById(audioId) {
   const query = `
   SELECT audio_id AS audio_id, blob_id, title, artist.id AS artist_id, artist.name, duration 
   FROM audio
@@ -151,43 +151,43 @@ async function getAudioMetadataById(audioID) {
   ON audio.id = audio_artist.audio_id
   INNER JOIN artist 
   ON audio_artist.artist_id = artist.id
-  WHERE audio_id = ${audioID}
+  WHERE audio_id = ${audioId}
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function deleteAudioArtistRelations(audioID) {
+async function deleteAudioArtistRelations(audioId) {
   const query = `
   DELETE FROM audio_artist
-  WHERE audio_id = ${audioID}
+  WHERE audio_id = ${audioId}
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function insertAudioArtistRelations(audioID, artistID, artistPosition) {
+async function insertAudioArtistRelations(audioId, artistId, artistPosition) {
   const query = `
   INSERT INTO audio_artist(audio_id, artist_id, artist_position) 
-  VALUES(${audioID}, ${artistID}, ${artistPosition})
+  VALUES(${audioId}, ${artistId}, ${artistPosition})
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function deleteAudioGenreRelations(audioID) {
+async function deleteAudioGenreRelations(audioId) {
   const query = `
   DELETE FROM audio_genre
-  WHERE audio_id = ${audioID}
+  WHERE audio_id = ${audioId}
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function insertAudioGenreRelations(audioID, genreID, genrePosition) {
+async function insertAudioGenreRelations(audioId, genreId, genrePosition) {
   const query = `
   INSERT INTO audio_genre(audio_id, genre_id, genre_position) 
-  VALUES(${audioID}, ${genreID}, ${genrePosition})
+  VALUES(${audioId}, ${genreId}, ${genrePosition})
   ;`;
 
   return await resolveQuery(query);
@@ -216,19 +216,19 @@ async function fetchAudioData(dataRequest) {
   return audiosData;
 }
 
-async function fetchAudioBlob(blobID) {
-  const result = await getAudio(blobID),
-    audioData = {
-      status: result.error || 200,
-      blob: result.data[0].audio,
-    };
+async function fetchAudioBlob(blobId) {
+  const result = await getAudio(blobId);
+  const audioData = {
+    status: result.error || 200,
+    blob: result.data[0].audio,
+  };
 
   return audioData;
 }
 
 async function getAudioMetadata({
-  artistID,
-  playlistID,
+  artistId,
+  playlistId,
   search,
   genres,
   shuffle,
@@ -236,25 +236,27 @@ async function getAudioMetadata({
   offset,
 }) {
   const queryWhereClauses = [];
-  const subqueryWhereClauses = [];
-  var orderBy = "";
 
-  if (artistID) {
-    const artistIDWhereClause = `
-    artist.id = ${artistID}
+  const subqueryWhereClauses = [];
+  const NSFWClause = "audio.nsfw = 0";
+  subqueryWhereClauses.push(NSFWClause);
+
+  if (artistId) {
+    const artistIdWhereClause = `
+    artist.id = ${artistId}
     `;
 
-    queryWhereClauses.push(artistIDWhereClause);
-    subqueryWhereClauses.push(artistIDWhereClause);
+    queryWhereClauses.push(artistIdWhereClause);
+    subqueryWhereClauses.push(artistIdWhereClause);
   }
 
-  if (playlistID) {
-    const playlistIDWhereClause = `
-    playlist.id = ${playlistID}
+  if (playlistId) {
+    const playlistIdWhereClause = `
+    playlist.id = ${playlistId}
     `;
 
-    queryWhereClauses.push(playlistIDWhereClause);
-    subqueryWhereClauses.push(playlistIDWhereClause);
+    queryWhereClauses.push(playlistIdWhereClause);
+    subqueryWhereClauses.push(playlistIdWhereClause);
   }
 
   if (search) {
@@ -294,9 +296,9 @@ async function getAudioMetadata({
   const queryWhereClause = constructWhereClauseAnd(queryWhereClauses);
 
   if (shuffle) {
-    orderBy = "RAND()";
+    var orderBy = "RAND()";
   } else {
-    orderBy = "audio.id DESC";
+    var orderBy = "audio.id DESC";
     const subquery = `
     audio.id <= 
       (
@@ -307,6 +309,10 @@ async function getAudioMetadata({
         ON audio.id = audio_artist.audio_id
         LEFT JOIN artist 
         ON audio_artist.artist_id = artist.id
+        LEFT JOIN image_artist_b
+        ON artist.id = image_artist_b.artist_id
+        LEFT JOIN artistimage_b
+        ON image_artist_b.image_id = artistimage_b.id
         
         LEFT JOIN audio_playlist 
         ON audio.id = audio_playlist.audio_id
@@ -333,7 +339,8 @@ async function getAudioMetadata({
   const query = `
   SELECT audio.id AS audio_id, blob_id, title, artist.id AS artist_id, artist.name, 
   CONCAT(title, " ", artist.name) AS fullAudioTitle, artist_position, duration, 
-  genre.id AS genre_id, genre.name AS genre_name, audio_genre.genre_position AS genre_position
+  genre.id AS genre_id, genre.name AS genre_name, audio_genre.genre_position AS genre_position, 
+  artistimage_b.image_id
   FROM (
     SELECT audio.id, blob_id, title, duration 
     FROM audio
@@ -342,6 +349,10 @@ async function getAudioMetadata({
     ON audio.id = audio_artist.audio_id
     LEFT JOIN artist 
     ON audio_artist.artist_id = artist.id
+    LEFT JOIN image_artist_b
+    ON artist.id = image_artist_b.artist_id
+    LEFT JOIN artistimage_b
+    ON image_artist_b.image_id = artistimage_b.id
     
     LEFT JOIN audio_playlist 
     ON audio.id = audio_playlist.audio_id
@@ -364,6 +375,10 @@ async function getAudioMetadata({
   ON audio.id = audio_artist.audio_id
   LEFT JOIN artist 
   ON audio_artist.artist_id = artist.id
+  LEFT JOIN image_artist_b
+  ON artist.id = image_artist_b.artist_id
+  LEFT JOIN artistimage_b
+  ON image_artist_b.image_id = artistimage_b.id
 
   LEFT JOIN audio_playlist 
   ON audio.id = audio_playlist.audio_id
@@ -381,29 +396,29 @@ async function getAudioMetadata({
   return await resolveQuery(query);
 }
 
-async function getAudio(audioID) {
+async function getAudio(audioId) {
   const query = `
   SELECT audio
   FROM audio_blob
-  WHERE id = ${audioID}
+  WHERE id = ${audioId}
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function insertAudioLanguage(audioID, languageID) {
+async function insertAudioLanguage(audioId, languageId) {
   const query = `
   INSERT INTO audio_language(audio_id, language_id) 
-  VALUES(${audioID}, ${languageID})
+  VALUES(${audioId}, ${languageId})
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function insertAudioArtist(audioID, artistID, artistPosition) {
+async function insertAudioArtist(audioId, artistId, artistPosition) {
   const query = `
   INSERT INTO audio_artist(audio_id, artist_id, artist_position) 
-  VALUES(${audioID}, ${artistID}, ${artistPosition})
+  VALUES(${audioId}, ${artistId}, ${artistPosition})
   ;`;
 
   return await resolveQuery(query);
@@ -420,10 +435,10 @@ async function getArtistByName(artist) {
   return await resolveQuery(query);
 }
 
-async function insertAudioData(blobID, title, duration) {
+async function insertAudioData(blobId, title, duration) {
   const query = `
   INSERT INTO audio(blob_id, title, duration) 
-  VALUES("${blobID}", "${title}", "${duration}")
+  VALUES("${blobId}", "${title}", "${duration}")
   ;`;
 
   return await resolveQuery(query);
@@ -449,9 +464,9 @@ async function getNumOfRows() {
   await resolveQuery(query);
 }
 
-async function setTag(artistID) {
+async function setTag(artistId) {
   const query = `
-  CALL INSERT_AUDIO_TAG_RELATIONS(${artistID});
+  CALL INSERT_AUDIO_TAG_RELATIONS(${artistId});
   `;
 
   return await resolveQuery(query);
@@ -460,12 +475,12 @@ async function setTag(artistID) {
 router.post("/setTag", async function (req, res, next) {
   console.log("Body:", req.body);
 
-  const artistID = req.body.artistID,
-    result = await setTag(artistID),
-    audiosData = {
-      status: result.error || 200,
-      audios: result.data,
-    };
+  const artistId = req.body.artistId;
+  const result = await setTag(artistId);
+  const audiosData = {
+    status: result.error || 200,
+    audios: result.data,
+  };
 
   res.send(audiosData);
 });

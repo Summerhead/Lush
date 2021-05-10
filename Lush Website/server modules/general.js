@@ -31,17 +31,23 @@ function executeQuery(query, values) {
 
 const audiosGroupBy = function (xs, key) {
   return xs.reduce(function (rv, x) {
-    rv.get(x[key]) || rv.set(x[key], { artists: {}, genres: {} });
+    if (!rv.has(x[key])) {
+      rv.set(x[key], { artists: {}, genres: {} });
+    }
+
     rv.get(x[key]).audio_id = x.audio_id;
     rv.get(x[key]).blob_id = x.blob_id;
     rv.get(x[key]).title = x.title;
     rv.get(x[key]).fullAudioTitle = x.fullAudioTitle;
     rv.get(x[key]).duration = x.duration;
+
     rv.get(x[key]).artists[x.artist_id] = {
       artist_id: x.artist_id,
       name: x.name,
+      image_id: x.image_id,
       position: x.artist_position,
     };
+
     if (x.genre_id) {
       rv.get(x[key]).genres[x.genre_id] = {
         genre_id: x.genre_id,
@@ -49,6 +55,7 @@ const audiosGroupBy = function (xs, key) {
         position: x.genre_position,
       };
     }
+
     return rv;
   }, new Map());
 };
@@ -58,7 +65,11 @@ const artistsGroupBy = function (xs, key) {
     rv.get(x[key]) || rv.set(x[key], { genres: {} });
     rv.get(x[key]).artist_id = x.artist_id;
     rv.get(x[key]).artist_name = x.artist_name;
-    rv.get(x[key]).artistimage_blob_id = x.artistimage_blob_id;
+    rv.get(x[key]).image_id = x.image_id;
+    rv.get(x[key]).r = x.r;
+    rv.get(x[key]).g = x.g;
+    rv.get(x[key]).b = x.b;
+
     if (x.genre_id) {
       rv.get(x[key]).genres[x.genre_id] = {
         genre_id: x.genre_id,
@@ -66,6 +77,7 @@ const artistsGroupBy = function (xs, key) {
         genre_position: x.genre_position,
       };
     }
+
     return rv;
   }, new Map());
 };

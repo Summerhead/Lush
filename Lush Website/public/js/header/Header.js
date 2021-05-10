@@ -8,14 +8,18 @@ export default class Header {
     this.header = headerTemplate;
     this.audioli;
     this.audioPlayer;
+    this.playPrevNextListenersAttached = false;
 
     this.currentAudioEl = this.header.querySelector("#current-audio");
     this.playButton = this.header.querySelector(".play-button");
+    this.playPrevButton = this.header.querySelector(".prev-button");
+    this.playNextButton = this.header.querySelector(".next-button");
     this.artistsEl = this.currentAudioEl.querySelector(
       ".audio-header>.artists"
     );
     this.titleEl = this.currentAudioEl.querySelector(".audio-header>.title");
     this.progressBar = this.header.querySelector(".progress-bar");
+    this.pageLis = this.header.querySelectorAll("#pages a");
     this.linkEls = this.header.querySelectorAll("a");
 
     this.configure();
@@ -96,6 +100,30 @@ export default class Header {
     this.currentAudioEl.r = r;
     this.currentAudioEl.g = g;
     this.currentAudioEl.b = b;
+
+    // this.pageLis.forEach((pageLi) => {
+    //   pageLi.addEventListener("mouseover", () => {
+    //     pageLi.style.textDecoration = `underline rgb(${r}, ${g}, ${b})`;
+    //   });
+    //   pageLi.addEventListener("mouseout", () => {
+    //     pageLi.style.textDecoration = "none";
+    //   });
+    // });
+  }
+
+  setPlayPrevNextListeners(audiosConfigurator) {
+    if (!this.playPrevNextListenersAttached) {
+      this.playPrevNextListenersAttached = true;
+
+      this.playPrevButton.addEventListener(
+        "click",
+        audiosConfigurator.playPrev
+      );
+      this.playNextButton.addEventListener(
+        "click",
+        audiosConfigurator.playNext
+      );
+    }
   }
 
   play = async () => {
@@ -104,7 +132,7 @@ export default class Header {
     } else {
       if (this.audioPlayer.src === location.href) {
         await this.fetchBlob({
-          blobID: Number(this.audio.blob_id),
+          blobId: Number(this.audio.blob_id),
         });
       }
 

@@ -56,16 +56,16 @@ export default class AudioSearchBar {
     this.fileInput.onchange = this.handleFileSelect;
 
     this.shuffleButton.addEventListener("click", this.configureShuffleRequest);
-    this.searchBar.value = lushURL.get("search");
+    this.searchBar.value = lushURL.getQuery();
 
-    const genres = lushURL.get("genres");
+    const genres = lushURL.getGenres();
     if (genres) {
       genres.split("_").forEach((genre) => {
         this.insertGenreQuery(genre);
       });
     }
 
-    const shuffle = lushURL.get("shuffle");
+    const shuffle = lushURL.getShuffle();
     if (shuffle) {
       this.toggleShuffle();
     }
@@ -88,7 +88,7 @@ export default class AudioSearchBar {
   removeGenreSearchQuery = (event) => {
     const target = event.target;
     target.remove();
-    lushURL.remove("genres", target.getAttribute("data-genre-name"));
+    lushURL.removeGenre(target.getAttribute("data-genre-name"));
 
     this.configureGenresRequest();
   };
@@ -99,7 +99,7 @@ export default class AudioSearchBar {
 
       audiosConfigurator.atTheBottom = true;
       audiosConfigurator.dataRequest.dataRequest.genres = audiosConfigurator.processGenresQuery(
-        lushURL.get("genres")
+        lushURL.getGenres()
       );
       audiosConfigurator.dataRequest.dataRequest.offset = 0;
       Promise.resolve(audiosConfigurator.getAudios()).then(() => {
@@ -130,10 +130,10 @@ export default class AudioSearchBar {
 
     if (this.shuffleButton.classList.contains("checked")) {
       audiosConfigurator.dataRequest.dataRequest.shuffle = true;
-      lushURL.insert("shuffle", 1);
+      lushURL.setShuffle();
     } else {
       audiosConfigurator.dataRequest.dataRequest.shuffle = false;
-      lushURL.delete("shuffle");
+      lushURL.deleteShuffle();
     }
 
     this.audiosOl.textContent = "";
@@ -145,8 +145,7 @@ export default class AudioSearchBar {
     // console.log(keyCode);
 
     if (this.keyUpCondition(keyCode)) {
-      lushURL.insert("search", this.searchBar.value);
-
+      lushURL.setQuery(this.searchBar.value);
       this.configureRequest();
     }
   };

@@ -6,23 +6,24 @@ const {
   insertArtist,
   artistsGroupBy,
 } = require("../general.js");
+const { uploadImageToGoogleDrive } = require("../googleDrive.js");
 
-router.post("/artistsForDropdown", async function (req, res, next) {
+router.post("/artistsForDropdown", async function (req, res) {
   console.log("Body:", req.body);
 
-  const artistName = req.body.artistName,
-    result = await getArtists(artistName),
-    artists = result.data?.map((artist) => ({ ...artist })) || [],
-    status = result.error || 200,
-    resJSON = {
-      status: status,
-      artists: artists,
-    };
+  const artistName = req.body.artistName;
+  const result = await getArtists(artistName);
+  const status = result.error || 200;
+  const artists = result.data?.map((artist) => ({ ...artist })) || [];
+  const resJSON = {
+    status: status,
+    artists: artists,
+  };
 
   res.send(resJSON);
 });
 
-router.post("/artistsData", async (req, res, next) => {
+router.post("/artistsData", async (req, res) => {
   // console.log("Body:", req.body);
 
   const dataRequest = req.body.dataRequest;
@@ -45,9 +46,9 @@ router.post("/artistsData", async (req, res, next) => {
   res.send(artistData);
 });
 
-router.post("/imageBlob", async (req, res, next) => {
-  const blobID = req.body.blobID;
-  const audioData = await fetchImageBlob(blobID);
+router.post("/imageBlob", async (req, res) => {
+  const blobId = req.body.blobId;
+  const audioData = await fetchImageBlob(blobId);
 
   res.write(audioData.blob);
   res.end();
@@ -92,26 +93,26 @@ async function getArtists(artistName) {
   return await resolveQuery(query);
 }
 
-async function insertArtistImageData(blobID) {
+async function insertArtistImageData(imageId) {
   const query = `
-  INSERT INTO artistimage(blob_id) 
-  VALUES("${blobID}")
+  INSERT INTO artistimage_b(image_id) 
+  VALUES("${imageId}")
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function insertImageArtist(imageID, artistID) {
+async function insertImageArtist(imageId, artistId) {
   const query = `
-  INSERT INTO image_artist(image_id, artist_id) 
-  VALUES(${imageID}, ${artistID})
+  INSERT INTO image_artist_b(image_id, artist_id) 
+  VALUES(${imageId}, ${artistId})
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function getArtistsData({ artistID, search, limit, offset }) {
-  var artistIDWhereClause = "",
+async function getArtistsData({ artistId, search, limit, offset }) {
+  var artistIdWhereClause = "",
     queryWhereClauses = [],
     subquery = "",
     subqueryWhereClauses = [],
@@ -131,13 +132,13 @@ async function getArtistsData({ artistID, search, limit, offset }) {
     subqueryWhereClauses.push(searchQuery);
   }
 
-  if (artistID) {
-    artistIDWhereClause = `
-    artist.id = ${artistID}
+  if (artistId) {
+    artistIdWhereClause = `
+    artist.id = ${artistId}
     `;
 
-    queryWhereClauses.push(artistIDWhereClause);
-    subqueryWhereClauses.push(artistIDWhereClause);
+    queryWhereClauses.push(artistIdWhereClause);
+    subqueryWhereClauses.push(artistIdWhereClause);
   } else {
     const subqueryWhereClause = constructWhereClauseAnd(subqueryWhereClauses);
 
@@ -157,8 +158,9 @@ async function getArtistsData({ artistID, search, limit, offset }) {
   const queryWhereClause = constructWhereClauseAnd(queryWhereClauses);
 
   const query = `
-  SELECT artist.id AS artist_id, artist.name AS artist_name, artistimage.blob_id AS artistimage_blob_id, 
-  genre.id AS genre_id, genre.name AS genre_name
+  SELECT artist.id AS artist_id, artist.name AS artist_name, artistimage_b.image_id AS image_id, 
+  genre.id AS genre_id, genre.name AS genre_name,
+  artistimage_b.r, artistimage_b.g, artistimage_b.b
   FROM (
     SELECT artist.id, name
     FROM artist
@@ -168,10 +170,11 @@ async function getArtistsData({ artistID, search, limit, offset }) {
     )
   artist
 
-  LEFT JOIN image_artist
-  ON artist.id = image_artist.artist_id
-  LEFT JOIN artistimage
-  ON artistimage.id = image_artist.image_id
+  LEFT JOIN image_artist_b
+  ON artist.id = image_artist_b.artist_id
+  AND is_cover = 1
+  LEFT JOIN artistimage_b
+  ON artistimage_b.id = image_artist_b.image_id
   
   LEFT JOIN audio_artist 
   ON artist.id = audio_artist.artist_id
@@ -189,8 +192,8 @@ async function getArtistsData({ artistID, search, limit, offset }) {
   return await resolveQuery(query);
 }
 
-async function fetchImageBlob(blobID) {
-  const result = await getArtistImageBlob(blobID);
+async function fetchImageBlob(blobId) {
+  const result = await getArtistImageBlob(blobId);
   const audioData = {
     status: result.error || 200,
     blob: result.data[0]?.image || new Uint8Array(0),
@@ -199,11 +202,11 @@ async function fetchImageBlob(blobID) {
   return audioData;
 }
 
-async function getArtistImageBlob(blobID) {
+async function getArtistImageBlob(blobId) {
   const query = `
   SELECT image
   FROM artistimage_blob
-  WHERE id = ${blobID}
+  WHERE id = ${blobId}
   ;`;
 
   return await resolveQuery(query);
@@ -211,68 +214,94 @@ async function getArtistImageBlob(blobID) {
 
 router.post("/submitArtist", async function (req, res) {
   const artistMetadata = JSON.parse(req.body.artistMetadata);
-  var artistID = artistMetadata.artistID;
-  const artistName = artistMetadata.artistName.replace('"', '\\"');
+  var artistId = artistMetadata.artistId;
   // Need to improve character escaping
+  const artistName = artistMetadata.artistName?.replace('"', '\\"');
   const image = req.files?.image;
   const genres = artistMetadata.genres;
+  const rgb = artistMetadata.rgb;
 
-  if (artistID) {
-    await editArtist(artistID, artistName);
+  if (artistId) {
+    await editArtist(artistId, artistName);
   } else {
-    artistID = (await insertArtist(artistName)).data.insertId;
+    artistId = (await insertArtist(artistName)).data.insertId;
   }
 
   if (image) {
-    const blobID = (await insertArtistImageBlob(image.data)).data.insertId;
-    const imageID = await (await insertArtistImageData(blobID)).data.insertId;
-    await insertImageArtist(imageID, artistID);
+    // const blobId = (await insertArtistImageBlob(image.data)).data.insertId;
+    const googleDriveImageId = await uploadImageToGoogleDrive(
+      "artists_images",
+      artistName,
+      image
+    );
+    const imageId = (
+      await insertArtistImageDataGoogleDrive(googleDriveImageId, rgb)
+    ).data.insertId;
+    await insertImageArtistGoogleDrive(imageId, artistId);
   }
 
-  await deleteAudioGenreRelations(artistID);
-  genres.forEach(async (genreID, index) => {
-    await setGenre(artistID, genreID, index + 1);
+  await deleteAudioGenreRelations(artistId);
+  genres.forEach(async (genreId, index) => {
+    await setGenre(artistId, genreId, index + 1);
   });
 
   res.send({
     status: 200,
     message: "File uploaded.",
-    artistID: artistID,
+    artistId: artistId,
     artistName: artistName,
   });
 });
 
-async function deleteAudioGenreRelations(artistID) {
+async function insertArtistImageDataGoogleDrive(imageId, { r, g, b }) {
   const query = `
-  CALL DELETE_AUDIO_GENRE_RELATIONS(${artistID})
+  INSERT INTO artistimage_b(image_id, r, g, b) 
+  VALUES("${imageId}", ${r}, ${g}, ${b})
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function editArtist(artistID, artistName) {
+async function insertImageArtistGoogleDrive(imageId, artistId) {
+  const query = `
+  INSERT INTO image_artist_b(image_id, artist_id) 
+  VALUES(${imageId}, ${artistId})
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function deleteAudioGenreRelations(artistId) {
+  const query = `
+  CALL DELETE_AUDIO_GENRE_RELATIONS(${artistId})
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function editArtist(artistId, artistName) {
   const query = `
   UPDATE artist
   SET name = "${artistName}"
-  WHERE id = ${artistID}
+  WHERE id = ${artistId}
   ;`;
 
   return await resolveQuery(query);
 }
 
-async function setGenre(artistID, genreID, genrePosition) {
+async function setGenre(artistId, genreId, genrePosition) {
   const query = `
-  CALL INSERT_AUDIO_TAG_RELATIONS(${artistID}, ${genreID}, ${genrePosition});
+  CALL INSERT_AUDIO_TAG_RELATIONS(${artistId}, ${genreId}, ${genrePosition});
   `;
 
   return await resolveQuery(query);
 }
 
-router.delete("/deleteArtist", async function (req, res, next) {
+router.delete("/deleteArtist", async function (req, res) {
   console.log("Body:", req.body);
 
-  const artistID = req.body.artistID,
-    result = await deleteArtist(artistID),
+  const artistId = req.body.artistId,
+    result = await deleteArtist(artistId),
     audiosData = {
       status: result.error || 200,
       audios: result.data,
@@ -281,11 +310,29 @@ router.delete("/deleteArtist", async function (req, res, next) {
   res.send(audiosData);
 });
 
-async function deleteArtist(artistID) {
+async function deleteArtist(artistId) {
   const query = `
   UPDATE artist
   SET deleted = 1
-  WHERE id = ${artistID}
+  WHERE id = ${artistId}
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+router.post("/uploadRGB", async function (req, res) {
+  const { r, g, b } = req.body.rgb;
+  const id = req.body.id;
+  await insertRGB(id, r, g, b);
+
+  res.send({ id: id, rgb: { r, g, b } });
+});
+
+async function insertRGB(id, r, g, b) {
+  const query = `
+  UPDATE artistimage_b
+  SET r = ${r}, g = ${g}, b = ${b}
+  WHERE id = ${id}
   ;`;
 
   return await resolveQuery(query);

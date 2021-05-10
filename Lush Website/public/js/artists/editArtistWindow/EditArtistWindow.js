@@ -27,9 +27,10 @@ export default class EditArtistWindow {
     this.fileInput = editArtistWindowContainer.querySelector(".file-input");
 
     this.artist;
-    this.artistID;
+    this.artistId;
     this.artistName;
     this.image;
+    this.rgb;
 
     this.configure();
     this.addUploadAction();
@@ -45,10 +46,12 @@ export default class EditArtistWindow {
   }
 
   resetAttributes() {
+    this.fileInput.value = null;
     this.artist = null;
-    this.artistID = null;
+    this.artistId = null;
     this.artistName = null;
     this.image = null;
+    this.rgb = null;
   }
 
   hide = () => {
@@ -91,7 +94,7 @@ export default class EditArtistWindow {
     }
 
     const genreAttributes = this.artist?.genres;
-    genreAttributes.forEach((genre) => {
+    genreAttributes?.forEach((genre) => {
       const genreDiv = document.createElement("div");
       genreDiv.classList.add("genre");
 
@@ -158,8 +161,6 @@ export default class EditArtistWindow {
   }
 
   toggleDropdown(event) {
-    // console.log(event);
-
     event.target.parentElement
       .querySelector(".dropdown")
       .classList.remove("hidden");
@@ -183,6 +184,7 @@ export default class EditArtistWindow {
   setGenre(event) {
     event.target.closest(".genre").querySelector("input").value =
       event.target.innerText;
+
     event.target
       .closest(".genre")
       .querySelector("input")
@@ -199,7 +201,7 @@ export default class EditArtistWindow {
       this.fileInput.click();
     };
 
-    this.fileInput.onchange = this.handleFileSelect;
+    this.fileInput.addEventListener("change", this.handleFileSelect);
   }
 
   handleFileSelect = async (e) => {
@@ -214,16 +216,26 @@ export default class EditArtistWindow {
     }
   };
 
-  displayCover(file) {
-    this.image = file;
-    const url = URL.createObjectURL(file);
+  displayCover(image) {
+    this.image = image;
+
+    const url = URL.createObjectURL(this.image);
     this.imageWrapper.style.backgroundImage = `url(${url})`;
     this.imageWrapper.style.height = "250px";
+
+    const img = document.createElement("img");
+    img.src = url;
+    img.onload = () => {
+      this.rgb = getAverageRGB(img);
+    };
   }
 
   sendChanges = async () => {
     this.genres = [];
-    this.artist.artist_name = this.titleInput.querySelector("input").value;
+    this.artistName = this.titleInput.querySelector("input").value;
+    if (this.artist) {
+      this.artist.artist_name = this.artistName;
+    }
     this.genresInputs.querySelectorAll("input").forEach((input) => {
       this.genres.push(input.getAttribute("data-genre-id"));
     });
@@ -231,9 +243,10 @@ export default class EditArtistWindow {
     const xhr = new XMLHttpRequest();
     const fd = new FormData();
     const artistMetadata = {
-      artistID: this.artist.artist_id,
-      artistName: this.artist.artist_name,
+      artistId: this.artist?.artist_id,
+      artistName: this.artistName,
       genres: this.genres,
+      rgb: this.rgb,
     };
 
     xhr.open("POST", "/submitArtist", true);
@@ -281,4 +294,52 @@ export default class EditArtistWindow {
   removeParentNode = (event) => {
     event.target.parentNode.remove();
   };
+}
+
+function getAverageRGB(imgEl) {
+  var blockSize = 1, // only visit every 5 pixels
+    defaultRGB = { r: 0, g: 0, b: 0 }, // for non-supporting envs
+    canvas = document.createElement("canvas"),
+    context = canvas.getContext && canvas.getContext("2d"),
+    data,
+    width,
+    height,
+    i = -4,
+    length,
+    rgb = { r: 0, g: 0, b: 0 },
+    count = 0;
+
+  if (!context) {
+    return defaultRGB;
+  }
+
+  height = canvas.height =
+    imgEl.naturalHeight || imgEl.offsetHeight || imgEl.height;
+  width = canvas.width = imgEl.naturalWidth || imgEl.offsetWidth || imgEl.width;
+
+  context.drawImage(imgEl, 0, 0);
+
+  try {
+    data = context.getImageData(0, 0, width, height);
+  } catch (e) {
+    console.log("ok");
+    /* security error, img on diff domain */
+    return defaultRGB;
+  }
+
+  length = data.data.length;
+
+  while ((i += blockSize * 4) < length) {
+    ++count;
+    rgb.r += data.data[i];
+    rgb.g += data.data[i + 1];
+    rgb.b += data.data[i + 2];
+  }
+
+  // ~~ used to floor values
+  rgb.r = ~~(rgb.r / count);
+  rgb.g = ~~(rgb.g / count);
+  rgb.b = ~~(rgb.b / count);
+
+  return rgb;
 }

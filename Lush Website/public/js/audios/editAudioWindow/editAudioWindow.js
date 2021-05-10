@@ -28,7 +28,6 @@ export default class EditAudioWindow {
     this.addGenreButton = editAudioWindowContainer.querySelector(".add-genre");
 
     this.audioClass;
-    this.audioID;
     this.title;
     this.artists = [];
     this.genres = [];
@@ -62,7 +61,6 @@ export default class EditAudioWindow {
 
   open(audioLi) {
     this.audioClass = audios.get(audioLi);
-    console.log(this.audioClass);
 
     const inputText = document.createElement("input");
     inputText.setAttribute("type", "text");

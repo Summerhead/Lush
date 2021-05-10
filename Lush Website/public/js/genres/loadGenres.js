@@ -1,16 +1,16 @@
-import GenresConfigurator from "./GenresConfigurator.js";
-import { header } from "../header/loadHeader.js";
+// import GenresConfigurator from "./GenresConfigurator.js";
+// import { header } from "../header/loadHeader.js";
 
-var genresConfigurator;
+// var genresConfigurator;
 
-export const loadGenres = async () => {
-  const editAudioWindowContainer = document.getElementById(
-    "edit-audio-window-container"
-  );
+// export const loadGenres = async () => {
+//   const editAudioWindowContainer = document.getElementById(
+//     "edit-audio-window-container"
+//   );
 
-  header.setDefaultStyle();
+//   header.setDefaultStyle();
 
-  genresConfigurator = new GenresConfigurator();
-};
+//   genresConfigurator = new GenresConfigurator();
+// };
 
-export { genresConfigurator };
+// export { genresConfigurator };

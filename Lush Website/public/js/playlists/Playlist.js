@@ -83,7 +83,7 @@ export default class Playlist {
     };
 
     const dataJSON = {
-      playlistID: event.target
+      playlistId: event.target
         .closest(".playlist-li")
         .getAttribute("data-playlist-id"),
     };

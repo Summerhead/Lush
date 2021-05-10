@@ -1,25 +1,38 @@
 import Playlist from "./Playlist.js";
+import { lushURL } from "../partials/loadContent.js";
 
 export default class PlaylistsConfigurator {
   constructor(playlistLi, dataRequest) {
     this.playlistLi = playlistLi;
 
-    const URLSParams = new URLSearchParams(location.search);
     this.defaultDataRequest = {
-      playlistID: document.location.pathname.split("/")[2] || null,
-      search: URLSParams.get("search"),
-      genres: URLSParams.get("genres"),
+      playlistId: this.processPlaylistId(),
+      search: lushURL.getQuery(),
+      genres: this.processGenresQuery(lushURL.getGenres()),
       limit: 140,
       offset: 0,
     };
     this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
-    console.log(this.dataRequest);
 
     this.playlistsOl = document.getElementById("playlists-ol");
     this.atTheBottom = true;
 
     this.getPlaylists();
     this.applyWindowOnScroll();
+  }
+
+  processPlaylistId() {
+    if (lushURL.currentPage === "playlist") {
+      return location.pathname.split("/")[2];
+    }
+    return null;
+  }
+
+  processGenresQuery(genres) {
+    if (genres) {
+      genres = genres.split("_");
+    }
+    return genres;
   }
 
   getPlaylists() {
@@ -52,7 +65,7 @@ export default class PlaylistsConfigurator {
                 imageWrapper = playlistClass.imageWrapper;
               this.playlistsOl.appendChild(playlistLi);
 
-              const reqImageBlob = { blobID: playlist.blob_id };
+              const reqImageBlob = { blobId: playlist.blob_id };
               this.fetchBlob(reqImageBlob, imageWrapper);
 
               this.outputsize(imageWrapper);

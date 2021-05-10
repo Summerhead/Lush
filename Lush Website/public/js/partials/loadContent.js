@@ -1,7 +1,7 @@
 import { loadMain } from ".././loadMain.js";
 import { loadAudios } from "../audios/loadAudios.js";
 import { loadArtists } from "../artists/loadArtists.js";
-import { loadArtist } from "../artists/artist/loadArtist.js";
+import { loadArtist } from "../artist/loadArtist.js";
 import { loadAudioSearchBar } from "../searchBar/audios/loadAudioSearchBar.js";
 import { loadArtistSearchBar } from "../searchBar/artists/loadArtistSearchBar.js";
 import { loadGenres } from "../genres/loadGenres.js";
@@ -26,9 +26,6 @@ export default async function showPage(href, skipPushState) {
     })
     .then((scripts) => {
       if (scripts) runScripts(scripts, href, skipPushState);
-    })
-    .then(() => {
-      lushURL = new LushURL(location.search);
     });
 }
 
@@ -79,11 +76,13 @@ function displayMain(main, scripts) {
 }
 
 function runScripts(scripts, href, skipPushState) {
-  scripts.forEach((script) => eval(script)());
-
   if (!skipPushState) {
     history.pushState({ href: href }, "", href);
   }
+
+  lushURL = new LushURL(location.search);
+
+  scripts.forEach((script) => eval(script)());
 }
 
 function setTitle({ isDefaultTitle, name }) {
