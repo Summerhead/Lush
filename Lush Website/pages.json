@@ -29,7 +29,7 @@
     "title": { "isDefaultTitle": true, "name": "Playlists" },
     "scripts": ["loadPlaylistSearchBar", "loadPlaylists"]
   },
-  "/playlists/:playlistsId/:playlistsName": {
+  "/playlists/:playlistId/:playlistName": {
     "pagepath": "/public/html/playlist.html",
     "title": { "isDefaultTitle": false, "name": "Playlist" },
     "scripts": ["loadAudioSearchBar", "loadAudios"]

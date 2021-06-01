@@ -297,6 +297,8 @@ async function getAudioMetadata({
 
   if (shuffle) {
     var orderBy = "RAND()";
+  } else if (playlistId) {
+    var orderBy = "audio_playlist.audio_position";
   } else {
     var orderBy = "audio.id DESC";
     const subquery = `

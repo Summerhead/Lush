@@ -1,36 +1,96 @@
+import Audio from "../../audios/Audio.js";
+import { lushURL } from "../../partials/loadContent.js";
+import { audios } from "../../audios/AudiosConfigurator.js";
+import { loadAudios } from "../../audios/loadAudios.js";
+import { loadAudioSearchBar } from "../../searchBar/audios/loadAudioSearchBar.js";
+
 export default class EditPlaylistWindow {
-  constructor(editPlaylistWindowContainer) {
+  constructor(editPlaylistWindowContainer, audioLi, dataRequest) {
     this.editPlaylistWindowContainer = editPlaylistWindowContainer;
-    this.editPlaylistWindowBackground = editPlaylistWindowContainer.querySelector(
-      "#edit-playlist-window-background"
-    );
+    this.editPlaylistWindowBackground =
+      editPlaylistWindowContainer.querySelector(
+        "#edit-playlist-window-background"
+      );
     this.editPlaylistWindow = editPlaylistWindowContainer.querySelector(
       "#edit-playlist-window"
     );
-    this.titleInput = editPlaylistWindowContainer.querySelector(
-      "#title>.inputs"
-    );
-    this.closeButton = editPlaylistWindowContainer.querySelector(
-      "#close-button"
-    );
-    this.submitButton = editPlaylistWindowContainer.querySelector(
-      "#submit-button"
-    );
-    this.imageWrapper = editPlaylistWindowContainer.querySelector(
-      "#image-wrapper"
-    );
-    this.uploadCover = editPlaylistWindowContainer.querySelector(
-      "#upload-cover"
-    );
-    this.fileInput = editPlaylistWindowContainer.querySelector("#file-input");
+    this.audioLi = audioLi;
+    this.titleInput =
+      editPlaylistWindowContainer.querySelector(".title>.inputs");
+    this.closeButton =
+      editPlaylistWindowContainer.querySelector(".close-button");
+    this.submitButton =
+      editPlaylistWindowContainer.querySelector(".submit-button");
+    this.imageWrapper =
+      editPlaylistWindowContainer.querySelector(".image-wrapper");
+    this.uploadCover =
+      editPlaylistWindowContainer.querySelector(".upload-cover");
+    this.fileInput = editPlaylistWindowContainer.querySelector(".file-input");
+    this.audiosOl = editPlaylistWindowContainer.querySelector(".audios-ol");
+
+    this.defaultDataRequest = {
+      artistId: this.processArtistId(),
+      playlistId: this.processPlaylistId(),
+      search: lushURL.getQuery(),
+      genres: this.processGenresQuery(lushURL.getGenres()),
+      shuffle: this.processShuffleQuery(lushURL.getShuffle()),
+      limit: 100,
+      offset: 0,
+    };
+    this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
 
     this.playlistLi;
     this.playlistId;
     this.playlistName;
     this.image;
+    this.chosenAudiosIds = new Set();
 
     this.configure();
     this.display();
+  }
+
+  processArtistId() {
+    if (lushURL.currentPage === "artist") {
+      return location.pathname.split("/")[2];
+    }
+    return null;
+  }
+
+  processPlaylistId() {
+    if (lushURL.currentPage === "playlist") {
+      return location.pathname.split("/")[2];
+    }
+    return null;
+  }
+
+  processGenresQuery(genres) {
+    if (genres) {
+      genres = genres.split("_");
+    }
+    return genres;
+  }
+
+  processShuffleQuery(shuffle) {
+    if (shuffle == 1) {
+      return true;
+    }
+    return false;
+  }
+
+  getAudios() {
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "/audioData", true);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.onreadystatechange = () => {
+      if (xhr.readyState == 4 && xhr.status == 200) {
+        const response = JSON.parse(xhr.response);
+        console.log(response);
+
+        this.displayAudios(xhr.response);
+      }
+    };
+
+    xhr.send(JSON.stringify(this.dataRequest));
   }
 
   configure() {
@@ -38,7 +98,6 @@ export default class EditPlaylistWindow {
     this.editPlaylistWindowBackground.addEventListener("click", this.hide);
 
     this.submitButton.addEventListener("click", this.sendChanges);
-    // this.addArtistButton.addEventListener("click", this.addArtist);
 
     this.uploadCover.onclick = () => {
       this.fileInput.click();
@@ -52,6 +111,7 @@ export default class EditPlaylistWindow {
     this.playlistId = "";
     this.playlistName = "";
     this.image = "";
+    this.chosenAudiosIds.clear();
   }
 
   hide = () => {
@@ -72,17 +132,21 @@ export default class EditPlaylistWindow {
 
   open(playlistLi) {
     this.playlistLi = playlistLi;
-    this.playlistId = playlistLi
-      ? playlistLi.getAttribute("data-playlist-id")
-      : null;
+    this.playlistId = playlistLi?.getAttribute("data-playlist-id");
 
     const inputText = document.createElement("input");
     inputText.setAttribute("type", "text");
-    this.playlistName = playlistLi
-      ? playlistLi.getAttribute("data-playlist-name")
-      : null;
+    this.playlistName = playlistLi?.getAttribute("data-playlist-name");
     inputText.value = this.playlistName;
     this.titleInput.appendChild(inputText);
+
+    loadAudios("#edit-playlist-window .audios-ol", true);
+    loadAudioSearchBar(
+      "#edit-playlist-window #search-bar-container",
+      "#edit-playlist-window .audios-ol",
+      true
+    );
+    // this.getAudios();
 
     if (playlistLi) {
       if (playlistLi.querySelector(".image-wrapper").style.backgroundImage) {
@@ -90,9 +154,8 @@ export default class EditPlaylistWindow {
       } else {
         this.imageWrapper.style.height = "0px";
       }
-      this.imageWrapper.style.backgroundImage = playlistLi.querySelector(
-        ".image-wrapper"
-      ).style.backgroundImage;
+      this.imageWrapper.style.backgroundImage =
+        playlistLi.querySelector(".image-wrapper").style.backgroundImage;
     } else {
       this.imageWrapper.style.height = "0px";
       this.imageWrapper.style.backgroundImage = "";
@@ -194,12 +257,13 @@ export default class EditPlaylistWindow {
       }
     };
 
-    const json = {
+    const reqJson = {
       playlistId: this.playlistId,
       playlistName: this.playlistName,
+      audioIds: [...this.chosenAudiosIds],
     };
 
-    fd.append("playlistMetadata", JSON.stringify(json));
+    fd.append("playlistMetadata", JSON.stringify(reqJson));
     fd.append("image", this.image);
 
     xhr.send(fd);

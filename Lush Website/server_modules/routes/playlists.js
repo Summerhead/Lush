@@ -91,9 +91,10 @@ router.post("/submitPlaylist", async function (req, res) {
 
   const playlistMetadata = JSON.parse(req.body.playlistMetadata);
   var playlistId = playlistMetadata.playlistId;
-  const playlistName = playlistMetadata.playlistName.replace('"', '\\"');
   // Need to improve character escaping
+  const playlistName = playlistMetadata.playlistName.replace('"', '\\"');
   const image = req.files?.image;
+  const audioIds = playlistMetadata.audioIds;
 
   if (playlistId) {
     await editPlaylist(playlistId, playlistName);
@@ -108,13 +109,38 @@ router.post("/submitPlaylist", async function (req, res) {
     // await insertImagePlaylist(imageId, playlistId);
   }
 
+  await deleteAudioPlaylistRelations(playlistId);
+
+  for (const [index, audioId] of audioIds.entries()) {
+    await addAudioPlaylistRelation(audioId, playlistId, index + 1);
+  }
+
   res.send({
     status: 200,
     message: "File uploaded.",
     playistId: playlistId,
     playistName: playlistName,
+    audioIds: audioIds,
   });
 });
+
+async function deleteAudioPlaylistRelations(playlistId) {
+  const query = `
+  DELETE FROM audio_playlist
+  WHERE playlist_id = ${playlistId}
+  ;`;
+
+  return await resolveQuery(query);
+}
+
+async function addAudioPlaylistRelation(audioId, playlistId, audioPosition) {
+  const query = `
+  INSERT INTO audio_playlist()
+  VALUES( ${audioId}, ${playlistId}, ${audioPosition})
+  ;`;
+
+  return await resolveQuery(query);
+}
 
 async function editPlaylist(playlistId, playlistName) {
   const query = `

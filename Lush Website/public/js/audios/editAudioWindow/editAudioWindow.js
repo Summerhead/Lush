@@ -6,25 +6,20 @@ export default class EditAudioWindow {
     this.editAudioWindowBackground = editAudioWindowContainer.querySelector(
       "#edit-audio-window-background"
     );
-    this.editAudioWindow = editAudioWindowContainer.querySelector(
-      "#edit-audio-window"
-    );
+    this.editAudioWindow =
+      editAudioWindowContainer.querySelector("#edit-audio-window");
     this.titleInput = editAudioWindowContainer.querySelector(".title>.inputs");
-    this.artistsInputs = editAudioWindowContainer.querySelector(
-      ".artists>.inputs"
-    );
+    this.artistsInputs =
+      editAudioWindowContainer.querySelector(".artists>.inputs");
     this.artistDropdowns = [];
-    this.genresInputs = editAudioWindowContainer.querySelector(
-      ".genres>.inputs"
-    );
+    this.genresInputs =
+      editAudioWindowContainer.querySelector(".genres>.inputs");
     this.genreDropdowns = [];
     this.closeButton = editAudioWindowContainer.querySelector(".close-button");
-    this.submitButton = editAudioWindowContainer.querySelector(
-      ".submit-button"
-    );
-    this.addArtistButton = editAudioWindowContainer.querySelector(
-      ".add-artist"
-    );
+    this.submitButton =
+      editAudioWindowContainer.querySelector(".submit-button");
+    this.addArtistButton =
+      editAudioWindowContainer.querySelector(".add-artist");
     this.addGenreButton = editAudioWindowContainer.querySelector(".add-genre");
 
     this.audioClass;
@@ -151,9 +146,8 @@ export default class EditAudioWindow {
         const response = JSON.parse(xhr.response);
         console.log(response);
 
-        this.artistDropdowns = this.editAudioWindowContainer.querySelectorAll(
-          ".artist>.dropdown"
-        );
+        this.artistDropdowns =
+          this.editAudioWindowContainer.querySelectorAll(".artist>.dropdown");
         this.artistDropdowns.forEach((dropdown) => {
           response.artists.forEach((artist) => {
             const artistP = document.createElement("p");
@@ -179,9 +173,8 @@ export default class EditAudioWindow {
         const response = JSON.parse(xhr.response);
         console.log(response);
 
-        this.genreDropdowns = this.editAudioWindowContainer.querySelectorAll(
-          ".genre>.dropdown"
-        );
+        this.genreDropdowns =
+          this.editAudioWindowContainer.querySelectorAll(".genre>.dropdown");
         this.genreDropdowns.forEach((dropdown) => {
           response.genres.forEach((genre) => {
             const genreP = document.createElement("p");

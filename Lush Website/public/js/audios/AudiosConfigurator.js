@@ -2,11 +2,12 @@ import Audio, { currentAudio } from "./Audio.js";
 import { rgb, bw } from "../artist/ArtistConfigurator.js";
 import { lushURL } from "../partials/loadContent.js";
 import { header } from "../header/loadHeader.js";
+import { editPlaylistWindow } from "../playlists/loadPlaylists.js";
 
 const audios = new WeakMap();
 
 export default class AudiosConfigurator {
-  constructor(audioLi, dataRequest) {
+  constructor(audioLi, audiosOlQuery, isDummy, dataRequest) {
     this.audioLi = audioLi;
 
     this.defaultDataRequest = {
@@ -20,11 +21,13 @@ export default class AudiosConfigurator {
     };
     this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
 
-    this.audiosOl = document.getElementById("audios-ol");
+    this.audiosOlQuery = audiosOlQuery || "#main .audios-ol";
+    this.audiosOl = document.querySelector(this.audiosOlQuery);
     this.audios = [];
     this.atTheBottom = true;
     this.audiosRequestResolved = false;
     this.rgb;
+    this.isDummy = isDummy;
 
     header.setPlayPrevNextListeners(this);
 
@@ -73,7 +76,12 @@ export default class AudiosConfigurator {
         if (xhr.readyState == 4 && xhr.status == 200) {
           resolve();
 
-          this.displayAudios(xhr.response);
+          if (this.isDummy) {
+            this.displayAudiosForEditPlaylistWindow(xhr.response);
+          } else {
+            this.displayAudios(xhr.response);
+          }
+          this.setColorForTags();
         }
       };
     }).then(() => (this.audiosRequestResolved = true));
@@ -98,7 +106,7 @@ export default class AudiosConfigurator {
             audioClass = audios.get(currentAudio);
             audioLi = this.transformCurrentAudio();
           } else {
-            audioClass = new Audio(this.audioLi, audio);
+            audioClass = new Audio(this.audioLi, audio, this.isDummy);
             audioLi = audioClass.audioLi;
           }
           audioLi.audioId = audio.audio_id;
@@ -134,8 +142,67 @@ export default class AudiosConfigurator {
       }
     }
 
-    this.waitRGB();
+    // this.waitRGB();
   }
+
+  displayAudiosForEditPlaylistWindow(xhrResponse) {
+    const data = JSON.parse(xhrResponse);
+    console.log("Data:", data);
+
+    const returnedRows = data.audios.length;
+
+    if (data.status === 200) {
+      if (returnedRows) {
+        this.audios = [];
+
+        for (const audio of data.audios) {
+          var audioClass = new Audio(this.audioLi, audio, true);
+          var audioLi = audioClass.audioLi;
+          this.addEventListeners(audioLi);
+          audioLi.audioId = audio.audio_id;
+          audios.set(audioLi, audioClass);
+          const imageWrapper = audioClass.imageWrapper;
+
+          let image_id = null;
+          for (const artist of audio.artists) {
+            if (artist.image_id) {
+              image_id = artist.image_id;
+              break;
+            }
+          }
+
+          if (lushURL.currentPage !== "artist" && image_id) {
+            imageWrapper.classList.remove("no-cover");
+            imageWrapper.style.backgroundImage = `url("https://drive.google.com/uc?export=view&id=${image_id}")`;
+          }
+
+          this.audios.push(audioLi);
+
+          this.audiosOl.appendChild(audioLi);
+        }
+
+        if (returnedRows === this.dataRequest.dataRequest.limit) {
+          this.atTheBottom = false;
+        }
+      }
+    }
+  }
+
+  addEventListeners(audioLi) {
+    audioLi.addEventListener("click", this.addChosenClass);
+  }
+
+  addChosenClass = (event) => {
+    const audioLi = event.target.closest(".audio-li");
+    audioLi.classList.toggle("chosen");
+
+    const chosenAudioId = audios.get(audioLi).audio.audio_id;
+    if (editPlaylistWindow.chosenAudiosIds.has(chosenAudioId)) {
+      editPlaylistWindow.chosenAudiosIds.delete(chosenAudioId);
+    } else {
+      editPlaylistWindow.chosenAudiosIds.add(chosenAudioId);
+    }
+  };
 
   transformCurrentAudio() {
     if (lushURL.currentPage === "artist") {
@@ -171,51 +238,92 @@ export default class AudiosConfigurator {
     }
   };
 
-  waitRGB() {
-    const waitRGB = setInterval(() => {
-      const genresEls = [...document.querySelectorAll(".audio-li .genres")];
-      const genreEls = [...document.querySelectorAll(".audio-li .genre")];
+  setColorForTags() {
+    const genresEls = [...document.querySelectorAll(".audio-li .genres")];
+    const genreEls = [...document.querySelectorAll(".audio-li .genre")];
+    // const genreEls = [];
+    // genresEls.forEach((el) =>
+    //   el.querySelectorAll(".genre").forEach((genreEl) => genreEls.push(genreEl))
+    // );
 
-      if (rgb && bw) {
-        this.rgb = rgb;
-        const { r, g, b } = rgb;
-        genresEls.forEach((tagEl) => {
-          tagEl.classList.remove("no-color");
-          tagEl.classList.add("colored", bw);
-        });
-        genreEls.forEach((tagEl) => {
-          tagEl.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
-          tagEl.r = r;
-          tagEl.g = g;
-          tagEl.b = b;
-          tagEl.addEventListener("mouseover", this.setStyle);
-          tagEl.addEventListener("mouseout", this.removeStyle);
-        });
-      }
+    if (
+      rgb &&
+      lushURL.currentPage !== "music" &&
+      lushURL.currentPage !== "playlist"
+    ) {
+      const { r, g, b } = rgb;
 
-      if (rgb === "" && bw === "") {
-        genreEls.forEach((tagEl) => {
-          tagEl.removeAttribute("style");
-        });
-      }
+      genresEls.forEach((tagEl) => {
+        tagEl.classList.remove("no-color");
+        tagEl.classList.add("colored", bw);
+      });
 
-      if (
-        lushURL.currentPage === "music" ||
-        lushURL.currentPage === "playlist"
-      ) {
-        clearInterval(waitRGB);
+      genreEls.forEach((tagEl) => {
+        tagEl.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
+        tagEl.r = r;
+        tagEl.g = g;
+        tagEl.b = b;
+        tagEl.addEventListener("mouseover", this.setStyle);
+        tagEl.addEventListener("mouseout", this.removeStyle);
+      });
+    } else {
+      genresEls.forEach((tagEl) => {
+        tagEl.classList.remove("colored", "white-theme", "black-theme");
+      });
 
-        genresEls.forEach((tagEl) => {
-          tagEl.classList.remove("colored", "white-theme", "black-theme");
-        });
-        genreEls.forEach((tagEl) => {
-          tagEl.removeAttribute("style");
-          tagEl.removeEventListener("mouseover", this.setStyle);
-          tagEl.removeEventListener("mouseout", this.removeStyle);
-        });
-      }
-    }, 10);
+      genreEls.forEach((tagEl) => {
+        tagEl.removeAttribute("style");
+        tagEl.removeEventListener("mouseover", this.setStyle);
+        tagEl.removeEventListener("mouseout", this.removeStyle);
+      });
+    }
   }
+
+  // waitRGB() {
+  //   const waitRGB = setInterval(() => {
+  //     const genresEls = [...document.querySelectorAll(".audio-li .genres")];
+  //     const genreEls = [...document.querySelectorAll(".audio-li .genre")];
+
+  //     if (rgb && bw) {
+  //       this.rgb = rgb;
+  //       const { r, g, b } = rgb;
+  //       genresEls.forEach((tagEl) => {
+  //         tagEl.classList.remove("no-color");
+  //         tagEl.classList.add("colored", bw);
+  //       });
+  //       genreEls.forEach((tagEl) => {
+  //         tagEl.style.backgroundColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
+  //         tagEl.r = r;
+  //         tagEl.g = g;
+  //         tagEl.b = b;
+  //         tagEl.addEventListener("mouseover", this.setStyle);
+  //         tagEl.addEventListener("mouseout", this.removeStyle);
+  //       });
+  //     }
+
+  //     if (rgb === "" && bw === "") {
+  //       genreEls.forEach((tagEl) => {
+  //         tagEl.removeAttribute("style");
+  //       });
+  //     }
+
+  //     if (
+  //       lushURL.currentPage === "music" ||
+  //       lushURL.currentPage === "playlist"
+  //     ) {
+  //       clearInterval(waitRGB);
+
+  //       genresEls.forEach((tagEl) => {
+  //         tagEl.classList.remove("colored", "white-theme", "black-theme");
+  //       });
+  //       genreEls.forEach((tagEl) => {
+  //         tagEl.removeAttribute("style");
+  //         tagEl.removeEventListener("mouseover", this.setStyle);
+  //         tagEl.removeEventListener("mouseout", this.removeStyle);
+  //       });
+  //     }
+  //   }, 10);
+  // }
 
   setStyle(event) {
     const { r, g, b } = event.target;
@@ -243,6 +351,7 @@ export default class AudiosConfigurator {
 
   renderItems = () => {
     this.audiosOl.innerText = "";
+    console.log("here");
     this.audios.forEach((audioLi) => {
       this.audiosOl.appendChild(audioLi);
     });

@@ -18,9 +18,9 @@ export default class Artist {
   configure() {
     this.artistName.innerText = this.artist.artist_name;
 
-    this.artistLink.href += `${
-      this.artist.artist_id
-    }/${this.artist.artist_name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
+    this.artistLink.href += `${this.artist.artist_id}/${this.artist.artist_name
+      .replace(/ /g, "+")
+      .replace(/\//g, "%2F")}`;
 
     if (this.artist.image_id) {
       this.imageWrapper.style.backgroundImage = `url("https://drive.google.com/uc?export=view&id=${this.artist.image_id}")`;
@@ -83,7 +83,7 @@ export default class Artist {
     );
   };
 
-  deleteAction(event) {
+  deleteAction = (event) => {
     const xhr = new XMLHttpRequest();
     xhr.open("DELETE", "/deleteArtist", true);
     xhr.setRequestHeader("Content-Type", "application/json");
@@ -95,11 +95,9 @@ export default class Artist {
     };
 
     const dataJSON = {
-      artistId: event.target
-        .closest(".artist-li")
-        .getAttribute("data-artist-id"),
+      artistId: this.artist.artist_id,
     };
 
     xhr.send(JSON.stringify(dataJSON));
-  }
+  };
 }

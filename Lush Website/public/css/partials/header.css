@@ -44,19 +44,13 @@
   padding: 0px;
 }
 
-#header .left-side {
-  width: initial;
-  height: initial;
-  margin-top: auto;
-  margin-bottom: auto;
-}
-
 #header .left-side-container {
   display: flex;
+  height: 100%;
 }
 
 #header .left-side-container > button {
-  height: 36px;
+  height: 100%;
   width: 36px;
 }
 

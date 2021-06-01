@@ -9,21 +9,17 @@ export default class EditArtistWindow {
       "#edit-artist-window"
     );
     this.titleInput = editArtistWindowContainer.querySelector(".title>.inputs");
-    this.genresInputs = editArtistWindowContainer.querySelector(
-      ".genres>.inputs"
-    );
+    this.genresInputs =
+      editArtistWindowContainer.querySelector(".genres>.inputs");
     this.genreDropdowns = [];
     this.addGenreButton = editArtistWindowContainer.querySelector(".add-genre");
     this.closeButton = editArtistWindowContainer.querySelector(".close-button");
-    this.submitButton = editArtistWindowContainer.querySelector(
-      ".submit-button"
-    );
-    this.imageWrapper = editArtistWindowContainer.querySelector(
-      ".image-wrapper"
-    );
-    this.uploadButton = editArtistWindowContainer.querySelector(
-      ".upload-button"
-    );
+    this.submitButton =
+      editArtistWindowContainer.querySelector(".submit-button");
+    this.imageWrapper =
+      editArtistWindowContainer.querySelector(".image-wrapper");
+    this.uploadButton =
+      editArtistWindowContainer.querySelector(".upload-button");
     this.fileInput = editArtistWindowContainer.querySelector(".file-input");
 
     this.artist;
@@ -141,9 +137,8 @@ export default class EditArtistWindow {
         const response = JSON.parse(xhr.response);
         console.log(response);
 
-        this.genreDropdowns = this.editArtistWindowContainer.querySelectorAll(
-          ".genre>.dropdown"
-        );
+        this.genreDropdowns =
+          this.editArtistWindowContainer.querySelectorAll(".genre>.dropdown");
         this.genreDropdowns.forEach((dropdown) => {
           response.genres.forEach((genre) => {
             const genreP = document.createElement("p");

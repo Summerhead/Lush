@@ -3,6 +3,8 @@ import loadPlaylistTemplate from "./loadPlaylistTemplate.js";
 import loadEditArtistWindow from "./editPlaylistWindow/loadEditPlaylistWindow.js";
 import { header } from "../header/loadHeader.js";
 import EditPlaylistWindow from "./editPlaylistWindow/EditPlaylistWindow.js";
+import loadAudioTemplate from "../audios/loadAudioTemplate.js";
+import { loadAudioSearchBar } from "../searchBar/audios/loadAudioSearchBar.js";
 
 var playlistsConfigurator;
 var editPlaylistWindow;
@@ -17,10 +19,11 @@ export const loadPlaylists = async () => {
   await Promise.all([
     loadPlaylistTemplate(),
     editPlaylistWindowContainer || loadEditArtistWindow(),
+    loadAudioTemplate(),
   ]).then((resolves) => {
     playlistsConfigurator = new PlaylistsConfigurator(resolves[0]);
     editPlaylistWindowContainer ||
-      (editPlaylistWindow = new EditPlaylistWindow(resolves[1]));
+      (editPlaylistWindow = new EditPlaylistWindow(resolves[1], resolves[2]));
   });
 };
 

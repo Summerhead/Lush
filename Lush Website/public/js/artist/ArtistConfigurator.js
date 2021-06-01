@@ -1,6 +1,7 @@
 import { currentAudio } from "../audios/Audio.js";
 import { header } from "../header/loadHeader.js";
 import { lushURL } from "../partials/loadContent.js";
+import { audiosConfigurator } from "../audios/loadAudios.js";
 
 var rgb, bw;
 
@@ -97,6 +98,8 @@ export default class ArtistConfigurator {
 
                 bw = this.calcBrightness(r, g, b);
                 header.header.classList.add(bw);
+
+                // audiosConfigurator.setColorForTags();
               } else {
                 rgb = null;
               }

@@ -2,7 +2,7 @@ import { audiosConfigurator } from "../../audios/loadAudios.js";
 import { lushURL } from "../../partials/loadContent.js";
 
 export default class AudioSearchBar {
-  constructor(searchBarContainer) {
+  constructor(searchBarContainer, searchBarQuery, audiosOlQuery, isEditing) {
     this.searchBarContainer = searchBarContainer;
     this.searchBar = searchBarContainer.querySelector("#search-bar");
     this.searchButton = searchBarContainer.querySelector("#search-audio");
@@ -10,10 +10,13 @@ export default class AudioSearchBar {
     this.fileInput = searchBarContainer.querySelector("#file-input");
     this.shuffleButton = searchBarContainer.querySelector("#shuffle-audios");
     this.genresSearchBar = searchBarContainer.querySelector(
-      "#genres-search-bar"
+      "#main .genres-search-bar"
     );
 
-    this.audiosOl = document.getElementById("audios-ol");
+    this.searchBarQuery = searchBarQuery || "#main .search-bar-container";
+    this.audiosOlQuery = audiosOlQuery || "#main .audios-ol";
+    this.audiosOl = document.querySelector(this.audiosOlQuery);
+
     this.alphaNumericKeyCodes = /^[a-z0-9]+$/i;
 
     const keyCodesRangeRule = (keyCode) =>
@@ -29,6 +32,7 @@ export default class AudioSearchBar {
 
     this.prevInput;
     this.checkInput;
+    this.isEditing = isEditing;
 
     this.configure();
     this.display();
@@ -98,9 +102,8 @@ export default class AudioSearchBar {
       this.audiosOl.textContent = "";
 
       audiosConfigurator.atTheBottom = true;
-      audiosConfigurator.dataRequest.dataRequest.genres = audiosConfigurator.processGenresQuery(
-        lushURL.getGenres()
-      );
+      audiosConfigurator.dataRequest.dataRequest.genres =
+        audiosConfigurator.processGenresQuery(lushURL.getGenres());
       audiosConfigurator.dataRequest.dataRequest.offset = 0;
       Promise.resolve(audiosConfigurator.getAudios()).then(() => {
         clearInterval(this.checkInput);
@@ -145,7 +148,7 @@ export default class AudioSearchBar {
     // console.log(keyCode);
 
     if (this.keyUpCondition(keyCode)) {
-      lushURL.setQuery(this.searchBar.value);
+      if (!this.isEditing) lushURL.setQuery(this.searchBar.value);
       this.configureRequest();
     }
   };
@@ -172,7 +175,7 @@ export default class AudioSearchBar {
 
   display() {
     document
-      .getElementById("search-bar-container")
+      .querySelector(this.searchBarQuery)
       .replaceWith(this.searchBarContainer);
   }
 

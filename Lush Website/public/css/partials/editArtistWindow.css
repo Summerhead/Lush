@@ -111,3 +111,20 @@
 #edit-artist-window .upload-button {
   background: white url("/public/content/icons/plus.svg") center/10px no-repeat;
 }
+
+#edit-artist-window .content .dropdown {
+  max-height: 300px;
+  overflow-y: scroll;
+}
+
+#edit-artist-window .content .dropdown > p {
+  line-height: 1.3em;
+  padding: 3px 3px;
+  border-bottom: 1px solid rgb(202, 202, 202);
+  white-space: pre-wrap;
+  cursor: pointer;
+}
+
+#edit-artist-window .content .dropdown > p:hover {
+  background-color: rgb(216, 216, 216);
+}

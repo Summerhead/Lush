@@ -8,7 +8,7 @@ import { header } from "../header/loadHeader.js";
 var currentAudio;
 
 export default class Audio {
-  constructor(audioLi, audio) {
+  constructor(audioLi, audio, isDummy) {
     this.audio = audio;
     this.audio.audioFullTitle = this.#constructAudioFullTitle();
     this.audioLi = audioLi.cloneNode(true);
@@ -37,13 +37,15 @@ export default class Audio {
     this.infoButton = this.audioLi.querySelector(".info-button");
     this.hiddenTime = this.audioLi.querySelector(".time .hidden");
 
+    this.isDummy = isDummy;
+
     this.configure();
   }
 
   configure() {
     this.insertArtists();
     this.displayTags();
-    this.addEventListeners();
+    if (!this.isDummy) this.addEventListeners();
 
     this.titleEl.innerText = this.audio.title;
     this.durationTime.innerText = this.audioTime(this.audio.duration);
@@ -65,19 +67,21 @@ export default class Audio {
     });
   }
 
-  insertTagParam(event) {
+  insertTagParam = (event) => {
     const genreName = event.target.getAttribute("data-genre-name");
     if (
       (lushURL.hasGenres() &&
         !lushURL.getGenres().split("_").includes(genreName)) ||
       !lushURL.hasGenres()
     ) {
-      lushURL.setGenre(genreName);
+      if (!this.isDummy) {
+        lushURL.setGenre(genreName);
+      }
 
       audioSearchBar.insertGenreQuery(genreName);
       audioSearchBar.configureGenresRequest();
     }
-  }
+  };
 
   addEventListeners() {
     this.playButton.addEventListener("click", this.play);

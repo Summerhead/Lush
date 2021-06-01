@@ -7,7 +7,7 @@ import EditAudioWindow from "./editAudioWindow/EditAudioWindow.js";
 var audiosConfigurator;
 var editAudioWindow;
 
-export const loadAudios = async () => {
+export const loadAudios = async (audioOlQuery, isDummy) => {
   const editAudioWindowContainer = document.getElementById(
     "edit-audio-window-container"
   );
@@ -18,7 +18,11 @@ export const loadAudios = async () => {
     loadAudioTemplate(),
     editAudioWindowContainer || loadEditAudioWindow(),
   ]).then((resolves) => {
-    audiosConfigurator = new AudiosConfigurator(resolves[0]);
+    audiosConfigurator = new AudiosConfigurator(
+      resolves[0],
+      audioOlQuery,
+      isDummy
+    );
     editAudioWindowContainer ||
       (editAudioWindow = new EditAudioWindow(resolves[1]));
   });

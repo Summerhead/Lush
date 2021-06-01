@@ -4,7 +4,7 @@ import { loadArtists } from "../artists/loadArtists.js";
 import { loadArtist } from "../artist/loadArtist.js";
 import { loadAudioSearchBar } from "../searchBar/audios/loadAudioSearchBar.js";
 import { loadArtistSearchBar } from "../searchBar/artists/loadArtistSearchBar.js";
-import { loadGenres } from "../genres/loadGenres.js";
+// import { loadGenres } from "../genres/loadGenres.js";
 import { loadPlaylistSearchBar } from "../searchBar/playlists/loadPlaylistSearchBar.js";
 import { loadPlaylists } from "../playlists/loadPlaylists.js";
 import LushURL from "./LushURL.js";

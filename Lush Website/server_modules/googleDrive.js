@@ -5,7 +5,8 @@ const Readable = require("stream").Readable;
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ["https://www.googleapis.com/auth/drive.file"];
-const TOKEN_PATH = "token.json";
+const TOKEN_PATH = "googleapis-conf/token.json";
+const CREDENTIALS_PATH = "googleapis-conf/credentials.json";
 const FOLDER_IDS_DICT = { artists_images: "1ECBzTjLKWTLWjkipZz53IK_TGgoN3BCh" };
 
 /**
@@ -101,14 +102,12 @@ function uploadFile(auth, folderName, name, file) {
 
 async function uploadImageToGoogleDrive(...callbackParams) {
   return new Promise((resolve, reject) => {
-    fs.readFile("credentials.json", async (err, content) => {
+    fs.readFile(CREDENTIALS_PATH, async (err, content) => {
       if (err) return console.log("Error loading client secret file:", err);
       // Authorize a client with credentials, then call the Google Drive API.
-      await authorize(
-        JSON.parse(content),
-        uploadFile,
-        callbackParams
-      ).then((id) => resolve(id));
+      await authorize(JSON.parse(content), uploadFile, callbackParams).then(
+        (id) => resolve(id)
+      );
     });
   });
 }

@@ -39,13 +39,13 @@ export default class ArtistsConfigurator {
       xhr.open("POST", "/artistsData", true);
       xhr.setRequestHeader("Content-Type", "application/json");
 
-      xhr.send(JSON.stringify(this.dataRequest));
-
       xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
           resolve(xhr);
         }
       };
+
+      xhr.send(JSON.stringify(this.dataRequest));
     })
       .then((xhr) => this.displayArtists(xhr))
       .then(() => (this.artistsRequestResolved = true));
