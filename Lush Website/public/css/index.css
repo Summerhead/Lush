@@ -1,4 +1,35 @@
-.galaxy-background {
-  background: url("/public/content/icons/favicon/galaxy-spiral-shape.png")
-    center no-repeat;
+#hero-central-block {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(200px, 1fr));
+  column-gap: 60px;
+  margin: 18vh 15vw 5vh;
+  cursor: default;
+}
+
+#hero-central-block .no-cover {
+  background-image: url("/public/content/icons/favicon/galaxy-spiral-shape.png");
+}
+
+#hero-central-block .image-wrapper {
+  margin-bottom: 20px;
+}
+
+#hero-central-block .audio-data {
+  text-align: center;
+}
+
+#hero-central-block .artists {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+#hero-central-block .artists a {
+  text-decoration: none;
+  color: black;
+  font-size: 1.3em;
+}
+
+#hero-central-block .audio-title {
+  cursor: default;
 }

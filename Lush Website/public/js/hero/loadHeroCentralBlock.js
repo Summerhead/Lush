@@ -1,4 +1,4 @@
-export default function loadSearchBarTemplate() {
+export default function loadHeroCentralBlock() {
   return new Promise((resolve, reject) => {
     const xmlhttp = new XMLHttpRequest();
 
@@ -8,20 +8,13 @@ export default function loadSearchBarTemplate() {
           this.responseText,
           "text/html"
         );
-        const searchBar = template.getElementById(
-          "artist-search-bar-container"
-        );
+        const heroCentralBlock = template.getElementById("hero-central-block");
 
-        resolve(searchBar);
+        resolve(heroCentralBlock);
       }
     };
 
-    xmlhttp.open(
-      "GET",
-      "/public/html/partials/searchBar/artistSearchBar.html",
-      true
-    );
-
+    xmlhttp.open("GET", "/public/html/partials/hero.html", true);
     xmlhttp.send();
   });
 }

@@ -1,4 +1,4 @@
-#main #playlists {
+#playlists {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
@@ -17,14 +17,14 @@
   position: relative;
 }
 
-#playlist-options {
+.playlist-options {
   display: none;
   position: absolute;
   top: 5px;
   right: 5px;
 }
 
-#playlist-options button {
+.playlist-options button {
   width: 18px;
   height: 15px;
   margin-right: 2px;
@@ -34,19 +34,23 @@
   z-index: 2;
 }
 
-.hovered #playlist-options {
+.hovered .playlist-options {
   display: block;
 }
 
-#playlist-options button:last-child {
+.playlist-options button:last-child {
   margin: 0;
 }
 
-#playlist-options #button-edit {
+.playlist-options > button:hover {
+  background-color: rgb(189, 189, 189);
+}
+
+.playlist-options .button-edit {
   background-image: url("/public/content/icons/pencil.svg");
 }
 
-#playlist-options #button-delete {
+.playlist-options .button-delete {
   background-image: url("/public/content/icons/cancel.svg");
 }
 
@@ -66,14 +70,14 @@
   background: url("/public/content/icons/vynil.svg") no-repeat center / 130px;
 }
 
-#playlist-link {
+.playlist-link {
   display: none;
   width: inherit;
   height: inherit;
   background-color: rgba(0, 0, 0, 0.1);
 }
 
-.playlist-container #playlist-name {
+.playlist-container .playlist-name {
   text-decoration: none;
   color: black;
   margin-bottom: 10px;
@@ -82,14 +86,14 @@
   white-space: pre-wrap;
 }
 
-.hovered #playlist-link {
+.hovered .playlist-link {
   display: block;
 }
 
-.hovered #playlist-name {
+.hovered .playlist-name {
   text-decoration: underline;
 }
 
-.playlist-container #playlist-description {
+.playlist-container .playlist-description {
   font-size: 0.8em;
 }

@@ -1,56 +1,56 @@
-#search-bar-container {
+.search-bar-container {
   padding: 25px 0 15px;
   display: grid;
   grid-template-rows: 30px auto;
 }
 
-.search-bar {
+.search-bar-container .first-row {
   display: grid;
   grid-template-columns: auto min-content;
   column-gap: 10px;
 }
 
-.search-bar #list {
+.search-bar-container .first-row .list {
   display: none;
 }
 
-.search-bar #right-tab {
+.search-bar-container .first-row .right-tab {
   display: grid;
   grid-template-columns: auto auto auto;
   column-gap: 10px;
 }
 
-.search-bar #right-tab button,
-.search-bar #right-tab input[type="checkbox"] {
+.search-bar-container .first-row .right-tab button,
+.search-bar-container .first-row .right-tab input[type="checkbox"] {
   width: 45px;
   border: 1px solid #b4b4b4;
 }
 
-.search-bar #right-tab .search-button {
+.search-bar-container .first-row .right-tab .search-button {
   background: white url("/public/content/icons/loupe.svg") center/10px no-repeat;
   border: 1px solid #b4b4b4;
 }
 
-.search-bar #right-tab .add-button {
+.search-bar-container .first-row .right-tab .add-button {
   background: white url("/public/content/icons/plus.svg") center/10px no-repeat;
 }
 
-.search-bar #right-tab .shuffle-button {
+.search-bar-container .first-row .right-tab .shuffle-button {
   background: white url("/public/content/icons/shuffle.svg") center/15px
     no-repeat;
 }
 
-.search-bar #right-tab .shuffle-button.checked {
+.search-bar-container .first-row .right-tab .shuffle-button.checked {
   background-color: rgb(214, 214, 214);
 }
 
-#genres-search-bar {
+.search-bar-container .genres-search-bar {
   display: flex;
   align-self: flex-start;
   font-size: 0.75em;
 }
 
-#genres-search-bar .genre {
+.search-bar-container .genres-search-bar .genre {
   margin-right: 10px;
   padding: 0px 5px;
   z-index: 1;
@@ -61,6 +61,6 @@
   cursor: pointer;
 }
 
-#genres-search-bar .genre:last-child {
+.search-bar-container .genres-search-bar .genre:last-child {
   margin-right: 0;
 }

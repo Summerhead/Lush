@@ -5,9 +5,9 @@ import { lushURL } from "../../partials/loadContent.js";
 export default class ArtistSearchBar {
   constructor(searchBarContainer) {
     this.searchBarContainer = searchBarContainer;
-    this.searchBar = searchBarContainer.querySelector("#search-bar");
-    this.searchButton = searchBarContainer.querySelector("#search-artist");
-    this.addButton = searchBarContainer.querySelector("#add-artist");
+    this.searchBar = searchBarContainer.querySelector(".search-bar");
+    this.searchButton = searchBarContainer.querySelector(".search-button");
+    this.addButton = searchBarContainer.querySelector(".add-button");
 
     this.artists = document.getElementById("artists-ol");
     this.alphaNumericKeyCodes = /^[a-z0-9]+$/i;
@@ -26,17 +26,15 @@ export default class ArtistSearchBar {
     this.prevInput;
     this.checkInput;
 
-    this.addSearchAction();
-    this.insertSearchQuery();
-    this.addAddAction();
-    this.displaySearchBar();
+    this.configure();
+    this.display();
   }
 
   inputChanged = () => {
     this.prevInput = this.searchBar.value;
   };
 
-  addSearchAction() {
+  configure() {
     this.searchButton.addEventListener("click", this.sendSearchRequest);
 
     this.searchBar.addEventListener("focus", () => {
@@ -48,9 +46,9 @@ export default class ArtistSearchBar {
       this.searchBar.removeEventListener("keydown", this.inputChanged);
       window.removeEventListener("keyup", this.sendSearchRequest);
     });
-  }
 
-  insertSearchQuery() {
+    this.addButton.addEventListener("click", () => editArtistWindow.open());
+
     this.searchBar.value = lushURL.getQuery();
   }
 
@@ -88,15 +86,9 @@ export default class ArtistSearchBar {
     }
   }
 
-  addAddAction() {
-    this.addButton.onclick = () => {
-      editArtistWindow.open();
-    };
-  }
-
-  displaySearchBar() {
+  display() {
     document
-      .getElementById("search-bar-container")
+      .querySelector("#main #search-bar-container")
       .replaceWith(this.searchBarContainer);
   }
 }

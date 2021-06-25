@@ -83,8 +83,9 @@ export default class Artist {
     );
   };
 
-  deleteAction = (event) => {
+  deleteAction = () => {
     const xhr = new XMLHttpRequest();
+
     xhr.open("DELETE", "/deleteArtist", true);
     xhr.setRequestHeader("Content-Type", "application/json");
     xhr.onreadystatechange = () => {

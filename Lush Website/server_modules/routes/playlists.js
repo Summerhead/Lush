@@ -1,5 +1,4 @@
-const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
 const { resolveQuery, constructWhereClauseAnd } = require("../general.js");
 
 router.post("/playlistsData", async function (req, res) {
@@ -19,11 +18,11 @@ router.post("/playlistsData", async function (req, res) {
 });
 
 async function getPlaylists({ playlistId, search, limit, offset }) {
-  var playlistIdWhereClause = "",
-    queryWhereClauses = [],
-    subquery = "",
-    subqueryWhereClauses = [],
-    searchQuery = "";
+  var playlistIdWhereClause = "";
+  var queryWhereClauses = [];
+  var subquery = "";
+  var subqueryWhereClauses = [];
+  var searchQuery = "";
 
   const whereClauseDeleted = "playlist.deleted = 0";
   queryWhereClauses.push(whereClauseDeleted);
@@ -164,12 +163,12 @@ async function insertPlaylist(playlistName) {
 router.delete("/deletePlaylist", async function (req, res) {
   console.log("Body:", req.body);
 
-  const playlistId = req.body.playlistId,
-    result = await deletePlaylist(playlistId),
-    playlistsData = {
-      status: result.error || 200,
-      playlists: result.data,
-    };
+  const playlistId = req.body.playlistId;
+  const result = await deletePlaylist(playlistId);
+  const playlistsData = {
+    status: result.error || 200,
+    playlists: result.data,
+  };
 
   res.send(playlistsData);
 });

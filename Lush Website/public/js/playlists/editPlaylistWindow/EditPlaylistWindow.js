@@ -131,22 +131,21 @@ export default class EditPlaylistWindow {
   }
 
   open(playlistLi) {
+    loadAudios("#edit-playlist-window .audios-ol", true);
+    loadAudioSearchBar(
+      "#edit-playlist-window .search-bar-container",
+      "#edit-playlist-window .audios-ol",
+      true
+    );
+
     this.playlistLi = playlistLi;
     this.playlistId = playlistLi?.getAttribute("data-playlist-id");
 
     const inputText = document.createElement("input");
     inputText.setAttribute("type", "text");
-    this.playlistName = playlistLi?.getAttribute("data-playlist-name");
+    this.playlistName = playlistLi?.getAttribute("data-playlist-name") || null;
     inputText.value = this.playlistName;
     this.titleInput.appendChild(inputText);
-
-    loadAudios("#edit-playlist-window .audios-ol", true);
-    loadAudioSearchBar(
-      "#edit-playlist-window #search-bar-container",
-      "#edit-playlist-window .audios-ol",
-      true
-    );
-    // this.getAudios();
 
     if (playlistLi) {
       if (playlistLi.querySelector(".image-wrapper").style.backgroundImage) {

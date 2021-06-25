@@ -1,5 +1,4 @@
-const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
 const {
   resolveQuery,
   constructWhereClauseAnd,
@@ -66,7 +65,7 @@ async function insertArtistImageBlob(image) {
 }
 
 async function getArtists(artistName) {
-  var whereArtist = "";
+  const whereClauses = ["deleted = 0"];
 
   if (artistName) {
     artistName = artistName
@@ -77,16 +76,17 @@ async function getArtists(artistName) {
     // Need to fix character escaping
     // console.log(artistName);
 
-    whereArtist = `
-    WHERE artist.name COLLATE utf8mb4_0900_ai_ci LIKE "%${artistName}%"
-    AND deleted = 0
-    `;
+    whereClauses.push(
+      `artist.name COLLATE utf8mb4_0900_ai_ci LIKE "%${artistName}%"`
+    );
   }
+
+  const whereClause = constructWhereClauseAnd(whereClauses);
 
   const query = `
   SELECT id, name
   FROM artist
-  ${whereArtist}
+  ${whereClause}
   ORDER BY id DESC
   ;`;
 
@@ -215,8 +215,7 @@ async function getArtistImageBlob(blobId) {
 router.post("/submitArtist", async function (req, res) {
   const artistMetadata = JSON.parse(req.body.artistMetadata);
   var artistId = artistMetadata.artistId;
-  // Need to improve character escaping
-  const artistName = artistMetadata.artistName?.replace('"', '\\"');
+  const artistName = artistMetadata.artistName?.replace('"', '\\"'); // Need to improve character escaping
   const image = req.files?.image;
   const genres = artistMetadata.genres;
   const rgb = artistMetadata.rgb;

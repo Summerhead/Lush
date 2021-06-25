@@ -2,52 +2,57 @@ export default class LushURL extends URLSearchParams {
   constructor(search) {
     super(search);
 
+    this.queryKey = "q";
+    this.genresKey = "genres";
+    this.shuffleKey = "shuffle";
     this.currentPage;
+
     this.setCurrentPage();
   }
 
   setQuery(value) {
-    this.#insert("q", value);
+    this.#insert(this.queryKey, value);
   }
 
   getQuery() {
-    return this.get("q");
+    return this.get(this.queryKey);
   }
 
   setGenre(value) {
-    this.#append("genres", value);
+    this.#append(this.genresKey, value);
   }
 
   removeGenre(value) {
-    this.#remove("genres", value);
+    this.#remove(this.genresKey, value);
   }
 
   getGenres() {
-    return this.get("genres");
+    return this.get(this.genresKey);
   }
 
   hasGenres() {
-    return this.has("genres");
+    return this.has(this.genresKey);
   }
 
   setShuffle() {
-    this.#insert("shuffle", 1);
+    this.#insert(this.shuffleKey, 1);
   }
 
   deleteShuffle() {
-    this.#delete("shuffle");
+    this.#delete(this.shuffleKey);
   }
 
   getShuffle() {
-    return this.get("shuffle");
+    return this.get(this.shuffleKey);
   }
 
   #insert(key, value) {
     if (value === "") {
       super.delete(key);
     } else {
-      this.set(key, value);
+      super.set(key, value);
     }
+
     this.#pushState();
   }
 
@@ -86,7 +91,7 @@ export default class LushURL extends URLSearchParams {
     if (value === "") {
       super.delete(key);
     } else {
-      this.set(key, value);
+      super.set(key, value);
     }
 
     this.#pushState();
@@ -110,7 +115,7 @@ export default class LushURL extends URLSearchParams {
     this.currentPage = firstFolder;
   }
 
-  // getCurrentPage() {
-  //   return this.currentPage;
-  // }
+  getCurrentPage() {
+    return this.currentPage;
+  }
 }

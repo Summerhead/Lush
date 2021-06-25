@@ -8,7 +8,7 @@ export default function loadSearchBarTemplate() {
           this.responseText,
           "text/html"
         );
-        const searchBar = template.getElementById("search-bar-container");
+        const searchBar = template.getElementById("audio-search-bar-container");
 
         resolve(searchBar);
       }

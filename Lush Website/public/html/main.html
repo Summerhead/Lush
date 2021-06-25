@@ -3,24 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script type="text/javascript" src="http://livejs.com/live.js"></script>
+
     <link
-      id="favicon"
-      rel="shortcut icon"
-      type="image/png"
+      rel="icon"
       href="/public/content/icons/favicon/galaxy-spiral-shape.png"
     />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/public/css/partials/main.css"
-    />
+    <link rel="stylesheet" href="/public/css/partials/main.css" />
     <link rel="stylesheet" href="/public/css/index.css" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="/public/css/partials/header.css"
-    />
+    <link rel="stylesheet" href="/public/css/partials/header.css" />
     <link rel="stylesheet" href="/public/css/partials/footer.css" />
     <link rel="stylesheet" href="/public/css/music.css" />
     <link rel="stylesheet" href="/public/css/partials/editAudioWindow.css" />
@@ -36,10 +26,76 @@
   </head>
 
   <body>
-    <header id="header"></header>
+    <header id="header">
+      <div id="logo-container">
+        <a id="logo" href="/">Lush</a>
+      </div>
+      <div id="current-audio" class="invisible">
+        <div class="audio-main">
+          <div class="left-side">
+            <div class="left-side-container">
+              <button class="prev-button"></button>
+              <button class="play-button"></button>
+              <button class="next-button"></button>
+            </div>
+          </div>
+
+          <div class="audio-content">
+            <div class="audio-header-container">
+              <div class="audio-header">
+                <div class="artists"></div>
+                <div class="title"></div>
+              </div>
+            </div>
+            <progress value="0" max="100" class="progress-bar"></progress>
+          </div>
+
+          <div class="audio-hud">
+            <div class="right-tab">
+              <button class="repeat"></button>
+            </div>
+
+            <div class="time">
+              <div class="hidden">
+                <div class="curr-time">
+                  <span>00:00</span>
+                </div>
+
+                <div class="time-slash">/</div>
+              </div>
+
+              <div class="duration">
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="pages-container">
+        <ul id="pages">
+          <li id="music-tab">
+            <a href="/music"><div>Music</div></a>
+          </li>
+
+          <li id="artists-tab">
+            <a href="/artists"><div>Artists</div></a>
+          </li>
+
+          <!-- <li id="genres-tab">
+            <a href="/genres"><div>Genres</div></a>
+          </li> -->
+
+          <li id="playlists-tab">
+            <a href="/playlists"><div>Playlists</div></a>
+          </li>
+        </ul>
+      </div>
+    </header>
+
     <main id="main"></main>
     <!-- <footer id="footer"></footer> -->
 
+    <script type="text/javascript" src="http://livejs.com/live.js"></script>
     <script type="module" src="/public/js/partials/loadPartials.js"></script>
   </body>
 </html>

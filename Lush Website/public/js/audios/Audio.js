@@ -8,7 +8,7 @@ import { header } from "../header/loadHeader.js";
 var currentAudio;
 
 export default class Audio {
-  constructor(audioLi, audio, isDummy) {
+  constructor(audioLi, audio) {
     this.audio = audio;
     this.audio.audioFullTitle = this.#constructAudioFullTitle();
     this.audioLi = audioLi.cloneNode(true);
@@ -27,7 +27,6 @@ export default class Audio {
     this.playButton = this.audioLi.querySelector(".play-button");
 
     this.genres = this.audioLi.querySelector(".genres");
-    // this.progressBar = this.audioLi.querySelector(".progress-bar");
     this.currentTime = this.audioLi.querySelector(".curr-time>span");
     this.durationTime = this.audioLi.querySelector(".duration>span");
 
@@ -37,15 +36,17 @@ export default class Audio {
     this.infoButton = this.audioLi.querySelector(".info-button");
     this.hiddenTime = this.audioLi.querySelector(".time .hidden");
 
-    this.isDummy = isDummy;
-
     this.configure();
   }
 
   configure() {
     this.insertArtists();
     this.displayTags();
-    if (!this.isDummy) this.addEventListeners();
+    if (!audiosConfigurator.isDummy) {
+      this.addEventListeners();
+    } else {
+      this.editButton.remove();
+    }
 
     this.titleEl.innerText = this.audio.title;
     this.durationTime.innerText = this.audioTime(this.audio.duration);
@@ -61,7 +62,9 @@ export default class Audio {
       genreDiv.setAttribute("data-genre-name", genre.genre_name);
       genreDiv.style.backgroundColor = "white";
       genreDiv.innerText = genre.genre_name;
-      genreDiv.addEventListener("click", this.insertTagParam);
+      if (!audiosConfigurator.isDummy) {
+        genreDiv.addEventListener("click", this.insertTagParam);
+      }
 
       this.genres.append(genreDiv);
     });
@@ -132,10 +135,8 @@ export default class Audio {
   }
 
   #constructAudioFullTitle() {
-    const artistNamesArray = this.audio.artists.reduce(function (rv, x) {
-      rv.push(x.name);
-      return rv;
-    }, []);
+    const artistNamesArray = [];
+    this.audio.artists.forEach((artist) => artistNamesArray.push(artist.name));
 
     var artists;
     if (artistNamesArray.length <= 0) {
@@ -195,15 +196,15 @@ export default class Audio {
     currentAudio.classList.add("paused");
   };
 
-  setStopStyle = () => {
+  setStopStyle() {
     currentAudio.classList.remove("current", "playing", "paused");
 
     const audioPlayer = audios.get(currentAudio)?.audioPlayer;
-    stopAudio(audioPlayer);
-    revokeObjectURL(audioPlayer);
+    this.stopAudio(audioPlayer);
+    this.revokeObjectURL(audioPlayer);
 
     audioPlayer.onloadeddata = null;
-  };
+  }
 
   configureCurrentAudio() {
     const parsedArtists = this.parseArtists(this.audio.artists);
@@ -288,16 +289,16 @@ export default class Audio {
   setAudioPlayerSrc(url) {
     this.audioPlayer.src = url;
   }
-}
 
-function revokeObjectURL(audioPlayer) {
-  URL.revokeObjectURL(audioPlayer.src);
-  audioPlayer.src = "";
-}
+  revokeObjectURL(audioPlayer) {
+    URL.revokeObjectURL(audioPlayer.src);
+    audioPlayer.src = "";
+  }
 
-function stopAudio(audioPlayer) {
-  audioPlayer.pause();
-  audioPlayer.currentTime = 0;
+  stopAudio(audioPlayer) {
+    audioPlayer.pause();
+    audioPlayer.currentTime = 0;
+  }
 }
 
 export { currentAudio };

@@ -1,17 +1,16 @@
-const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
 const { resolveQuery } = require("../general.js");
 
-router.post("/genresData", async function (req, res, next) {
+router.post("/genresData", async function (req, res) {
   console.log("Body:", req.body);
 
   const genreName = req.body.genreName;
-  const result = await getGenres(genreName),
-    status = result.error || 200,
-    genresData = {
-      status: status,
-      genres: result.data,
-    };
+  const result = await getGenres(genreName);
+  const status = result.error || 200;
+  const genresData = {
+    status: status,
+    genres: result.data,
+  };
 
   res.send(genresData);
 });
@@ -50,7 +49,7 @@ async function getGenres(genreName) {
   SELECT genre.id AS genre_id, genre.name AS genre_name
   FROM genre
   ${whereGenre}
-  ORDER BY genre.id
+  ORDER BY genre_name
   ;`;
 
   return await resolveQuery(query);

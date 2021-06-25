@@ -16,6 +16,7 @@ export default class PlaylistsConfigurator {
 
     this.playlistsOl = document.getElementById("playlists-ol");
     this.atTheBottom = true;
+    this.playlistsRequestResolved = false;
 
     this.getPlaylists();
     this.applyWindowOnScroll();
@@ -35,53 +36,55 @@ export default class PlaylistsConfigurator {
     return genres;
   }
 
-  getPlaylists() {
-    this.fetchDataChunk();
-  }
-
   outputsize(imageWrapper) {
     imageWrapper.style.height =
       imageWrapper.getBoundingClientRect().width + "px";
   }
 
-  fetchDataChunk() {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/playlistsData", true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send(JSON.stringify(this.dataRequest));
+  getPlaylists() {
+    new Promise((resolve, reject) => {
+      this.playlistsRequestResolved = false;
 
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState == 4 && xhr.status == 200) {
-        const data = JSON.parse(xhr.response);
-        console.log("Data:", data);
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/playlistsData", true);
+      xhr.setRequestHeader("Content-Type", "application/json");
 
-        const returnedRows = data.playlists.length;
+      xhr.onreadystatechange = () => {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          const data = JSON.parse(xhr.response);
+          resolve();
+          console.log("Data:", data);
 
-        if (data.status === 200) {
-          if (returnedRows) {
-            for (const playlist of data.playlists) {
-              const playlistClass = new Playlist(this.playlistLi, playlist),
-                playlistLi = playlistClass.playlistLi,
-                imageWrapper = playlistClass.imageWrapper;
-              this.playlistsOl.appendChild(playlistLi);
+          const returnedRows = data.playlists.length;
 
-              const reqImageBlob = { blobId: playlist.blob_id };
-              this.fetchBlob(reqImageBlob, imageWrapper);
+          if (data.status === 200) {
+            if (returnedRows) {
+              for (const playlist of data.playlists) {
+                const playlistClass = new Playlist(this.playlistLi, playlist);
+                const playlistLi = playlistClass.playlistLi;
+                const imageWrapper = playlistClass.imageWrapper;
+                this.playlistsOl.appendChild(playlistLi);
 
-              this.outputsize(imageWrapper);
+                const reqImageBlob = { blobId: playlist.blob_id };
+                this.fetchBlob(reqImageBlob, imageWrapper);
 
-              new ResizeObserver(() => this.outputsize(imageWrapper)).observe(
-                playlistLi
-              );
-            }
+                this.outputsize(imageWrapper);
 
-            if (returnedRows === this.dataRequest.dataRequest.limit) {
-              this.atTheBottom = false;
+                new ResizeObserver(() => this.outputsize(imageWrapper)).observe(
+                  playlistLi
+                );
+              }
+
+              if (returnedRows === this.dataRequest.dataRequest.limit) {
+                this.atTheBottom = false;
+              }
             }
           }
         }
-      }
-    };
+      };
+
+      xhr.send(JSON.stringify(this.dataRequest));
+    }).then(() => (this.playlistsRequestResolved = true));
   }
 
   fetchBlob(reqImageBlob, imageWrapper) {

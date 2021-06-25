@@ -1,4 +1,4 @@
-import { loadMain } from ".././loadMain.js";
+import { loadMain } from "../hero/loadMain.js";
 import { loadAudios } from "../audios/loadAudios.js";
 import { loadArtists } from "../artists/loadArtists.js";
 import { loadArtist } from "../artist/loadArtist.js";
@@ -45,8 +45,9 @@ function getPages(href) {
 }
 
 function loadPage(pagepath, title, scripts) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const xhr = new XMLHttpRequest();
+
     xhr.open("GET", pagepath);
     xhr.onreadystatechange = function () {
       if (this.readyState == 4 && this.status == 200) {
@@ -67,9 +68,9 @@ function loadPage(pagepath, title, scripts) {
 }
 
 function displayMain(main, scripts) {
-  if (currentAudio) {
-    main.classList.add("compensate-header");
-  }
+  // if (currentAudio) {
+  //   main.classList.add("compensate-header");
+  // }
   document.getElementById("main").replaceWith(main);
 
   return scripts;

@@ -62,7 +62,10 @@ const audiosGroupBy = function (xs, key) {
 
 const artistsGroupBy = function (xs, key) {
   return xs.reduce(function (rv, x) {
-    rv.get(x[key]) || rv.set(x[key], { genres: {} });
+    if (!rv.has(x[key])) {
+      rv.set(x[key], { genres: {} });
+    }
+
     rv.get(x[key]).artist_id = x.artist_id;
     rv.get(x[key]).artist_name = x.artist_name;
     rv.get(x[key]).image_id = x.image_id;

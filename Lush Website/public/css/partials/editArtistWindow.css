@@ -53,14 +53,14 @@
   margin-bottom: 30px;
 }
 
+#edit-artist-window .content > div:last-child {
+  margin-bottom: 20px;
+}
+
 #edit-artist-window .content button {
   width: 40px;
   height: 25px;
   border: 1px solid rgb(141, 141, 141);
-}
-
-#edit-artist-window .content > div:last-child {
-  margin-bottom: 20px;
 }
 
 #edit-artist-window .content .section-name {
@@ -100,12 +100,6 @@
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-}
-
-#edit-artist-window .cover button {
-  height: 17px;
-  width: 25px;
-  border: 1px solid #b4b4b4;
 }
 
 #edit-artist-window .upload-button {

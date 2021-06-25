@@ -4,14 +4,13 @@ import { lushURL } from "../../partials/loadContent.js";
 export default class AudioSearchBar {
   constructor(searchBarContainer, searchBarQuery, audiosOlQuery, isEditing) {
     this.searchBarContainer = searchBarContainer;
-    this.searchBar = searchBarContainer.querySelector("#search-bar");
-    this.searchButton = searchBarContainer.querySelector("#search-audio");
-    this.uploadButton = searchBarContainer.querySelector("#upload-audio");
-    this.fileInput = searchBarContainer.querySelector("#file-input");
-    this.shuffleButton = searchBarContainer.querySelector("#shuffle-audios");
-    this.genresSearchBar = searchBarContainer.querySelector(
-      "#main .genres-search-bar"
-    );
+    this.searchBar = searchBarContainer.querySelector(".search-bar");
+    this.searchButton = searchBarContainer.querySelector(".search-button");
+    this.addButton = searchBarContainer.querySelector(".add-button");
+    this.fileInput = searchBarContainer.querySelector(".file-input");
+    this.shuffleButton = searchBarContainer.querySelector(".shuffle-button");
+    this.genresSearchBar =
+      searchBarContainer.querySelector(".genres-search-bar");
 
     this.searchBarQuery = searchBarQuery || "#main .search-bar-container";
     this.audiosOlQuery = audiosOlQuery || "#main .audios-ol";
@@ -54,23 +53,23 @@ export default class AudioSearchBar {
       window.removeEventListener("keyup", this.sendSearchRequest);
     });
 
-    this.uploadButton.onclick = () => {
+    this.addButton.onclick = () => {
       this.fileInput.click();
     };
     this.fileInput.onchange = this.handleFileSelect;
 
     this.shuffleButton.addEventListener("click", this.configureShuffleRequest);
+
     this.searchBar.value = lushURL.getQuery();
 
-    const genres = lushURL.getGenres();
-    if (genres) {
-      genres.split("_").forEach((genre) => {
+    lushURL
+      .getGenres()
+      ?.split("_")
+      .forEach((genre) => {
         this.insertGenreQuery(genre);
       });
-    }
 
-    const shuffle = lushURL.getShuffle();
-    if (shuffle) {
+    if (lushURL.getShuffle()) {
       this.toggleShuffle();
     }
   }
@@ -156,6 +155,7 @@ export default class AudioSearchBar {
   configureRequest() {
     if (audiosConfigurator.audiosRequestResolved) {
       this.audiosOl.textContent = "";
+      audiosConfigurator.audios = [];
 
       audiosConfigurator.atTheBottom = true;
       audiosConfigurator.dataRequest.dataRequest.search = this.searchBar.value;

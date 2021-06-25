@@ -1,12 +1,12 @@
 import showPage from "../partials/loadContent.js";
 import { currentAudio } from "../audios/Audio.js";
 import { lushURL } from "../partials/loadContent.js";
-import { audios } from "../audios/AudiosConfigurator.js";
+import AudiosConfigurator, { audios } from "../audios/AudiosConfigurator.js";
+import { audiosConfigurator } from "../audios/loadAudios.js";
 
 export default class Header {
-  constructor(headerTemplate) {
-    this.header = headerTemplate;
-    this.audioli;
+  constructor() {
+    this.header = document.getElementById("header");
     this.audioPlayer;
     this.playPrevNextListenersAttached = false;
 
@@ -14,13 +14,18 @@ export default class Header {
     this.playButton = this.header.querySelector(".play-button");
     this.playPrevButton = this.header.querySelector(".prev-button");
     this.playNextButton = this.header.querySelector(".next-button");
+
     this.artistsEl = this.currentAudioEl.querySelector(
       ".audio-header>.artists"
     );
     this.titleEl = this.currentAudioEl.querySelector(".audio-header>.title");
     this.progressBar = this.header.querySelector(".progress-bar");
+    this.repeatButton = this.header.querySelector(".repeat");
+
     this.pageLis = this.header.querySelectorAll("#pages a");
     this.linkEls = this.header.querySelectorAll("a");
+
+    this.repeatCurrentAudio = false;
 
     this.configure();
     this.display();
@@ -29,10 +34,11 @@ export default class Header {
   configure() {
     this.playButton.addEventListener("click", this.play);
     this.progressBar.addEventListener("click", this.progressBarAct);
+    this.repeatButton.addEventListener("click", this.setRepeat);
 
     this.linkEls.forEach((link) => {
-      link.onclick = () => {
-        showPage(link.href);
+      link.onclick = function () {
+        showPage(this.href);
         return false;
       };
     });
@@ -46,9 +52,9 @@ export default class Header {
     this.header.style.backgroundColor = "";
     this.header.classList.remove("white-theme", "black-theme", "colored");
     this.header.classList.add("no-color");
-    if (currentAudio) {
-      this.header.classList.add("border-bottom");
-    }
+    // if (currentAudio) {
+    //   this.header.classList.add("border-bottom");
+    // }
 
     this.currentAudioEl.style.backgroundColor = "";
     this.currentAudioEl.removeEventListener(
@@ -74,11 +80,11 @@ export default class Header {
     this.artistsEl = artists;
     this.titleEl.innerText = title;
 
-    if (lushURL.currentPage !== "artist") {
-      this.header.classList.add("border-bottom");
-    }
-    this.header.classList.add("fixed");
-    document.getElementById("main").classList.add("compensate-header");
+    // if (lushURL.currentPage !== "artist") {
+    //   this.header.classList.add("border-bottom");
+    // }
+    // this.header.classList.add("fixed");
+    // document.getElementById("main").classList.add("compensate-header");
     this.currentAudioEl.classList.remove("invisible");
   }
 
@@ -96,10 +102,10 @@ export default class Header {
       "mouseover",
       this.changeBackgroundColor
     );
-    this.currentAudioEl.addEventListener("mouseout", this.resetBackgroundColor);
     this.currentAudioEl.r = r;
     this.currentAudioEl.g = g;
     this.currentAudioEl.b = b;
+    this.currentAudioEl.addEventListener("mouseout", this.resetBackgroundColor);
 
     // this.pageLis.forEach((pageLi) => {
     //   pageLi.addEventListener("mouseover", () => {
@@ -132,7 +138,7 @@ export default class Header {
     } else {
       if (this.audioPlayer.src === location.href) {
         await this.fetchBlob({
-          blobId: Number(this.audio.blob_id),
+          blobId: this.audio.blob_id,
         });
       }
 
@@ -146,6 +152,17 @@ export default class Header {
     if (audios.get(currentAudio).audioLi.classList.contains("paused")) {
       audios.get(currentAudio).playButton.click();
     }
+  };
+
+  setRepeat = () => {
+    this.repeatButton.classList.toggle("active");
+
+    if (this.repeatButton.classList.contains("active")) {
+      this.repeatCurrentAudio = true;
+    } else {
+      this.repeatCurrentAudio = false;
+    }
+    // console.log(this.header);
   };
 
   audioChangeTime = (event) => {

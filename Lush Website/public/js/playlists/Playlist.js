@@ -6,11 +6,11 @@ export default class Playlist {
     this.playlistLi = playlistLi.cloneNode(true);
     this.playlist = playlist;
 
-    this.playlistLink = this.playlistLi.querySelector("#playlist-link");
+    this.playlistLink = this.playlistLi.querySelector(".playlist-link");
     this.imageWrapper = this.playlistLi.querySelector(".image-wrapper");
-    this.playlistName = this.playlistLi.querySelector("#playlist-name");
-    this.buttonEdit = this.playlistLi.querySelector("#button-edit");
-    this.buttonDelete = this.playlistLi.querySelector("#button-delete");
+    this.playlistName = this.playlistLi.querySelector(".playlist-name");
+    this.buttonEdit = this.playlistLi.querySelector(".button-edit");
+    this.buttonDelete = this.playlistLi.querySelector(".button-delete");
 
     this.setValues();
     this.setActions();
@@ -18,12 +18,12 @@ export default class Playlist {
 
   setValues() {
     this.playlistName.innerText = this.playlist.name;
-    this.playlistLink.href += `${
-      this.playlist.playlist_id
-    }/${this.playlist.name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
-    this.playlistName.href += `${
-      this.playlist.playlist_id
-    }/${this.playlist.name.replace(/ /g, "+").replace(/\//g, "%2F")}`;
+    this.playlistLink.href += `${this.playlist.playlist_id}/${this.playlist.name
+      .replace(/ /g, "+")
+      .replace(/\//g, "%2F")}`;
+    this.playlistName.href += `${this.playlist.playlist_id}/${this.playlist.name
+      .replace(/ /g, "+")
+      .replace(/\//g, "%2F")}`;
     // artistLi.querySelector("#artist-description").innerText =
     //   artist.artist_id;
 

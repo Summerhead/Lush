@@ -66,9 +66,6 @@ export default class ArtistsConfigurator {
 
           this.artistsOl.appendChild(artistLi);
 
-          // const reqImageBlob = { blobId: artist.artistimage_blob_id };
-          // this.fetchBlob(reqImageBlob, imageWrapper);
-
           this.outputsize(imageWrapper);
 
           new ResizeObserver(() => this.outputsize(imageWrapper)).observe(
@@ -76,55 +73,11 @@ export default class ArtistsConfigurator {
           );
         }
 
-        // window.scroll(0, document.body.scrollHeight);
-
         if (returnedRows === this.dataRequest.dataRequest.limit) {
           this.atTheBottom = false;
         }
       }
     }
-  }
-
-  fetchBlob(reqImageBlob, imageWrapper) {
-    fetch("/imageBlob", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(reqImageBlob),
-    })
-      .then((response) => response.body)
-      .then((rs) => {
-        const reader = rs.getReader();
-
-        return new ReadableStream({
-          async start(controller) {
-            while (true) {
-              const { done, value } = await reader.read();
-
-              if (done) {
-                break;
-              }
-
-              controller.enqueue(value);
-            }
-
-            controller.close();
-            reader.releaseLock();
-          },
-        });
-      })
-      .then((rs) => new Response(rs))
-      .then((response) => response.blob())
-      .then((blob) => (blob.size ? URL.createObjectURL(blob) : null))
-      .then((url) => {
-        if (url) {
-          imageWrapper.classList.remove("no-cover");
-          imageWrapper.style.backgroundImage = `url("${url}")`;
-        }
-        // URL.revokeObjectURL(url);
-      })
-      .catch(console.error);
   }
 
   applyWindowOnScroll() {
@@ -140,27 +93,5 @@ export default class ArtistsConfigurator {
         this.getArtists();
       }
     };
-  }
-
-  setTag(event) {
-    console.log("Set tag");
-
-    // const xhr = new XMLHttpRequest();
-    // xhr.open("POST", "/setTag", true);
-    // xhr.setRequestHeader("Content-Type", "application/json");
-    // xhr.onreadystatechange = () => {
-    //   if (xhr.readyState == 4 && xhr.status == 200) {
-    //     const response = JSON.parse(xhr.response);
-    //     console.log(response);
-    //   }
-    // };
-
-    // const dataJSON = {
-    //   artistId: event.target
-    //     .closest(".artist-li")
-    //     .getAttribute("data-artist-id"),
-    // };
-
-    // xhr.send(JSON.stringify(dataJSON));
   }
 }

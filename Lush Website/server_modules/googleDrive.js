@@ -13,7 +13,7 @@ const FOLDER_IDS_DICT = { artists_images: "1ECBzTjLKWTLWjkipZz53IK_TGgoN3BCh" };
  * Create an OAuth2 client with the given credentials, and then execute the given callback function.
  */
 function authorize(credentials, callback, callbackParams) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     const { client_secret, client_id, redirect_uris } = credentials.installed;
     const oAuth2Client = new google.auth.OAuth2(
       client_id,
@@ -73,7 +73,7 @@ function uploadFile(auth, folderName, name, file) {
       name: name,
     };
     const readable = new Readable();
-    readable._read = () => {}; // _read is required but we can noop it
+    readable._read = () => {};
     readable.push(file.data);
     readable.push(null);
     const media = {
@@ -101,7 +101,7 @@ function uploadFile(auth, folderName, name, file) {
 }
 
 async function uploadImageToGoogleDrive(...callbackParams) {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     fs.readFile(CREDENTIALS_PATH, async (err, content) => {
       if (err) return console.log("Error loading client secret file:", err);
       // Authorize a client with credentials, then call the Google Drive API.

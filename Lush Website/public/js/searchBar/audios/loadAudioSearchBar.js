@@ -5,7 +5,7 @@ var audioSearchBar;
 
 export const loadAudioSearchBar = async (
   searchBarQuery,
-  audioOlQuery,
+  audiosOlQuery,
   isEditing
 ) => {
   await Promise.resolve(loadAudioSearchBarTemplate()).then(
@@ -13,7 +13,7 @@ export const loadAudioSearchBar = async (
       (audioSearchBar = new AudioSearchBar(
         searchBarContainer,
         searchBarQuery,
-        audioOlQuery,
+        audiosOlQuery,
         isEditing
       ))
   );

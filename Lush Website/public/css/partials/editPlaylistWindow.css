@@ -57,6 +57,12 @@
   margin-bottom: 20px;
 }
 
+#edit-playlist-window .content button:not(.add-audios button) {
+  width: 40px;
+  height: 25px;
+  border: 1px solid rgb(141, 141, 141);
+}
+
 #edit-playlist-window .content .section-name {
   margin-bottom: 10px;
   padding-bottom: 5px;
@@ -65,7 +71,7 @@
   cursor: default;
 }
 
-#edit-playlist-window .content input,
+#edit-playlist-window .content input:not(.search-bar),
 #edit-playlist-window .content select {
   width: 100%;
   height: 25px;
@@ -96,9 +102,6 @@
   background-position: center;
 }
 
-#edit-playlist-window .cover button {
-  height: 17px;
-  width: 25px;
-  border: 1px solid #b4b4b4;
+#edit-playlist-window .upload-cover {
   background: white url("/public/content/icons/plus.svg") center/10px no-repeat;
 }

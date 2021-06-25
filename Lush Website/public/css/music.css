@@ -1,4 +1,3 @@
-.audios-ol,
 .audios-ol {
   display: flex;
   flex-direction: column;
@@ -17,11 +16,11 @@
   list-style: none;
   cursor: pointer;
   border-top: 1px solid rgb(230, 230, 230);
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: rgba(255, 255, 255);
 }
 
 .audio-li:last-child {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.116);
+  border-bottom: 1px solid rgb(230, 230, 230);
 }
 
 .audio-li.chosen {
@@ -203,22 +202,22 @@
   margin-right: 0;
 }
 
-.audios-ol .genres .genre:hover {
+#main .audios-ol .genres .genre:hover {
   background-color: rgb(189, 189, 189);
 }
 
-.audios-ol .audio-hud {
+.audio-hud {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-.audios-ol .audio-hud > .first-row {
+.audio-hud > .first-row {
   display: flex;
   justify-content: flex-end;
 }
 
-.audios-ol .audio-hud > .second-row {
+.audio-hud > .second-row {
   display: flex;
   align-self: flex-end;
   justify-content: flex-end;
@@ -270,7 +269,7 @@
   z-index: 2;
 }
 
-.audio-li .right-tab button:hover {
+#main .audio-li .right-tab button:hover {
   background-color: rgb(184, 184, 184);
 }
 

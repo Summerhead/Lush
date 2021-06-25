@@ -1,5 +1,4 @@
-const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
 const {
   resolveQuery,
   constructWhereClauseAnd,
@@ -485,6 +484,31 @@ router.post("/setTag", async function (req, res, next) {
   };
 
   res.send(audiosData);
+});
+
+router.get("/randomAudio", async function (req, res, _next) {
+  // console.log("Body:", req.body);
+
+  const dataRequest = { shuffle: true, limit: 3 };
+  const result = await getAudioMetadata(dataRequest);
+
+  const status = result.error || 200;
+  var audiosData = result.data?.map((audio) => ({ ...audio })) || [];
+  audiosData = audiosGroupBy(audiosData, "audio_id");
+  audiosData = Array.from(audiosData.values());
+  audiosData.forEach((audioData) => {
+    audioData.artists = Object.values(audioData.artists);
+    audioData.artists.sort((a, b) => a.position - b.position);
+    audioData.genres = Object.values(audioData.genres);
+    audioData.genres.sort((a, b) => a.position - b.position);
+  });
+
+  const data = {
+    status: status,
+    audiosData: audiosData,
+  };
+
+  res.send(data);
 });
 
 module.exports = router;

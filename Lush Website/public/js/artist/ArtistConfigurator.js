@@ -16,11 +16,12 @@ export default class ArtistConfigurator {
     };
     this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
 
-    this.artistPic = document.getElementById("artist-pic");
-    this.imageWrapper = document.getElementById("image-wrapper");
+    this.imageWrapper = this.artistContainer.querySelector("#image-wrapper");
+    this.playArtistButton = this.artistContainer.querySelector(
+      "#play-artist-button"
+    );
     this.atTheBottomObject = { atTheBottom: false };
 
-    this.configure();
     this.getArtist();
   }
 
@@ -31,26 +32,18 @@ export default class ArtistConfigurator {
     return null;
   }
 
-  configure() {
-    window.onscroll = () => {
-      if (
-        !this.atTheBottomObject.atTheBottom &&
-        window.innerHeight + window.scrollY >=
-          this.artistPic.offsetTop + this.artistPic.offsetHeight - 100
-      ) {
-        this.atTheBottomObject.atTheBottom = true;
-
-        this.defaultDataRequest.offset += this.defaultDataRequest.limit;
-        this.getArtist();
-      }
-    };
+  setPlayFirstAudioEventListener() {
+    this.playArtistButton.addEventListener(
+      "click",
+      audiosConfigurator.playFirst
+    );
   }
 
   getArtist() {
     const xhr = new XMLHttpRequest();
+
     xhr.open("POST", "/artistsData", true);
     xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.send(JSON.stringify(this.dataRequest));
 
     xhr.onreadystatechange = () => {
       if (xhr.readyState == 4 && xhr.status == 200) {
@@ -108,6 +101,8 @@ export default class ArtistConfigurator {
         }
       }
     };
+
+    xhr.send(JSON.stringify(this.dataRequest));
   }
 
   calcBrightness(r, g, b) {
