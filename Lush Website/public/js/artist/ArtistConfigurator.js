@@ -70,10 +70,6 @@ export default class ArtistConfigurator {
                   "artist-background"
                 ).style.background = `linear-gradient(rgba(${r}, ${g}, ${b}, 1), rgba(${r}, ${g}, ${b}, 0))`;
 
-                // document.getElementById(
-                //   "play-artist-button"
-                // ).style.background = `rgb(${r}, ${g}, ${b})`;
-
                 header.header.classList.remove("border-bottom");
                 header.header.classList.remove("no-color");
                 header.header.classList.add("colored");
@@ -91,8 +87,6 @@ export default class ArtistConfigurator {
 
                 bw = this.calcBrightness(r, g, b);
                 header.header.classList.add(bw);
-
-                // audiosConfigurator.setColorForTags();
               } else {
                 rgb = null;
               }
@@ -115,7 +109,6 @@ export default class ArtistConfigurator {
   }
 
   constructArtist(artist) {
-    // const artistLiClone = this.artistLi.cloneNode(true);
     this.artistContainer.querySelector("#artist-name").innerText =
       artist.artist_name;
   }

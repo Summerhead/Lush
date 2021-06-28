@@ -26,7 +26,7 @@ export default class AudiosConfigurator {
     this.audiosOl = document.querySelector(this.audiosOlQuery);
     this.audios = [];
     this.atTheBottom = true;
-    this.audiosRequestResolved = false;
+    this.requestResolved = false;
     this.rgb;
     this.isDummy = isDummy;
 
@@ -81,7 +81,7 @@ export default class AudiosConfigurator {
 
   getAudios() {
     new Promise((resolve, reject) => {
-      this.audiosRequestResolved = false;
+      this.requestResolved = false;
 
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/audioData", true);
@@ -101,7 +101,7 @@ export default class AudiosConfigurator {
       };
 
       xhr.send(JSON.stringify(this.dataRequest));
-    }).then(() => (this.audiosRequestResolved = true));
+    }).then(() => (this.requestResolved = true));
   }
 
   displayAudios(xhrResponse) {

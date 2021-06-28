@@ -16,10 +16,10 @@ export default class ArtistsConfigurator {
 
     this.artistsOl = document.getElementById("artists-ol");
     this.atTheBottom = true;
-    this.artistsRequestResolved = false;
+    this.requestResolved = false;
 
+    this.configure();
     this.getArtists();
-    this.applyWindowOnScroll();
   }
 
   processSearchQuery(searchQuery) {
@@ -33,7 +33,7 @@ export default class ArtistsConfigurator {
 
   getArtists() {
     new Promise((resolve, reject) => {
-      this.artistsRequestResolved = false;
+      this.requestResolved = false;
 
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/artistsData", true);
@@ -48,7 +48,7 @@ export default class ArtistsConfigurator {
       xhr.send(JSON.stringify(this.dataRequest));
     })
       .then((xhr) => this.displayArtists(xhr))
-      .then(() => (this.artistsRequestResolved = true));
+      .then(() => (this.requestResolved = true));
   }
 
   displayArtists(xhr) {
@@ -80,7 +80,7 @@ export default class ArtistsConfigurator {
     }
   }
 
-  applyWindowOnScroll() {
+  configure() {
     window.onscroll = () => {
       if (
         !this.atTheBottom &&

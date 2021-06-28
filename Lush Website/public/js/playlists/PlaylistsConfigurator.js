@@ -16,7 +16,7 @@ export default class PlaylistsConfigurator {
 
     this.playlistsOl = document.getElementById("playlists-ol");
     this.atTheBottom = true;
-    this.playlistsRequestResolved = false;
+    this.requestResolved = false;
 
     this.getPlaylists();
     this.applyWindowOnScroll();
@@ -43,7 +43,7 @@ export default class PlaylistsConfigurator {
 
   getPlaylists() {
     new Promise((resolve, reject) => {
-      this.playlistsRequestResolved = false;
+      this.requestResolved = false;
 
       const xhr = new XMLHttpRequest();
       xhr.open("POST", "/playlistsData", true);
@@ -84,7 +84,7 @@ export default class PlaylistsConfigurator {
       };
 
       xhr.send(JSON.stringify(this.dataRequest));
-    }).then(() => (this.playlistsRequestResolved = true));
+    }).then(() => (this.requestResolved = true));
   }
 
   fetchBlob(reqImageBlob, imageWrapper) {

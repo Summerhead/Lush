@@ -1,77 +1,41 @@
 import { audiosConfigurator } from "../../audios/loadAudios.js";
 import { lushURL } from "../../partials/loadContent.js";
+import SearchBar from "../searchBar.js";
 
-export default class AudioSearchBar {
+export default class AudioSearchBar extends SearchBar {
   constructor(searchBarContainer, searchBarQuery, audiosOlQuery, isEditing) {
-    this.searchBarContainer = searchBarContainer;
-    this.searchBar = searchBarContainer.querySelector(".search-bar");
-    this.searchButton = searchBarContainer.querySelector(".search-button");
-    this.addButton = searchBarContainer.querySelector(".add-button");
-    this.fileInput = searchBarContainer.querySelector(".file-input");
-    this.shuffleButton = searchBarContainer.querySelector(".shuffle-button");
-    this.genresSearchBar =
-      searchBarContainer.querySelector(".genres-search-bar");
+    super(
+      searchBarContainer,
+      null,
+      audiosConfigurator,
+      searchBarQuery,
+      audiosOlQuery
+    );
 
+    this.fileInput = searchBarContainer.querySelector(".file-input");
     this.searchBarQuery = searchBarQuery || "#main .search-bar-container";
-    this.audiosOlQuery = audiosOlQuery || "#main .audios-ol";
     this.audiosOl = document.querySelector(this.audiosOlQuery);
 
-    this.alphaNumericKeyCodes = /^[a-z0-9]+$/i;
-
-    const keyCodesRangeRule = (keyCode) =>
-      keyCode < 16 ||
-      (keyCode > 20 && keyCode < 27) ||
-      (keyCode > 27 && keyCode < 33) ||
-      (keyCode > 45 && keyCode < 91) ||
-      (keyCode > 145 && keyCode < 255);
-    const isClearingBlankInput = (keyCode) =>
-      !this.prevInput && (keyCode === 8 || keyCode === 46);
-    this.keyUpCondition = (keyCode) => keyCodesRangeRule(keyCode);
-    // && !isClearingBlankInput(keyCode);
-
-    this.prevInput;
-    this.checkInput;
     this.isEditing = isEditing;
 
     this.configure();
     this.display();
   }
 
-  inputChanged = () => {
-    this.prevInput = this.searchBar.value;
-  };
-
-  configure() {
-    this.searchButton.addEventListener("click", this.sendSearchRequest);
-
-    this.searchBar.addEventListener("focus", () => {
-      this.searchBar.addEventListener("keydown", this.inputChanged);
-      window.addEventListener("keyup", this.sendSearchRequest);
-    });
-    this.searchBar.addEventListener("blur", () => {
-      this.searchBar.removeEventListener("keydown", this.inputChanged);
-      window.removeEventListener("keyup", this.sendSearchRequest);
-    });
-
-    this.addButton.onclick = () => {
-      this.fileInput.click();
-    };
-    this.fileInput.onchange = this.handleFileSelect;
-
-    this.shuffleButton.addEventListener("click", this.configureShuffleRequest);
-
-    this.searchBar.value = lushURL.getQuery();
-
+  insertGenres() {
     lushURL
       .getGenres()
       ?.split("_")
       .forEach((genre) => {
         this.insertGenreQuery(genre);
       });
+  }
 
-    if (lushURL.getShuffle()) {
-      this.toggleShuffle();
-    }
+  addEventListenerToAddButton() {
+    this.addButton.onclick = () => {
+      this.fileInput.click();
+    };
+    this.fileInput.onchange = this.handleFileSelect;
   }
 
   insertGenreQuery(genre) {
@@ -88,97 +52,6 @@ export default class AudioSearchBar {
     this.genresSearchBar.appendChild(genreDiv);
   }
 
-  removeGenreSearchQuery = (event) => {
-    const target = event.target;
-    target.remove();
-    lushURL.removeGenre(target.getAttribute("data-genre-name"));
-
-    this.configureGenresRequest();
-  };
-
-  configureGenresRequest() {
-    if (audiosConfigurator.audiosRequestResolved) {
-      this.audiosOl.textContent = "";
-
-      audiosConfigurator.atTheBottom = true;
-      audiosConfigurator.dataRequest.dataRequest.genres =
-        audiosConfigurator.processGenresQuery(lushURL.getGenres());
-      audiosConfigurator.dataRequest.dataRequest.offset = 0;
-      Promise.resolve(audiosConfigurator.getAudios()).then(() => {
-        clearInterval(this.checkInput);
-        this.checkInput = null;
-      });
-    } else if (!this.checkInput) {
-      this.checkInput = setInterval(() => {
-        // if (audiosConfigurator.dataRequest.search !== this.searchBar.value) {
-        this.configureRequest();
-        // }
-      }, 10);
-    }
-  }
-
-  configureShuffleRequest = () => {
-    this.toggleShuffle();
-    this.sendShuffleRequest();
-  };
-
-  toggleShuffle = () => {
-    this.shuffleButton.classList.toggle("checked");
-  };
-
-  sendShuffleRequest() {
-    audiosConfigurator.atTheBottom = true;
-    audiosConfigurator.dataRequest.dataRequest.offset = 0;
-
-    if (this.shuffleButton.classList.contains("checked")) {
-      audiosConfigurator.dataRequest.dataRequest.shuffle = true;
-      lushURL.setShuffle();
-    } else {
-      audiosConfigurator.dataRequest.dataRequest.shuffle = false;
-      lushURL.deleteShuffle();
-    }
-
-    this.audiosOl.textContent = "";
-    audiosConfigurator.getAudios();
-  }
-
-  sendSearchRequest = (event) => {
-    const keyCode = event.keyCode;
-    // console.log(keyCode);
-
-    if (this.keyUpCondition(keyCode)) {
-      if (!this.isEditing) lushURL.setQuery(this.searchBar.value);
-      this.configureRequest();
-    }
-  };
-
-  configureRequest() {
-    if (audiosConfigurator.audiosRequestResolved) {
-      this.audiosOl.textContent = "";
-      audiosConfigurator.audios = [];
-
-      audiosConfigurator.atTheBottom = true;
-      audiosConfigurator.dataRequest.dataRequest.search = this.searchBar.value;
-      audiosConfigurator.dataRequest.dataRequest.offset = 0;
-      Promise.resolve(audiosConfigurator.getAudios()).then(() => {
-        clearInterval(this.checkInput);
-        this.checkInput = null;
-      });
-    } else if (!this.checkInput) {
-      this.checkInput = setInterval(() => {
-        // if (audiosConfigurator.dataRequest.search !== this.searchBar.value) {
-        this.configureRequest();
-        // }
-      }, 10);
-    }
-  }
-
-  display() {
-    document
-      .querySelector(this.searchBarQuery)
-      .replaceWith(this.searchBarContainer);
-  }
-
   handleFileSelect = async (e) => {
     const files = e.target.files;
 
@@ -191,7 +64,7 @@ export default class AudioSearchBar {
     }
   };
 
-  uploadAudio(file) {
+  uploadAudio(audio) {
     return new Promise((resolve, reject) => {
       var xhr = new XMLHttpRequest();
       var fd = new FormData();
@@ -207,13 +80,13 @@ export default class AudioSearchBar {
         }
       };
 
-      const url = URL.createObjectURL(file);
+      const url = URL.createObjectURL(audio);
       const audioPlayer = document.createElement("audio");
       audioPlayer.src = url;
       audioPlayer.onloadedmetadata = () => {
         URL.revokeObjectURL(url);
 
-        fd.append("audio", file);
+        fd.append("audio", audio);
         fd.append("duration", audioPlayer.duration);
         xhr.send(fd);
       };
