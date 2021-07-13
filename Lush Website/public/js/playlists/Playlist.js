@@ -1,5 +1,5 @@
 import showPage from "../partials/loadContent.js";
-import { editPlaylistWindow } from "./loadPlaylists.js";
+import { editPlaylistWindow } from "../partials/configureEditWindows.js";
 
 export default class Playlist {
   constructor(playlistLi, playlist) {

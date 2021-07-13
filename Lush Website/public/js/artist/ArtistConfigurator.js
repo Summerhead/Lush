@@ -14,7 +14,7 @@ export default class ArtistConfigurator {
       limit: 1,
       offset: 0,
     };
-    this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
+    this.dataRequest = dataRequest || this.defaultDataRequest;
 
     this.imageWrapper = this.artistContainer.querySelector("#image-wrapper");
     this.playArtistButton = this.artistContainer.querySelector(

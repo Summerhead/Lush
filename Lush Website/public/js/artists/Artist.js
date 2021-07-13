@@ -1,5 +1,5 @@
 import showPage from "../partials/loadContent.js";
-import { editArtistWindow } from "./loadArtists.js";
+import { editArtistWindow } from "../partials/configureEditWindows.js";
 
 export default class Artist {
   constructor(artistLi, artist) {

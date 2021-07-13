@@ -7,17 +7,17 @@
   "/music": {
     "pagepath": "/public/html/music.html",
     "title": { "isDefaultTitle": true, "name": "Music" },
-    "scripts": ["loadAudioSearchBar", "loadAudios"]
+    "scripts": ["loadAudiosPage"]
   },
   "/artists": {
     "pagepath": "/public/html/artists.html",
     "title": { "isDefaultTitle": true, "name": "Artists" },
-    "scripts": ["loadArtistSearchBar", "loadArtists"]
+    "scripts": ["loadArtistsPage"]
   },
   "/artists/:artistId/:artistName": {
     "pagepath": "/public/html/artist.html",
     "title": { "isDefaultTitle": false, "name": "Artist" },
-    "scripts": ["loadAudioSearchBar", "loadArtist", "loadAudios"]
+    "scripts": ["loadArtistPage"]
   },
   "/genres": {
     "pagepath": "/public/html/genres.html",
@@ -27,11 +27,11 @@
   "/playlists": {
     "pagepath": "/public/html/playlists.html",
     "title": { "isDefaultTitle": true, "name": "Playlists" },
-    "scripts": ["loadPlaylistSearchBar", "loadPlaylists"]
+    "scripts": ["loadPlaylistsPage"]
   },
   "/playlists/:playlistId/:playlistName": {
     "pagepath": "/public/html/playlist.html",
     "title": { "isDefaultTitle": false, "name": "Playlist" },
-    "scripts": ["loadAudioSearchBar", "loadAudios"]
+    "scripts": ["loadPlaylistPage"]
   }
 }

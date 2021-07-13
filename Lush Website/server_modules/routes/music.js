@@ -8,10 +8,10 @@ const {
   insertArtist,
 } = require("../general.js");
 
-router.post("/audioData", async function (req, res) {
+router.post("/audiosData", async function (req, res) {
   console.log("Body:", req.body);
 
-  const dataRequest = req.body.dataRequest;
+  const dataRequest = req.body;
   const audioData = await fetchAudioData(dataRequest);
 
   res.send(audioData);
@@ -235,10 +235,11 @@ async function getAudioMetadata({
   offset,
 }) {
   const queryWhereClauses = [];
-
   const subqueryWhereClauses = [];
-  const NSFWClause = "audio.nsfw = 0";
-  subqueryWhereClauses.push(NSFWClause);
+
+  // Should always set this censorship when presenting the project.
+  // const NSFWClause = "audio.nsfw = 0";
+  // subqueryWhereClauses.push(NSFWClause);
 
   if (artistId) {
     const artistIdWhereClause = `

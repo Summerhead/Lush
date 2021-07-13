@@ -29,7 +29,6 @@ export default class EditArtistWindow {
     this.rgb;
 
     this.configure();
-    this.addUploadAction();
     this.display();
   }
 
@@ -39,6 +38,12 @@ export default class EditArtistWindow {
 
     this.submitButton.addEventListener("click", this.sendChanges);
     this.addGenreButton.addEventListener("click", this.addGenre);
+
+    this.uploadButton.onclick = () => {
+      this.fileInput.click();
+    };
+
+    this.fileInput.addEventListener("change", this.handleFileSelect);
   }
 
   resetAttributes() {
@@ -189,14 +194,6 @@ export default class EditArtistWindow {
       );
 
     event.target.parentElement.classList.add("hidden");
-  }
-
-  addUploadAction() {
-    this.uploadButton.onclick = () => {
-      this.fileInput.click();
-    };
-
-    this.fileInput.addEventListener("change", this.handleFileSelect);
   }
 
   handleFileSelect = async (e) => {

@@ -4,13 +4,7 @@ import SearchBar from "../searchBar.js";
 
 export default class AudioSearchBar extends SearchBar {
   constructor(searchBarContainer, searchBarQuery, audiosOlQuery, isEditing) {
-    super(
-      searchBarContainer,
-      null,
-      audiosConfigurator,
-      searchBarQuery,
-      audiosOlQuery
-    );
+    super(searchBarContainer, null, searchBarQuery, audiosOlQuery);
 
     this.fileInput = searchBarContainer.querySelector(".file-input");
     this.searchBarQuery = searchBarQuery || "#main .search-bar-container";
@@ -95,7 +89,7 @@ export default class AudioSearchBar extends SearchBar {
 
   onFileLoaded(e) {
     var match = /^data:(.*);base64,(.*)$/.exec(e.target.result);
-    if (match == null) {
+    if (match === null) {
       throw "Could not parse result";
     }
   }

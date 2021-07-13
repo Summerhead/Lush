@@ -35,4 +35,6 @@ const connection = mysql2.createConnection({
   database: process.env.DATABASE,
 });
 
+connection._handleTimeoutError = null;
+
 module.exports = { app, connection };

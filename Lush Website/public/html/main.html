@@ -92,6 +92,103 @@
       </div>
     </header>
 
+    <div id="edit-audio-window-container">
+      <div id="edit-audio-window-background"></div>
+      <div id="edit-audio-window">
+        <button class="close-button">
+          <img src="/public/content/icons/cancel.svg" />
+        </button>
+        <div class="content">
+          <div class="title">
+            <div class="section-name"><p>Title</p></div>
+            <div class="inputs"></div>
+          </div>
+          <div class="artists">
+            <div class="section-name"><p>Artists</p></div>
+            <div class="inputs"></div>
+            <div class="add-button-container">
+              <button class="add-artist">+</button>
+            </div>
+          </div>
+          <div class="genres">
+            <div class="section-name"><p>Genres</p></div>
+            <div class="inputs"></div>
+            <div class="add-button-container">
+              <button class="add-genre">+</button>
+            </div>
+          </div>
+        </div>
+        <button class="submit-button">OK</button>
+      </div>
+    </div>
+
+    <div id="edit-artist-window-container">
+      <div id="edit-artist-window-background"></div>
+      <div id="edit-artist-window">
+        <button class="close-button">
+          <img src="/public/content/icons/cancel.svg" />
+        </button>
+        <div class="content">
+          <div class="title">
+            <div class="section-name"><p>Title</p></div>
+            <div class="inputs"></div>
+          </div>
+          <div class="cover">
+            <div class="section-name"><p>Cover</p></div>
+            <button class="upload-button"></button>
+            <input
+              type="file"
+              accept="image/*"
+              class="file-input"
+              style="display: none"
+            />
+            <output class="list"></output>
+            <div class="image-wrapper"></div>
+          </div>
+          <div class="genres">
+            <div class="section-name"><p>Genres</p></div>
+            <div class="inputs"></div>
+            <div class="add-button-container">
+              <button class="add-genre">+</button>
+            </div>
+          </div>
+        </div>
+        <button class="submit-button">OK</button>
+      </div>
+    </div>
+
+    <div id="edit-playlist-window-container">
+      <div id="edit-playlist-window-background"></div>
+      <div id="edit-playlist-window">
+        <button class="close-button">
+          <img src="/public/content/icons/cancel.svg" />
+        </button>
+        <div class="content">
+          <div class="title">
+            <div class="section-name"><p>Title</p></div>
+            <div class="inputs"></div>
+          </div>
+          <div class="cover">
+            <div class="section-name"><p>Cover</p></div>
+            <button class="upload-cover" class="upload-button"></button>
+            <input
+              type="file"
+              accept="image/*"
+              class="file-input"
+              style="display: none"
+            />
+            <output class="list"></output>
+            <div class="image-wrapper"></div>
+          </div>
+          <div class="add-audios">
+            <div class="search-bar-container"></div>
+            <ol class="audios-ol"></ol>
+          </div>
+        </div>
+        <button class="submit-button">OK</button>
+      </div>
+    </div>
+
     <main id="main"></main>
     <!-- <footer id="footer"></footer> -->
 

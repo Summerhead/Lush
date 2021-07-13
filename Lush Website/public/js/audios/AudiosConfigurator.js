@@ -8,19 +8,19 @@ import { artistConfigurator } from "../artist/loadArtist.js";
 const audios = new WeakMap();
 
 export default class AudiosConfigurator {
-  constructor(audioLi, audiosOlQuery, isDummy, dataRequest) {
+  constructor(audioLi, audiosOlQuery, isDummy, audiosRequest) {
     this.audioLi = audioLi;
 
     this.defaultDataRequest = {
-      artistId: this.processArtistId(),
-      playlistId: this.processPlaylistId(),
+      artistId: lushURL.processArtistId(),
+      playlistId: lushURL.processPlaylistId(),
       search: lushURL.getQuery(),
-      genres: this.processGenresQuery(lushURL.getGenres()),
-      shuffle: this.processShuffleQuery(lushURL.getShuffle()),
+      genres: lushURL.processGenresQuery(),
+      shuffle: lushURL.processShuffleQuery(),
       limit: 100,
       offset: 0,
     };
-    this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
+    this.dataRequest = audiosRequest || this.defaultDataRequest;
 
     this.audiosOlQuery = audiosOlQuery || "#main .audios-ol";
     this.audiosOl = document.querySelector(this.audiosOlQuery);
@@ -33,7 +33,7 @@ export default class AudiosConfigurator {
     header.setPlayPrevNextListeners(this);
 
     this.configure();
-    this.getAudios();
+    this.fetchData();
   }
 
   configure() {
@@ -44,47 +44,19 @@ export default class AudiosConfigurator {
           this.audiosOl.offsetTop + this.audiosOl.offsetHeight - 200
       ) {
         this.atTheBottom = true;
-        this.defaultDataRequest.offset += this.defaultDataRequest.limit;
+        this.dataRequest.offset += this.dataRequest.limit;
 
-        this.getAudios();
+        this.fetchData();
       }
     };
   }
 
-  processArtistId() {
-    if (lushURL.currentPage === "artist") {
-      return location.pathname.split("/")[2];
-    }
-    return null;
-  }
-
-  processPlaylistId() {
-    if (lushURL.currentPage === "playlist") {
-      return location.pathname.split("/")[2];
-    }
-    return null;
-  }
-
-  processGenresQuery(genres) {
-    if (genres) {
-      genres = genres.split("_");
-    }
-    return genres;
-  }
-
-  processShuffleQuery(shuffle) {
-    if (shuffle == 1) {
-      return true;
-    }
-    return false;
-  }
-
-  getAudios() {
+  fetchData() {
     new Promise((resolve, reject) => {
       this.requestResolved = false;
 
       const xhr = new XMLHttpRequest();
-      xhr.open("POST", "/audioData", true);
+      xhr.open("POST", "/audiosData", true);
       xhr.setRequestHeader("Content-Type", "application/json");
 
       xhr.onreadystatechange = () => {
@@ -116,7 +88,7 @@ export default class AudiosConfigurator {
           if (this.isDummy) {
             var audioClass = new Audio(this.audioLi, audio);
             var audioLi = audioClass.audioLi;
-            this.addEventListeners(audioLi);
+            audioLi.addEventListener("click", this.addChosenClass);
           } else {
             const isCurrentlyPlaying =
               audio.audio_id === audios.get(currentAudio)?.audio.audio_id;
@@ -162,56 +134,11 @@ export default class AudiosConfigurator {
           this.audiosOl.appendChild(audioLi);
         }
 
-        if (returnedRows === this.dataRequest.dataRequest.limit) {
+        if (returnedRows === this.dataRequest.limit) {
           this.atTheBottom = false;
         }
       }
     }
-  }
-
-  displayAudiosForEditPlaylistWindow(xhrResponse) {
-    const data = JSON.parse(xhrResponse);
-    console.log("Data:", data);
-
-    const returnedRows = data.audios.length;
-
-    if (data.status === 200) {
-      if (returnedRows) {
-        for (const audio of data.audios) {
-          var audioClass = new Audio(this.audioLi, audio, true);
-          var audioLi = audioClass.audioLi;
-          this.addEventListeners(audioLi);
-          audioLi.audioId = audio.audio_id;
-          audios.set(audioLi, audioClass);
-          const imageWrapper = audioClass.imageWrapper;
-
-          let image_id = null;
-          for (const artist of audio.artists) {
-            if (artist.image_id) {
-              image_id = artist.image_id;
-              break;
-            }
-          }
-
-          if (lushURL.currentPage !== "artist" && image_id) {
-            imageWrapper.classList.remove("no-cover");
-            imageWrapper.style.backgroundImage = `url("https://drive.google.com/uc?export=view&id=${image_id}")`;
-          }
-
-          this.audios.push(audioLi);
-
-          this.audiosOl.appendChild(audioLi);
-        }
-
-        if (returnedRows === this.dataRequest.dataRequest.limit) {
-          this.atTheBottom = false;
-        }
-      }
-    }
-  }
-
-  addEventListeners(audioLi) {
-    audioLi.addEventListener("click", this.addChosenClass);
   }
 
   addChosenClass = (event) => {

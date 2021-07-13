@@ -25,7 +25,7 @@ router.post("/artistsForDropdown", async function (req, res) {
 router.post("/artistsData", async (req, res) => {
   // console.log("Body:", req.body);
 
-  const dataRequest = req.body.dataRequest;
+  const dataRequest = req.body;
   const result = await getArtistsData(dataRequest);
 
   const status = result.error || 200;
@@ -111,7 +111,7 @@ async function insertImageArtist(imageId, artistId) {
   return await resolveQuery(query);
 }
 
-async function getArtistsData({ artistId, search, limit, offset }) {
+async function getArtistsData({ artistId, search, shuffle, limit, offset }) {
   var artistIdWhereClause = "",
     queryWhereClauses = [],
     subquery = "",
@@ -132,13 +132,18 @@ async function getArtistsData({ artistId, search, limit, offset }) {
     subqueryWhereClauses.push(searchQuery);
   }
 
-  if (artistId) {
+  var orderBy;
+  if (shuffle) {
+    orderBy = "RAND()";
+  } else if (artistId) {
     artistIdWhereClause = `
     artist.id = ${artistId}
     `;
 
     queryWhereClauses.push(artistIdWhereClause);
     subqueryWhereClauses.push(artistIdWhereClause);
+
+    orderBy = "artist.id DESC";
   } else {
     const subqueryWhereClause = constructWhereClauseAnd(subqueryWhereClauses);
 
@@ -153,6 +158,8 @@ async function getArtistsData({ artistId, search, limit, offset }) {
     )`;
 
     queryWhereClauses.push(subquery);
+
+    orderBy = "artist.id DESC";
   }
 
   const queryWhereClause = constructWhereClauseAnd(queryWhereClauses);
@@ -165,7 +172,7 @@ async function getArtistsData({ artistId, search, limit, offset }) {
     SELECT artist.id, name
     FROM artist
     ${queryWhereClause}
-    ORDER BY artist.id DESC
+    ORDER BY ${orderBy}
     LIMIT ${limit}
     )
   artist

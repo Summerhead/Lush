@@ -3,20 +3,23 @@ import loadAudioSearchBarTemplate from "./loadAudioSearchBarTemplate.js";
 
 var audioSearchBar;
 
-export const loadAudioSearchBar = async (
+export const loadAudioSearchBar = (
   searchBarQuery,
   audiosOlQuery,
   isEditing
 ) => {
-  await Promise.resolve(loadAudioSearchBarTemplate()).then(
-    (searchBarContainer) =>
-      (audioSearchBar = new AudioSearchBar(
+  return new Promise((resolve, reject) => {
+    Promise.resolve(loadAudioSearchBarTemplate()).then((searchBarContainer) => {
+      audioSearchBar = new AudioSearchBar(
         searchBarContainer,
         searchBarQuery,
         audiosOlQuery,
         isEditing
-      ))
-  );
+      );
+
+      resolve(audioSearchBar);
+    });
+  });
 };
 
 export { audioSearchBar };

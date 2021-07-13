@@ -4,12 +4,12 @@ export default class SearchBar {
   constructor(
     searchBarContainer,
     editorWindow,
-    configurator,
     searchBarQuery,
     itemsContainerQuery
   ) {
     this.searchBarContainer = searchBarContainer;
     this.searchBar = searchBarContainer.querySelector(".search-bar");
+    this.clearInputButton = searchBarContainer.querySelector(".clear-input");
     this.searchButton = searchBarContainer.querySelector(".search-button");
     this.addButton = searchBarContainer.querySelector(".add-button");
     this.shuffleButton = searchBarContainer.querySelector(".shuffle-button");
@@ -47,7 +47,9 @@ export default class SearchBar {
   };
 
   configure() {
-    this.searchButton.addEventListener("click", this.sendSearchRequest);
+    this.clearInputButton.addEventListener("click", this.clearInput);
+
+    this.searchButton.addEventListener("click", this.configureRequest);
 
     this.searchBar.addEventListener("focus", () => {
       this.searchBar.addEventListener("keydown", this.inputChanged);
@@ -99,15 +101,21 @@ export default class SearchBar {
     this.configureGenresRequest();
   };
 
+  clearInput = () => {
+    this.searchBar.value = "";
+
+    lushURL.setQuery(this.searchBar.value);
+    this.configureRequest();
+  };
+
   configureGenresRequest() {
     if (this.configurator.requestResolved) {
       this.audiosOl.textContent = "";
 
       this.configurator.atTheBottom = true;
-      this.configurator.dataRequest.dataRequest.genres =
-        this.configurator.processGenresQuery(lushURL.getGenres());
-      this.configurator.dataRequest.dataRequest.offset = 0;
-      Promise.resolve(this.configurator.getAudios()).then(() => {
+      this.configurator.dataRequest.genres = lushURL.processGenresQuery();
+      this.configurator.dataRequest.offset = 0;
+      Promise.resolve(this.configurator.fetchData()).then(() => {
         clearInterval(this.checkInput);
         this.checkInput = null;
       });
@@ -129,18 +137,18 @@ export default class SearchBar {
 
   sendShuffleRequest() {
     this.configurator.atTheBottom = true;
-    this.configurator.dataRequest.dataRequest.offset = 0;
+    this.configurator.dataRequest.offset = 0;
 
     if (this.shuffleButton.classList.contains("checked")) {
-      this.configurator.dataRequest.dataRequest.shuffle = true;
+      this.configurator.dataRequest.shuffle = true;
       lushURL.setShuffle();
     } else {
-      this.configurator.dataRequest.dataRequest.shuffle = false;
+      this.configurator.dataRequest.shuffle = false;
       lushURL.deleteShuffle();
     }
 
     this.audiosOl.textContent = "";
-    this.configurator.getAudios();
+    this.configurator.fetchData();
   }
 
   sendSearchRequest = (event) => {
@@ -158,9 +166,9 @@ export default class SearchBar {
       this.configurator.audios = [];
 
       this.configurator.atTheBottom = true;
-      this.configurator.dataRequest.dataRequest.search = this.searchBar.value;
-      this.configurator.dataRequest.dataRequest.offset = 0;
-      Promise.resolve(this.configurator.getAudios()).then(() => {
+      this.configurator.dataRequest.search = this.searchBar.value;
+      this.configurator.dataRequest.offset = 0;
+      Promise.resolve(this.configurator.fetchData()).then(() => {
         clearInterval(this.checkInput);
         this.checkInput = null;
       });

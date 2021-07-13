@@ -7,23 +7,19 @@ export default class ArtistsConfigurator {
 
     this.defaultDataRequest = {
       artistId: null,
-      search: this.processSearchQuery(lushURL.getQuery()),
-      genres: lushURL.getGenres(),
+      search: lushURL.processSearchQuery(),
+      shuffle: lushURL.processShuffleQuery(),
       limit: 140,
       offset: 0,
     };
-    this.dataRequest = { dataRequest: dataRequest || this.defaultDataRequest };
+    this.dataRequest = dataRequest || this.defaultDataRequest;
 
     this.artistsOl = document.getElementById("artists-ol");
     this.atTheBottom = true;
     this.requestResolved = false;
 
     this.configure();
-    this.getArtists();
-  }
-
-  processSearchQuery(searchQuery) {
-    return searchQuery?.replace('"', '\\"');
+    this.fetchData();
   }
 
   outputsize(imageWrapper) {
@@ -31,7 +27,7 @@ export default class ArtistsConfigurator {
       imageWrapper.getBoundingClientRect().width + "px";
   }
 
-  getArtists() {
+  fetchData() {
     new Promise((resolve, reject) => {
       this.requestResolved = false;
 
@@ -73,7 +69,7 @@ export default class ArtistsConfigurator {
           );
         }
 
-        if (returnedRows === this.dataRequest.dataRequest.limit) {
+        if (returnedRows === this.dataRequest.limit) {
           this.atTheBottom = false;
         }
       }
@@ -88,9 +84,9 @@ export default class ArtistsConfigurator {
           this.artistsOl.offsetTop + this.artistsOl.offsetHeight - 100
       ) {
         this.atTheBottom = true;
+        this.dataRequest.offset += this.dataRequest.limit;
 
-        this.defaultDataRequest.offset += this.defaultDataRequest.limit;
-        this.getArtists();
+        this.fetchData();
       }
     };
   }

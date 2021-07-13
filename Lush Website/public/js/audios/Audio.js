@@ -1,9 +1,10 @@
-import { audiosConfigurator, editAudioWindow } from "./loadAudios.js";
+import { audiosConfigurator } from "./loadAudios.js";
 import showPage from "../partials/loadContent.js";
 import { lushURL } from "../partials/loadContent.js";
 import { audioSearchBar } from "../searchBar/audios/loadAudioSearchBar.js";
 import { audios } from "./AudiosConfigurator.js";
 import { header } from "../header/loadHeader.js";
+import { editAudioWindow } from "../partials/configureEditWindows.js";
 
 var currentAudio;
 

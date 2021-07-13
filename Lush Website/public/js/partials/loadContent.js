@@ -9,6 +9,13 @@ import { loadPlaylistSearchBar } from "../searchBar/playlists/loadPlaylistSearch
 import { loadPlaylists } from "../playlists/loadPlaylists.js";
 import LushURL from "./LushURL.js";
 import { currentAudio } from "../audios/Audio.js";
+import loadAudiosPage from "../audios/loadAudiosPage.js";
+import loadArtistsPage from "../artists/loadArtistsPage.js";
+import loadArtistPage from "../artist/loadArtistPage.js";
+import loadPlaylistsPage from "../playlists/loadPlaylistsPage.js";
+import loadPlaylistPage from "../playlists/playlist/loadPlaylistPage.js";
+import { configureEditWindows } from "./configureEditWindows.js";
+loadPlaylistPage;
 
 var lushURL;
 
@@ -82,6 +89,8 @@ function runScripts(scripts, href, skipPushState) {
   }
 
   lushURL = new LushURL(location.search);
+
+  configureEditWindows();
 
   scripts.forEach((script) => eval(script)());
 }

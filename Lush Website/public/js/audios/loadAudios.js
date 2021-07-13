@@ -1,31 +1,23 @@
 import AudiosConfigurator from "./AudiosConfigurator.js";
 import loadAudioTemplate from "./loadAudioTemplate.js";
-import loadEditAudioWindow from "./editAudioWindow/loadEditAudioWindow.js";
 import { header } from "../header/loadHeader.js";
-import EditAudioWindow from "./editAudioWindow/EditAudioWindow.js";
 
 var audiosConfigurator;
-var editAudioWindow;
 
-export const loadAudios = async (audiosOlQuery, isDummy) => {
-  const editAudioWindowContainer = document.getElementById(
-    "edit-audio-window-container"
-  );
+export const loadAudios = (audiosOlQuery, isDummy) => {
+  return new Promise((resolve, reject) => {
+    header.setDefaultStyle();
 
-  header.setDefaultStyle();
+    Promise.all([loadAudioTemplate()]).then((resolves) => {
+      audiosConfigurator = new AudiosConfigurator(
+        resolves[0],
+        audiosOlQuery,
+        isDummy
+      );
 
-  await Promise.all([
-    loadAudioTemplate(),
-    editAudioWindowContainer || loadEditAudioWindow(),
-  ]).then((resolves) => {
-    audiosConfigurator = new AudiosConfigurator(
-      resolves[0],
-      audiosOlQuery,
-      isDummy
-    );
-    editAudioWindowContainer ||
-      (editAudioWindow = new EditAudioWindow(resolves[1]));
+      resolve(audiosConfigurator);
+    });
   });
 };
 
-export { audiosConfigurator, editAudioWindow };
+export { audiosConfigurator };

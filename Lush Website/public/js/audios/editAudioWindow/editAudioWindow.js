@@ -28,7 +28,7 @@ export default class EditAudioWindow {
     this.genres = [];
 
     this.configure();
-    this.display();
+    // this.display();
   }
 
   configure() {

@@ -2,26 +2,19 @@ import ArtistsConfigurator from "./ArtistsConfigurator.js";
 import loadArtistTemplate from "./loadArtistTemplate.js";
 import loadEditArtistWindow from "./editArtistWindow/loadEditArtistWindow.js";
 import { header } from "../header/loadHeader.js";
-import EditArtistWindow from "./editArtistWindow/EditArtistWindow.js";
 
 var artistsConfigurator;
-var editArtistWindow;
 
-export const loadArtists = async () => {
-  const editArtistWindowContainer = document.getElementById(
-    "edit-artist-window-container"
-  );
+export const loadArtists = () => {
+  return new Promise((resolve, reject) => {
+    header.setDefaultStyle();
 
-  header.setDefaultStyle();
+    Promise.all([loadArtistTemplate()]).then((resolves) => {
+      artistsConfigurator = new ArtistsConfigurator(resolves[0]);
 
-  await Promise.all([
-    loadArtistTemplate(),
-    editArtistWindowContainer || loadEditArtistWindow(),
-  ]).then((resolves) => {
-    artistsConfigurator = new ArtistsConfigurator(resolves[0]);
-    editArtistWindowContainer ||
-      (editArtistWindow = new EditArtistWindow(resolves[1]));
+      resolve(artistsConfigurator);
+    });
   });
 };
 
-export { artistsConfigurator, editArtistWindow };
+export { artistsConfigurator };

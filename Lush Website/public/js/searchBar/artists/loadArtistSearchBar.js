@@ -1,8 +1,18 @@
 import ArtistSearchBar from "./artistSearchBar.js";
 import loadArtistSearchBarTemplate from "./loadArtistSearchBarTemplate.js";
 
-export const loadArtistSearchBar = async () => {
-  await Promise.resolve(loadArtistSearchBarTemplate()).then(
-    (searchBarContainer) => new ArtistSearchBar(searchBarContainer)
-  );
+var artistSearchBar;
+
+export const loadArtistSearchBar = () => {
+  return new Promise((resolve, reject) => {
+    Promise.resolve(loadArtistSearchBarTemplate()).then(
+      (searchBarContainer) => {
+        artistSearchBar = new ArtistSearchBar(searchBarContainer);
+
+        resolve(artistSearchBar);
+      }
+    );
+  });
 };
+
+export { artistSearchBar };

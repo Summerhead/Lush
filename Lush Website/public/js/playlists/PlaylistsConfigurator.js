@@ -18,8 +18,8 @@ export default class PlaylistsConfigurator {
     this.atTheBottom = true;
     this.requestResolved = false;
 
-    this.getPlaylists();
-    this.applyWindowOnScroll();
+    this.configure();
+    this.fetchData();
   }
 
   processPlaylistId() {
@@ -41,7 +41,7 @@ export default class PlaylistsConfigurator {
       imageWrapper.getBoundingClientRect().width + "px";
   }
 
-  getPlaylists() {
+  fetchData() {
     new Promise((resolve, reject) => {
       this.requestResolved = false;
 
@@ -129,7 +129,7 @@ export default class PlaylistsConfigurator {
       .catch(console.error);
   }
 
-  applyWindowOnScroll() {
+  configure() {
     window.onscroll = () => {
       if (
         !this.atTheBottom &&
@@ -139,7 +139,7 @@ export default class PlaylistsConfigurator {
         this.atTheBottom = true;
 
         this.defaultDataRequest.offset += this.defaultDataRequest.limit;
-        this.getPlaylists(this.playlistLi);
+        this.fetchData(this.playlistLi);
       }
     };
   }

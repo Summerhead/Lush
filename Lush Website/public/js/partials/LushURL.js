@@ -118,4 +118,37 @@ export default class LushURL extends URLSearchParams {
   getCurrentPage() {
     return this.currentPage;
   }
+
+  processArtistId() {
+    if (this.currentPage === "artist") {
+      return location.pathname.split("/")[2];
+    }
+    return null;
+  }
+
+  processPlaylistId() {
+    if (this.currentPage === "playlist") {
+      return location.pathname.split("/")[2];
+    }
+    return null;
+  }
+
+  processSearchQuery() {
+    return this.getQuery()?.replace('"', '\\"');
+  }
+
+  processGenresQuery() {
+    const genres = this.getGenres();
+    if (genres) {
+      return genres.split("_");
+    }
+    return null;
+  }
+
+  processShuffleQuery() {
+    if (this.getShuffle() == 1) {
+      return true;
+    }
+    return false;
+  }
 }

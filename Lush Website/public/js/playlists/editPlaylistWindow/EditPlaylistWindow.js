@@ -3,6 +3,7 @@ import { lushURL } from "../../partials/loadContent.js";
 import { audios } from "../../audios/AudiosConfigurator.js";
 import { loadAudios } from "../../audios/loadAudios.js";
 import { loadAudioSearchBar } from "../../searchBar/audios/loadAudioSearchBar.js";
+import loadAudiosPage from "../../audios/loadAudiosPage.js";
 
 export default class EditPlaylistWindow {
   constructor(editPlaylistWindowContainer, audioLi, dataRequest) {
@@ -131,10 +132,10 @@ export default class EditPlaylistWindow {
   }
 
   open(playlistLi) {
-    loadAudios("#edit-playlist-window .audios-ol", true);
-    loadAudioSearchBar(
-      "#edit-playlist-window .search-bar-container",
+    loadAudiosPage(
       "#edit-playlist-window .audios-ol",
+      true,
+      "#edit-playlist-window .search-bar-container",
       true
     );
 
